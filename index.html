@@ -3,221 +3,78 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f7f5f1">
+<meta name="theme-color" content="#f7f4ef">
 <title>AML — Model Portfolio</title>
 <style>
-:root{
-  --paper:#f7f5f1;--ink:#171717;--muted:#7a766f;--line:#dedbd5;
-  --violet:#66657a;--violet2:#5b5a6e;--white:#fff;--ease:cubic-bezier(.22,.8,.2,1)
-}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}
-body{overflow-x:hidden}
-button,a{font:inherit;color:inherit}
-button{border:0}
-img{display:block;width:100%;height:100%;object-fit:cover}
-.shell{max-width:1440px;margin:auto;padding:0 18px 28px}
-.topbar{height:84px;display:flex;align-items:center;justify-content:space-between;gap:24px;direction:ltr;background:var(--paper);position:sticky;top:0;z-index:50}
-.brand{font-family:Georgia,"Times New Roman",serif;font-size:29px;letter-spacing:-.04em;font-weight:500;cursor:pointer;background:none;padding:0}
-.tabs{display:flex;align-items:center;gap:28px;direction:rtl}
-.tab{position:relative;background:none;padding:14px 0 12px;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:.04em;color:#6d6a65;white-space:nowrap}
-.tab:after{content:"";position:absolute;right:0;left:0;bottom:5px;height:1px;background:var(--ink);transform:scaleX(0);transition:transform .25s var(--ease)}
-.tab.active{color:var(--ink)}
-.tab.active:after{transform:scaleX(1)}
-.panel{display:none;animation:fade .45s var(--ease)}
-.panel.active{display:block}
-@keyframes fade{from{opacity:.15;transform:translateY(7px)}to{opacity:1;transform:none}}
-
-/* HERO / WORK */
-.hero{min-height:calc(100svh - 110px);background:linear-gradient(135deg,var(--violet),var(--violet2));display:grid;grid-template-columns:.92fr 1.08fr;overflow:hidden;position:relative}
-.hero-copy{direction:ltr;display:flex;flex-direction:column;justify-content:center;padding:clamp(42px,7vw,100px);color:#fff;position:relative;z-index:2}
-.eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.7;margin-bottom:20px}
-.hero h1{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:clamp(68px,9vw,142px);line-height:.79;letter-spacing:-.065em;margin:0;max-width:720px}
-.hero h1 span{display:block;font-size:.42em;line-height:1.05;letter-spacing:-.03em;margin-top:18px;opacity:.95}
-.hero-foot{margin-top:34px;display:flex;gap:26px;align-items:center;font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.88}
-.hero-media{min-height:690px;position:relative;overflow:hidden}
-.hero-media img{object-position:center 24%;transform:scale(1.015);transition:transform 1.2s var(--ease)}
-.hero:hover .hero-media img{transform:scale(1.035)}
-.hero-media:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(91,90,110,.26),transparent 24%,transparent 75%,rgba(0,0,0,.08));pointer-events:none}
-.hero-index{position:absolute;right:22px;bottom:20px;z-index:3;color:#fff;font:11px/1 Georgia,serif;letter-spacing:.14em}
-
-.work-head{display:flex;align-items:end;justify-content:space-between;gap:22px;padding:66px 0 24px;direction:ltr}
-.work-head h2,.info-title{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:clamp(47px,7vw,86px);font-weight:400;letter-spacing:-.055em;line-height:.88}
-.work-head p{margin:0;color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
-.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:12px}
-.col{display:grid;gap:12px}
-.photo{position:relative;overflow:hidden;background:#ddd;cursor:pointer;min-height:300px}
-.photo.tall{min-height:760px}
-.photo.mid{min-height:374px}
-.photo img{transition:transform .8s var(--ease)}
-.photo:hover img{transform:scale(1.025)}
-.photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 65%,rgba(0,0,0,.24));opacity:.8;pointer-events:none}
-.photo-label{position:absolute;z-index:2;left:16px;bottom:14px;color:#fff;font-size:9px;letter-spacing:.16em;text-transform:uppercase;direction:ltr}
-
+:root{--paper:#f7f4ef;--ink:#171513;--muted:#746d64;--line:rgba(23,21,19,.13);--glass:rgba(247,244,239,.82);--ease:cubic-bezier(.22,.8,.2,1)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}button,a{font:inherit;color:inherit}button{cursor:pointer}img{display:block;width:100%;height:100%;object-fit:cover}
+.app{height:100svh;display:grid;grid-template-rows:72px 1fr;padding:0 18px 18px;gap:0;overflow:hidden}.top{display:flex;align-items:center;justify-content:space-between;gap:22px;position:relative;z-index:20}.brand{display:flex;align-items:center;gap:12px;direction:ltr}.brandmark{font-family:Georgia,"Times New Roman",serif;font-size:34px;line-height:1;letter-spacing:-.05em}.brandmeta{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);white-space:nowrap}.tabs{display:flex;align-items:center;gap:8px;padding:5px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.5);backdrop-filter:blur(14px)}.tab{border:0;background:transparent;padding:10px 17px;border-radius:999px;font-size:12px;color:#5f5851;transition:.3s var(--ease);white-space:nowrap}.tab.active{background:#171513;color:#fff}.social{font-size:10px;color:var(--muted);direction:ltr;letter-spacing:.12em}
+.stage{position:relative;min-height:0;border-radius:30px;overflow:hidden;background:#dad3ca}.view{position:absolute;inset:0;opacity:0;visibility:hidden;transform:scale(.992);transition:opacity .45s var(--ease),transform .45s var(--ease),visibility .45s}.view.active{opacity:1;visibility:visible;transform:none}
+/* HOME */
+.home{background:#777185}.mosaic{position:absolute;inset:0;display:grid;grid-template-columns:1.15fr .92fr 1.16fr .88fr 1.18fr;direction:ltr}.slice{position:relative;overflow:hidden}.slice:after{content:"";position:absolute;inset:0;border-right:1px solid rgba(255,255,255,.16)}.slice img{filter:saturate(.9) contrast(1.02);transition:transform 1s var(--ease),filter .5s var(--ease)}.slice:hover img{transform:scale(1.035);filter:saturate(1) contrast(1.04)}.s1 img{object-position:center 18%}.s2 img{object-position:center 22%}.s3 img{object-position:center 17%}.s4 img{object-position:center 20%}.s5 img{object-position:center 19%}.home:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,8,8,.66) 0%,rgba(8,8,8,.28) 28%,rgba(8,8,8,.03) 57%,rgba(8,8,8,.12) 100%);pointer-events:none}.heroCopy{position:absolute;left:clamp(28px,5vw,72px);bottom:clamp(28px,6vh,72px);z-index:3;color:#fff;direction:ltr;text-align:left}.eyebrow{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.73)}.heroCopy h1{margin:11px 0 10px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(58px,8vw,116px);line-height:.82;font-weight:500;letter-spacing:-.065em}.heroCopy p{margin:0;max-width:410px;font-size:13px;line-height:1.7;color:rgba(255,255,255,.82)}.heroNumber{position:absolute;right:28px;bottom:24px;z-index:3;color:rgba(255,255,255,.86);font-family:Georgia,"Times New Roman",serif;font-size:34px;direction:ltr}
 /* INFO */
-.info-wrap{min-height:calc(100svh - 112px);display:grid;grid-template-columns:1.02fr .98fr;background:#ece9e4}
-.info-photo{min-height:760px;position:relative;overflow:hidden}
-.info-photo img{object-position:center 19%}
-.info-copy{padding:clamp(34px,6vw,88px);display:flex;flex-direction:column;justify-content:center;direction:rtl}
-.info-kicker{font-size:10px;letter-spacing:.13em;color:#837f78;margin-bottom:17px}
-.info-title{direction:ltr;text-align:right}
-.info-name{font-size:21px;margin:22px 0 0;font-weight:650}
-.info-desc{max-width:520px;margin:14px 0 30px;color:#625f5a;line-height:1.9;font-size:14px}
-.details{border-top:1px solid #cfcac2}
-.detail{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:15px 0;border-bottom:1px solid #cfcac2}
-.detail span{font-size:11px;color:#77736d}
-.detail b{font-size:13px;font-weight:650;direction:ltr}
-.contact-line{margin-top:30px;display:flex;gap:10px;flex-wrap:wrap}
-.pill{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border:1px solid #bdb8b0;background:transparent;text-decoration:none;font-size:12px;font-weight:700}
-.pill.dark{background:#191919;color:#fff;border-color:#191919}
-
-.lightbox{position:fixed;inset:0;background:rgba(11,11,11,.97);z-index:100;display:none;align-items:center;justify-content:center;padding:54px 18px 24px}
-.lightbox.open{display:flex}
-.lightbox img{width:auto;height:auto;max-width:100%;max-height:88svh;object-fit:contain}
-.lb-close{position:absolute;top:14px;right:18px;background:none;color:#fff;font-size:32px;font-weight:200;cursor:pointer}
-.lb-count{position:absolute;left:20px;top:24px;color:#aaa;font-size:10px;letter-spacing:.16em;direction:ltr}
-.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;font-size:24px;cursor:pointer}
-.lb-prev{left:10px}.lb-next{right:10px}
-
+.infoView{background:#eee9e3;display:grid;grid-template-columns:.92fr 1.08fr;direction:ltr}.infoPhoto{position:relative;overflow:hidden}.infoPhoto img{object-position:center 20%}.infoPhoto:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 52%,rgba(0,0,0,.4))}.photoLabel{position:absolute;left:24px;bottom:22px;z-index:2;color:white;font-size:10px;letter-spacing:.2em;text-transform:uppercase}.infoPanel{direction:rtl;padding:clamp(26px,5vw,76px);display:flex;flex-direction:column;justify-content:center;background:linear-gradient(145deg,#f8f5f0,#eae3dc)}.infoPanel .small{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#927d6b;direction:ltr;text-align:left}.infoPanel h2{margin:12px 0 24px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(44px,6vw,88px);font-weight:500;line-height:.9;letter-spacing:-.055em;direction:ltr;text-align:left}.facts{border-top:1px solid var(--line);max-width:580px}.fact{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:15px 0;border-bottom:1px solid var(--line)}.fact span{color:var(--muted);font-size:11px}.fact b{font-size:14px;font-weight:600}.bio{margin-top:24px;max-width:570px;color:#5f5851;line-height:1.9;font-size:13px;text-align:right}
+/* WORK */
+.workView{background:#161515;padding:12px;display:grid;grid-template-columns:1.25fr .82fr .82fr;grid-template-rows:1fr 1fr;gap:10px;direction:ltr}.work{border:0;padding:0;position:relative;overflow:hidden;border-radius:20px;background:#333}.work img{transition:transform .55s var(--ease)}.work:hover img{transform:scale(1.035)}.work:nth-child(1){grid-row:1/3}.work:nth-child(1) img{object-position:center 20%}.work:nth-child(2) img,.work:nth-child(3) img,.work:nth-child(4) img,.work:nth-child(5) img{object-position:center 18%}.work span{position:absolute;left:12px;bottom:11px;padding:7px 10px;background:rgba(10,10,10,.52);color:#fff;border-radius:999px;font-size:8px;letter-spacing:.15em;text-transform:uppercase;backdrop-filter:blur(8px)}
+.lightbox{position:fixed;inset:0;background:rgba(5,5,5,.96);z-index:50;display:none;align-items:center;justify-content:center;padding:22px}.lightbox.open{display:flex}.lightbox img{width:auto;height:auto;max-width:92vw;max-height:90vh;object-fit:contain;border-radius:16px}.close{position:absolute;top:22px;right:22px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font-size:24px}
 @media(max-width:760px){
-  .shell{padding:0 0 18px;max-width:none}
-  .topbar{height:67px;padding:0 14px;border-bottom:1px solid var(--line)}
-  .brand{font-size:24px}
-  .tabs{gap:19px}
-  .tab{font-size:11px;padding:12px 0 10px}
-  .hero{min-height:calc(100svh - 67px);display:block;background:#5f5e72}
-  .hero-media{height:calc(100svh - 67px);min-height:590px}
-  .hero-media img{object-position:center 20%}
-  .hero-media:after{background:linear-gradient(180deg,rgba(0,0,0,.05) 20%,transparent 46%,rgba(0,0,0,.68) 100%)}
-  .hero-copy{position:absolute;inset:auto 0 0 0;padding:26px 20px 28px;justify-content:end;z-index:4}
-  .eyebrow{margin-bottom:10px;font-size:9px}
-  .hero h1{font-size:56px;line-height:.82;text-shadow:0 2px 20px rgba(0,0,0,.18)}
-  .hero h1 span{font-size:.36em;margin-top:12px;letter-spacing:.02em}
-  .hero-foot{margin-top:19px;font-size:9px;gap:18px}
-  .hero-index{right:14px;bottom:18px;font-size:9px}
-  .work-head{padding:38px 16px 16px;display:block}
-  .work-head h2{font-size:48px}
-  .work-head p{margin-top:10px;font-size:9px}
-  .grid{grid-template-columns:1fr;gap:7px;padding:0 7px}
-  .col{gap:7px}
-  .photo.tall{min-height:78svh}
-  .photo.mid{min-height:58svh}
-  .photo-label{left:12px;bottom:11px}
-  .info-wrap{display:block;min-height:0;background:#eeeae5}
-  .info-photo{height:62svh;min-height:480px}
-  .info-photo:after{content:"AML";position:absolute;left:14px;bottom:14px;color:white;font-family:Georgia,serif;font-size:34px;letter-spacing:-.04em;text-shadow:0 2px 18px rgba(0,0,0,.28)}
-  .info-copy{padding:28px 18px 34px}
-  .info-title{font-size:49px}
-  .info-name{font-size:19px;margin-top:18px}
-  .info-desc{font-size:13px;margin-bottom:24px}
-  .detail{padding:13px 0}
-  .contact-line{margin-top:24px}
-  .pill{flex:1}
-  .lb-nav{display:none}
-}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.app{grid-template-rows:58px 1fr;padding:0 7px 7px}.top{gap:8px}.brandmeta,.social{display:none}.brandmark{font-size:26px}.tabs{gap:2px;padding:3px}.tab{padding:8px 11px;font-size:10px}.stage{border-radius:23px}.mosaic{grid-template-columns:1.25fr .85fr 1.3fr .82fr 1.12fr}.home:after{background:linear-gradient(180deg,rgba(0,0,0,.03) 20%,rgba(0,0,0,.2) 58%,rgba(0,0,0,.72) 100%)}.heroCopy{left:20px;right:18px;bottom:22px}.heroCopy h1{font-size:clamp(54px,18vw,78px);line-height:.84}.heroCopy p{max-width:300px;font-size:11px}.eyebrow{font-size:8px}.heroNumber{right:18px;top:16px;bottom:auto;font-size:24px}.infoView{grid-template-columns:1fr;grid-template-rows:43% 57%}.infoPhoto img{object-position:center 18%}.infoPanel{padding:20px 22px;justify-content:flex-start}.infoPanel .small{font-size:8px}.infoPanel h2{font-size:42px;margin:7px 0 12px}.fact{padding:9px 0}.fact span{font-size:9px}.fact b{font-size:11px}.bio{margin-top:12px;font-size:10px;line-height:1.6}.workView{grid-template-columns:1.15fr .85fr;grid-template-rows:1fr 1fr 1fr;padding:8px;gap:7px}.work:nth-child(1){grid-row:1/4}.work{border-radius:15px}.work span{font-size:7px;padding:5px 7px;left:7px;bottom:7px}.work:nth-child(5){display:none}}
 </style>
 </head>
 <body>
-<div class="shell">
-  <header class="topbar">
-    <button class="brand" data-tab="work" aria-label="AML Portfolio">AML</button>
-    <nav class="tabs" aria-label="Portfolio navigation">
-      <button class="tab active" data-tab="work">الأعمال</button>
-      <button class="tab" data-tab="info">المعلومات</button>
-    </nav>
-  </header>
+<div class="app">
+<header class="top">
+  <div class="brand"><div class="brandmark">AML</div><div class="brandmeta">Amal · Model Portfolio</div></div>
+  <nav class="tabs" aria-label="Portfolio sections">
+    <button class="tab active" data-view="home">الرئيسية</button>
+    <button class="tab" data-view="info">المعلومات</button>
+    <button class="tab" data-view="work">الأعمال</button>
+  </nav>
+  <div class="social">RIYADH · KSA</div>
+</header>
+<main class="stage">
+  <section class="view home active" id="home">
+    <div class="mosaic" aria-label="AML portfolio collage">
+      <div class="slice s1"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/68eae6717ab334d64f7c9239ee86a316f6da2107c6ac3f73aeb606399a5d7646.jpg" alt="AML model"></div>
+      <div class="slice s2"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/e95065db094d32536cde02b8abb528683e726d2b486c68827a234b3f20d394a4.jpg" alt="AML portrait"></div>
+      <div class="slice s3"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/cb41de1bf0ab6c5381ab839df84c9c88badcff9070f7a85265da4a4ab2fad6b7.jpg" alt="AML beauty"></div>
+      <div class="slice s4"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/a8f3bc95efc926be237e6b1dab7b9b80b93b387f2b400a99592bb4363b92e4c3.jpg" alt="AML profile"></div>
+      <div class="slice s5"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/6080501664488dd00e9c51c7de86448dfa131aa6522029173b95e2d9e0ac8694.jpg" alt="AML editorial"></div>
+    </div>
+    <div class="heroCopy"><div class="eyebrow">Saudi Model · Riyadh</div><h1>Amal<br>Portfolio</h1><p>Fashion · Beauty · Editorial · Commercial</p></div>
+    <div class="heroNumber">01 / 03</div>
+  </section>
 
-  <main>
-    <section class="panel active" id="work">
-      <div class="hero">
-        <div class="hero-copy">
-          <div class="eyebrow">Saudi Fashion Model · Riyadh</div>
-          <h1>Amal<span>Model Portfolio</span></h1>
-          <div class="hero-foot"><span>Editorial</span><span>Beauty</span><span>Fashion</span></div>
-        </div>
-        <div class="hero-media">
-          <img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/68eae6717ab334d64f7c9239ee86a316f6da2107c6ac3f73aeb606399a5d7646.jpg" alt="Amal fashion portfolio">
-        </div>
-        <div class="hero-index">01 / 05</div>
+  <section class="view infoView" id="info">
+    <div class="infoPhoto"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/e95065db094d32536cde02b8abb528683e726d2b486c68827a234b3f20d394a4.jpg" alt="Amal portrait"><div class="photoLabel">AML · PROFILE</div></div>
+    <div class="infoPanel"><div class="small">MODEL INFORMATION</div><h2>Amal Ahmed</h2>
+      <div class="facts">
+        <div class="fact"><span>الطول</span><b>160 CM</b></div>
+        <div class="fact"><span>الوزن</span><b>65 KG</b></div>
+        <div class="fact"><span>العمر</span><b>28</b></div>
+        <div class="fact"><span>الجنسية</span><b>سعودية</b></div>
+        <div class="fact"><span>الموقع</span><b>الرياض</b></div>
+        <div class="fact"><span>التواصل</span><b dir="ltr">0500730856</b></div>
       </div>
+      <div class="bio">موديل للأزياء والجمال والمحتوى التجاري، متاحة للتصوير والحملات والتعاونات داخل الرياض.</div>
+    </div>
+  </section>
 
-      <div class="work-head">
-        <div><h2>Selected Work</h2><p>Tap any image to view full screen</p></div>
-      </div>
-
-      <div class="grid">
-        <div class="col">
-          <button class="photo tall" data-i="0"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/68eae6717ab334d64f7c9239ee86a316f6da2107c6ac3f73aeb606399a5d7646.jpg" alt="Fashion full look"><span class="photo-label">01 · Fashion</span></button>
-          <button class="photo mid" data-i="1"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/e95065db094d32536cde02b8abb528683e726d2b486c68827a234b3f20d394a4.jpg" alt="Portrait"><span class="photo-label">02 · Portrait</span></button>
-          <button class="photo mid" data-i="2"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/cb41de1bf0ab6c5381ab839df84c9c88badcff9070f7a85265da4a4ab2fad6b7.jpg" alt="Beauty"><span class="photo-label">03 · Beauty</span></button>
-        </div>
-        <div class="col">
-          <button class="photo mid" data-i="3"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/a8f3bc95efc926be237e6b1dab7b9b80b93b387f2b400a99592bb4363b92e4c3.jpg" alt="Profile"><span class="photo-label">04 · Profile</span></button>
-          <button class="photo tall" data-i="4"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/6080501664488dd00e9c51c7de86448dfa131aa6522029173b95e2d9e0ac8694.jpg" alt="Editorial"><span class="photo-label">05 · Editorial</span></button>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel" id="info">
-      <div class="info-wrap">
-        <div class="info-photo"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/e95065db094d32536cde02b8abb528683e726d2b486c68827a234b3f20d394a4.jpg" alt="Amal portrait"></div>
-        <div class="info-copy">
-          <div class="info-kicker">MODEL PROFILE</div>
-          <h2 class="info-title">Amal</h2>
-          <div class="info-name">أمل أحمد سبحي</div>
-          <p class="info-desc">موديل سعودية مقرها الرياض، متاحة لأعمال الأزياء والجمال والتصوير التحريري والتعاون مع العلامات التجارية.</p>
-          <div class="details">
-            <div class="detail"><span>الطول</span><b>160 CM</b></div>
-            <div class="detail"><span>الوزن</span><b>65 KG</b></div>
-            <div class="detail"><span>الجنسية</span><b>Saudi Arabia</b></div>
-            <div class="detail"><span>الموقع</span><b>Riyadh</b></div>
-          </div>
-          <div class="contact-line">
-            <a class="pill dark" href="tel:0500730856">اتصال</a>
-            <a class="pill" href="https://wa.me/966500730856" target="_blank" rel="noopener">واتساب</a>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+  <section class="view workView" id="work">
+    <button class="work" data-src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/68eae6717ab334d64f7c9239ee86a316f6da2107c6ac3f73aeb606399a5d7646.jpg"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/68eae6717ab334d64f7c9239ee86a316f6da2107c6ac3f73aeb606399a5d7646.jpg" alt="Fashion"><span>Fashion</span></button>
+    <button class="work" data-src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/e95065db094d32536cde02b8abb528683e726d2b486c68827a234b3f20d394a4.jpg"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/e95065db094d32536cde02b8abb528683e726d2b486c68827a234b3f20d394a4.jpg" alt="Portrait"><span>Portrait</span></button>
+    <button class="work" data-src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/cb41de1bf0ab6c5381ab839df84c9c88badcff9070f7a85265da4a4ab2fad6b7.jpg"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/cb41de1bf0ab6c5381ab839df84c9c88badcff9070f7a85265da4a4ab2fad6b7.jpg" alt="Beauty"><span>Beauty</span></button>
+    <button class="work" data-src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/a8f3bc95efc926be237e6b1dab7b9b80b93b387f2b400a99592bb4363b92e4c3.jpg"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/a8f3bc95efc926be237e6b1dab7b9b80b93b387f2b400a99592bb4363b92e4c3.jpg" alt="Profile"><span>Profile</span></button>
+    <button class="work" data-src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/6080501664488dd00e9c51c7de86448dfa131aa6522029173b95e2d9e0ac8694.jpg"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/6080501664488dd00e9c51c7de86448dfa131aa6522029173b95e2d9e0ac8694.jpg" alt="Editorial"><span>Editorial</span></button>
+  </section>
+</main>
 </div>
-
-<div class="lightbox" id="lightbox" aria-hidden="true">
-  <button class="lb-close" id="lbClose" aria-label="Close">×</button>
-  <div class="lb-count" id="lbCount">01 / 05</div>
-  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous">‹</button>
-  <img id="lbImg" alt="Portfolio image">
-  <button class="lb-nav lb-next" id="lbNext" aria-label="Next">›</button>
-</div>
-
+<div class="lightbox" id="lightbox"><button class="close" id="close">×</button><img id="lightImg" alt="AML work"></div>
 <script>
-const tabs=document.querySelectorAll('[data-tab]');
-const panels=document.querySelectorAll('.panel');
-function showTab(id){
-  panels.forEach(p=>p.classList.toggle('active',p.id===id));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===id));
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-tabs.forEach(t=>t.addEventListener('click',()=>showTab(t.dataset.tab)));
-
-const images=[
-'https://cdn.openart.ai/openart-uploads/production/attachment-transfers/68eae6717ab334d64f7c9239ee86a316f6da2107c6ac3f73aeb606399a5d7646.jpg',
-'https://cdn.openart.ai/openart-uploads/production/attachment-transfers/e95065db094d32536cde02b8abb528683e726d2b486c68827a234b3f20d394a4.jpg',
-'https://cdn.openart.ai/openart-uploads/production/attachment-transfers/cb41de1bf0ab6c5381ab839df84c9c88badcff9070f7a85265da4a4ab2fad6b7.jpg',
-'https://cdn.openart.ai/openart-uploads/production/attachment-transfers/a8f3bc95efc926be237e6b1dab7b9b80b93b387f2b400a99592bb4363b92e4c3.jpg',
-'https://cdn.openart.ai/openart-uploads/production/attachment-transfers/6080501664488dd00e9c51c7de86448dfa131aa6522029173b95e2d9e0ac8694.jpg'];
-const lb=document.getElementById('lightbox'),lbImg=document.getElementById('lbImg'),lbCount=document.getElementById('lbCount');let current=0,touchX=0;
-function render(){lbImg.src=images[current];lbCount.textContent=String(current+1).padStart(2,'0')+' / '+String(images.length).padStart(2,'0')}
-function openLb(i){current=i;render();lb.classList.add('open');lb.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
-function closeLb(){lb.classList.remove('open');lb.setAttribute('aria-hidden','true');document.body.style.overflow=''}
-function step(d){current=(current+d+images.length)%images.length;render()}
-document.querySelectorAll('.photo').forEach(p=>p.addEventListener('click',()=>openLb(+p.dataset.i)));
-document.getElementById('lbClose').onclick=closeLb;document.getElementById('lbPrev').onclick=()=>step(-1);document.getElementById('lbNext').onclick=()=>step(1);
-lb.addEventListener('click',e=>{if(e.target===lb)closeLb()});
-addEventListener('keydown',e=>{if(!lb.classList.contains('open'))return;if(e.key==='Escape')closeLb();if(e.key==='ArrowLeft')step(-1);if(e.key==='ArrowRight')step(1)});
-lb.addEventListener('touchstart',e=>touchX=e.changedTouches[0].clientX,{passive:true});
-lb.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-touchX;if(Math.abs(d)>45)step(d>0?-1:1)},{passive:true});
+const tabs=[...document.querySelectorAll('.tab')],views=[...document.querySelectorAll('.view')];
+function show(id){tabs.forEach(t=>t.classList.toggle('active',t.dataset.view===id));views.forEach(v=>v.classList.toggle('active',v.id===id));}
+tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.view)));
+const lb=document.getElementById('lightbox'),li=document.getElementById('lightImg');document.querySelectorAll('.work').forEach(w=>w.addEventListener('click',()=>{li.src=w.dataset.src;lb.classList.add('open')}));document.getElementById('close').onclick=()=>lb.classList.remove('open');lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('open')});
 </script>
 </body>
 </html>
