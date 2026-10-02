@@ -124,6 +124,18 @@ linear-gradient(180deg,rgba(10,9,8,.12),rgba(10,9,8,.62))}
 .soundToggle{right:12px;bottom:12px;padding:9px 12px;font-size:9px}
 }
 
+
+/* WORKS hotfix: keep both films visible and keep audio control clear of social dock */
+.ambientPanel{isolation:isolate}
+.ambientPanel .worksBgVideo{z-index:0!important}
+.ambientPanel .ambientShade{z-index:1}
+.featureFilm{z-index:2}
+.soundToggle{left:14px!important;right:auto!important;bottom:14px!important}
+@media(max-width:760px){
+  .ambientPanel{height:34svh;min-height:235px;max-height:330px}
+  .soundToggle{left:12px!important;right:auto!important;bottom:12px!important}
+}
+
 </style>
 </head>
 <body>
