@@ -18,6 +18,80 @@
 @media(max-width:760px){
 .app{grid-template-rows:58px 1fr;padding:0 7px 7px}.top{grid-template-columns:1fr auto}.brandmeta,.loc{display:none}.brandmark{font-size:27px}.tabs{justify-self:end}.tab{padding:8px 13px;font-size:10px}.stage{border-radius:22px}.composition{grid-template-columns:1.35fr .78fr;grid-template-rows:1.15fr .85fr .82fr;gap:5px;padding:5px}.p1{grid-column:1;grid-row:1/4;border-radius:18px 6px 6px 18px}.p2{grid-column:2;grid-row:1;border-radius:6px 18px 6px 6px}.p3{grid-column:2;grid-row:2;border-radius:6px}.p4{grid-column:2;grid-row:3;border-radius:6px 6px 18px 6px}.p5{display:none}.composition:after{inset:5px;border-radius:18px;background:linear-gradient(180deg,transparent 25%,rgba(0,0,0,.12) 50%,rgba(0,0,0,.72) 100%)}.heroCopy{left:18px;right:18px;bottom:22px}.heroCopy h1{font-size:clamp(52px,17vw,74px)}.heroCopy p{font-size:10px}.eyebrow{font-size:7px}.edition{right:16px;top:14px;bottom:auto;font-size:20px}.infoView{grid-template-columns:1fr;grid-template-rows:42% 58%}.infoPhoto img{object-position:center 16%}.infoPanel{padding:18px 20px;justify-content:flex-start}.small{font-size:7px}.infoPanel h2{font-size:40px;margin:6px 0 10px}.fact{padding:8px 0}.fact span{font-size:9px}.fact b{font-size:11px}.bio{font-size:9px;line-height:1.55;margin-top:10px}}
 .infoPhoto{background:#fff}.infoPhoto img{object-fit:contain;object-position:center center}.infoPhoto:after{background:none}.photoLabel{color:#67594b;background:rgba(255,255,255,.85);padding:8px 12px;border-radius:20px}@media(max-width:760px){.infoPhoto img{object-fit:contain;object-position:center center}}
+
+/* WORKS — cinematic motion portfolio */
+.worksView{background:#0d0c0b;color:#fff;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.worksView::-webkit-scrollbar{display:none}
+.worksHero{position:relative;min-height:100%;overflow:hidden;isolation:isolate;background:#0d0c0b}
+.worksBgVideo{position:absolute;inset:-4%;width:108%;height:108%;object-fit:cover;object-position:center 34%;filter:saturate(.72) contrast(1.08) brightness(.66) blur(1.6px);transform:scale(1.035);z-index:-4}
+.worksVeil{position:absolute;inset:0;z-index:-3;background:
+radial-gradient(circle at 72% 44%,rgba(255,255,255,.12),transparent 28%),
+linear-gradient(90deg,rgba(10,9,8,.86) 0%,rgba(10,9,8,.38) 43%,rgba(10,9,8,.22) 66%,rgba(10,9,8,.62) 100%),
+linear-gradient(180deg,rgba(10,9,8,.12),rgba(10,9,8,.62))}
+.worksGrain{position:absolute;inset:0;z-index:-2;pointer-events:none;opacity:.18;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.23'/%3E%3C/svg%3E");mix-blend-mode:soft-light}
+.worksTopline{position:absolute;top:22px;left:26px;right:26px;display:flex;justify-content:space-between;align-items:center;z-index:5;direction:ltr;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.68)}
+.worksLayout{position:relative;z-index:2;min-height:100%;display:grid;grid-template-columns:minmax(260px,.9fr) minmax(320px,.82fr);gap:clamp(24px,5vw,76px);align-items:center;padding:clamp(62px,8vh,92px) clamp(28px,6vw,88px) clamp(34px,5vh,58px);direction:ltr}
+.worksCopy{align-self:end;padding-bottom:clamp(8px,3vh,32px);max-width:520px}
+.worksKicker{font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.66)}
+.worksCopy h2{margin:10px 0 14px;font:500 clamp(62px,8vw,122px)/.82 Georgia,"Times New Roman",serif;letter-spacing:-.07em}
+.worksCopy p{margin:0;max-width:390px;font-size:12px;line-height:1.85;color:rgba(255,255,255,.74);direction:rtl;text-align:right}
+.worksRule{width:54px;height:1px;background:rgba(255,255,255,.55);margin:22px 0}
+.worksTags{display:flex;flex-wrap:wrap;gap:7px;direction:rtl}
+.worksTags span{padding:7px 10px;border:1px solid rgba(255,255,255,.19);border-radius:999px;background:rgba(255,255,255,.055);backdrop-filter:blur(10px);font-size:8px;letter-spacing:.06em;color:rgba(255,255,255,.78)}
+.featureFilm{justify-self:end;width:min(34vw,418px);position:relative}
+.featureFilm:before{content:"";position:absolute;inset:10% -9% -6% 18%;border:1px solid rgba(255,255,255,.12);border-radius:28px;transform:rotate(3deg);z-index:-1}
+.filmFrame{position:relative;aspect-ratio:576/944;border-radius:25px;overflow:hidden;background:#171514;box-shadow:0 34px 90px rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.16)}
+.filmFrame:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.04) 55%,rgba(0,0,0,.72) 100%)}
+.talkingVideo{width:100%;height:100%;display:block;object-fit:cover;object-position:center center;background:#171514}
+.filmMeta{position:absolute;left:16px;right:16px;bottom:15px;z-index:4;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;direction:ltr;color:#fff}
+.filmMetaText small{display:block;font-size:7px;letter-spacing:.2em;color:rgba(255,255,255,.62);margin-bottom:5px}
+.filmMetaText strong{font:500 17px/1.1 Georgia,"Times New Roman",serif;letter-spacing:-.02em}
+.soundToggle{border:1px solid rgba(255,255,255,.26);background:rgba(12,11,10,.48);color:#fff;border-radius:999px;padding:9px 12px;display:flex;align-items:center;gap:7px;backdrop-filter:blur(14px);font-size:9px;white-space:nowrap;transition:.25s var(--ease)}
+.soundToggle:hover{background:rgba(255,255,255,.16);transform:translateY(-1px)}
+.soundToggle svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.filmTapHint{position:absolute;top:15px;right:15px;z-index:4;border-radius:999px;padding:7px 9px;background:rgba(12,11,10,.34);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(12px);font-size:7px;letter-spacing:.08em;color:rgba(255,255,255,.72)}
+.worksArchive{padding:42px clamp(20px,5vw,72px) 70px;background:#f1ece5;color:var(--ink);min-height:52%}
+.worksArchive[hidden]{display:none}
+.archiveHead{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:22px;border-bottom:1px solid var(--line);padding-bottom:18px}
+.archiveHead h3{margin:0;font:500 clamp(34px,4vw,56px)/.9 Georgia,"Times New Roman",serif;letter-spacing:-.05em}
+.archiveHead p{margin:0;max-width:360px;color:var(--muted);font-size:10px;line-height:1.7}
+.worksGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.workItem{position:relative;overflow:hidden;border-radius:18px;background:#ddd4ca;aspect-ratio:4/5}
+.workItem img,.workItem video{width:100%;height:100%;object-fit:cover}
+.workItemLabel{position:absolute;left:10px;right:10px;bottom:10px;padding:9px 10px;border-radius:12px;background:rgba(20,18,16,.62);backdrop-filter:blur(12px);color:#fff;font-size:9px}
+@media(max-width:900px){
+.worksLayout{grid-template-columns:.78fr .72fr;gap:26px;padding-left:28px;padding-right:28px}
+.featureFilm{width:min(42vw,380px)}
+.worksCopy h2{font-size:clamp(58px,9vw,92px)}
+}
+@media(max-width:760px){
+.tabs{gap:3px}.tab{padding:8px 11px}
+.worksHero{min-height:100%}
+.worksBgVideo{inset:-7%;width:114%;height:114%;object-position:center 28%;filter:saturate(.68) contrast(1.08) brightness(.58) blur(1px)}
+.worksVeil{background:linear-gradient(180deg,rgba(8,8,7,.18) 0%,rgba(8,8,7,.14) 44%,rgba(8,8,7,.84) 100%)}
+.worksTopline{top:14px;left:15px;right:15px;font-size:6px}
+.worksLayout{min-height:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:0;padding:48px 14px 22px}
+.featureFilm{order:1;justify-self:auto;width:min(72vw,300px);margin-top:4px}
+.featureFilm:before{inset:8% -6% -4% 13%;border-radius:22px}
+.filmFrame{border-radius:22px;box-shadow:0 25px 70px rgba(0,0,0,.45)}
+.filmMeta{left:12px;right:12px;bottom:11px}
+.filmMetaText strong{font-size:14px}.filmMetaText small{font-size:6px}
+.soundToggle{padding:8px 10px;font-size:8px}
+.filmTapHint{top:10px;right:10px;font-size:6px;padding:6px 8px}
+.worksCopy{order:2;align-self:stretch;padding:17px 5px 0;max-width:none}
+.worksKicker{font-size:7px}
+.worksCopy h2{font-size:clamp(48px,14vw,64px);margin:6px 0 8px}
+.worksCopy p{font-size:9px;line-height:1.62;max-width:290px}
+.worksRule{margin:12px 0;width:38px}
+.worksTags{gap:5px}.worksTags span{font-size:7px;padding:6px 8px}
+.worksArchive{padding:28px 14px 44px}.archiveHead{align-items:flex-start;flex-direction:column;gap:8px}.archiveHead p{font-size:9px}.worksGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.workItem{border-radius:14px}
+}
+@media(max-width:380px){
+.featureFilm{width:min(69vw,260px)}
+.worksCopy h2{font-size:46px}
+.worksCopy p{font-size:8.5px}
+}
+
 </style>
 </head>
 <body>
@@ -26,7 +100,7 @@
   <div class="brand"><div class="brandmark">AML</div><div class="brandmeta">Amal · Model Portfolio</div></div>
   <nav class="tabs" aria-label="Portfolio sections">
     <button class="tab active" data-view="home">الرئيسية</button>
-    <button class="tab" data-view="info">المعلومات</button>
+    <button class="tab" data-view="info">المعلومات</button>\n    <button class="tab" data-view="works">الأعمال</button>
   </nav>
   <div class="loc">RIYADH · KSA</div>
 </header>
@@ -57,11 +131,108 @@
       <div class="bio">موديل للأزياء والجمال والمحتوى التجاري، متاحة للتصوير والحملات والتعاونات داخل الرياض.</div>
     </div>
   </section>
+
+  <section class="view worksView" id="works">
+    <div class="worksHero">
+      <video class="worksBgVideo" id="worksBgVideo" muted loop playsinline preload="metadata" poster="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/a30cb65f58ffc2614846f5f041475156fc9a13d05c27af57dd6c59eb46291b2e.jpg" aria-hidden="true">
+        <source src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/98d6a3fedc667457c1a7068942a24c0b2a5809a5157f6d1be81b376a5ff76f4a.mov" type="video/mp4">
+      </video>
+      <div class="worksVeil"></div>
+      <div class="worksGrain"></div>
+      <div class="worksTopline"><span>AML · SELECTED WORK</span><span>RIYADH · KSA</span></div>
+      <div class="worksLayout">
+        <div class="worksCopy">
+          <div class="worksKicker">PORTFOLIO / MOTION · 01</div>
+          <h2>Works</h2>
+          <p>مساحة للأعمال المختارة، مصممة من البداية لاستقبال الصور والفيديوهات الجديدة بدون تغيير شكل البورتفوليو.</p>
+          <div class="worksRule"></div>
+          <div class="worksTags"><span>فيديو</span><span>أزياء</span><span>جمال</span><span>محتوى تجاري</span></div>
+        </div>
+        <article class="featureFilm" aria-label="Featured AML introduction video">
+          <div class="filmFrame">
+            <video class="talkingVideo" id="talkingVideo" muted loop playsinline preload="metadata" poster="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/bb2efc827fede69f0ab73ca15b8456b43c00e9e5b92455c75932b133f97acb76.jpg">
+              <source src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/d200821f3a7883c0e15a279629af7e8b8fc03162675fd97979097de51020ed32.mov" type="video/mp4">
+            </video>
+            <div class="filmTapHint">اضغط للإيقاف / التشغيل</div>
+            <div class="filmMeta">
+              <div class="filmMetaText"><small>FEATURED FILM · 00:20</small><strong>Amal — Introduction</strong></div>
+              <button class="soundToggle" id="soundToggle" type="button" aria-label="تشغيل الصوت">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5L11 19V5Z"/><path class="soundWave" d="M15 9.5a4 4 0 0 1 0 5"/><path class="soundWave" d="M17.8 7a7.5 7.5 0 0 1 0 10"/></svg>
+                <span>تشغيل الصوت</span>
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+    <section class="worksArchive" id="worksArchive" hidden>
+      <div class="archiveHead"><h3>Selected Works</h3><p>صور وفيديوهات إضافية تظهر هنا تلقائياً عند إضافتها إلى قائمة الأعمال.</p></div>
+      <div class="worksGrid" id="worksGrid"></div>
+    </section>
+  </section>
+
 </main>
 </div>
 <script>
-const tabs=[...document.querySelectorAll('.tab')];const views=[...document.querySelectorAll('.view')];
-tabs.forEach(t=>t.addEventListener('click',()=>{tabs.forEach(x=>x.classList.toggle('active',x===t));views.forEach(v=>v.classList.toggle('active',v.id===t.dataset.view))}));
+const tabs=[...document.querySelectorAll('.tab')];
+const views=[...document.querySelectorAll('.view')];
+const worksBg=document.getElementById('worksBgVideo');
+const talking=document.getElementById('talkingVideo');
+const soundToggle=document.getElementById('soundToggle');
+
+function safePlay(video){if(!video)return;const p=video.play();if(p&&p.catch)p.catch(()=>{});}
+function setView(tab){
+  tabs.forEach(x=>x.classList.toggle('active',x===tab));
+  views.forEach(v=>v.classList.toggle('active',v.id===tab.dataset.view));
+  const onWorks=tab.dataset.view==='works';
+  if(onWorks){
+    if(worksBg){worksBg.playbackRate=.86;safePlay(worksBg);}
+    if(talking){talking.muted=true;safePlay(talking);}
+    updateSoundUI();
+  }else{
+    if(worksBg)worksBg.pause();
+    if(talking){talking.pause();talking.muted=true;}
+    updateSoundUI();
+  }
+}
+tabs.forEach(t=>t.addEventListener('click',()=>setView(t)));
+
+function updateSoundUI(){
+  if(!soundToggle||!talking)return;
+  const label=soundToggle.querySelector('span');
+  if(label)label.textContent=talking.muted?'تشغيل الصوت':'كتم الصوت';
+  soundToggle.setAttribute('aria-label',talking.muted?'تشغيل الصوت':'كتم الصوت');
+  soundToggle.querySelectorAll('.soundWave').forEach(x=>x.style.opacity=talking.muted?'.28':'1');
+}
+if(soundToggle&&talking){
+  soundToggle.addEventListener('click',e=>{
+    e.stopPropagation();
+    talking.muted=!talking.muted;
+    if(!talking.paused)safePlay(talking);
+    updateSoundUI();
+  });
+  talking.addEventListener('click',()=>{
+    if(talking.paused)safePlay(talking);else talking.pause();
+  });
+  updateSoundUI();
+}
+
+/* Future gallery foundation: add {type:'image'|'video',src,poster?,title} objects here. */
+const worksMedia=[];
+function renderWorks(){
+  const archive=document.getElementById('worksArchive');
+  const grid=document.getElementById('worksGrid');
+  if(!archive||!grid||!worksMedia.length)return;
+  archive.hidden=false;
+  grid.innerHTML=worksMedia.map(item=>{
+    const media=item.type==='video'
+      ? '<video muted loop playsinline preload="metadata" '+(item.poster?'poster="'+item.poster+'"':'')+'><source src="'+item.src+'"></video>'
+      : '<img src="'+item.src+'" alt="'+(item.title||'AML work')+'" loading="lazy">';
+    return '<article class="workItem">'+media+'<div class="workItemLabel">'+(item.title||'AML · WORK')+'</div></article>';
+  }).join('');
+  grid.querySelectorAll('video').forEach(v=>{v.addEventListener('mouseenter',()=>safePlay(v));v.addEventListener('mouseleave',()=>v.pause());});
+}
+renderWorks();
 </script>
 </body>
 </html>
