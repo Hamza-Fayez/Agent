@@ -27,20 +27,13 @@
 
 #works{background:#f3eee7;color:#171513;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
 #works::-webkit-scrollbar{display:none}
-#works .worksHero{background:#f3eee7;padding:16px 12px 10px}
-#works .motionShowcase{max-width:1040px;margin:0 auto}
-#works .motionRail{display:flex;justify-content:center;align-items:flex-start;gap:clamp(18px,3vw,36px);overflow:visible}
-#works .motionCard{position:relative;overflow:hidden;border-radius:24px;background:#171513;border:1px solid rgba(23,21,19,.1);box-shadow:0 18px 50px rgba(38,30,23,.1);cursor:pointer;transition:transform .35s ease,opacity .35s ease,box-shadow .35s ease}
-#works .motionCard:not(.isActive){opacity:.78}
-#works .motionCard.isActive{opacity:1;box-shadow:0 26px 70px rgba(38,30,23,.16)}
-#works .motionPrimary{width:min(42vw,430px);aspect-ratio:576/944}
-#works .motionSecondary{width:min(31vw,330px);aspect-ratio:464/832;margin-top:72px}
-#works .motionCard video{width:100%;height:100%;display:block;object-fit:cover;object-position:center;background:#171513}
+#works .worksHero{background:#f3eee7;padding:18px 12px 10px}
+#works .singleFilmWrap{display:flex;justify-content:center;max-width:1100px;margin:0 auto}
+#works .singleFilmCard{position:relative;width:min(38vw,430px);aspect-ratio:576/944;overflow:hidden;border-radius:24px;background:#171513;border:1px solid rgba(23,21,19,.1);box-shadow:0 24px 64px rgba(38,30,23,.14)}
+#works .singleFilmCard .talkingVideo{width:100%;height:100%;display:block;object-fit:cover;object-position:center;background:#171513}
+#works .singleFilmCard:after{content:"";position:absolute;inset:72% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.32));pointer-events:none}
 #works .soundToggle{position:absolute;left:13px;bottom:13px;z-index:3;border:1px solid rgba(255,255,255,.24);background:rgba(14,13,12,.5);color:#fff;border-radius:999px;padding:9px 12px;display:flex;align-items:center;gap:7px;backdrop-filter:blur(16px);font-size:9px}
 #works .soundToggle svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-#works .motionMeta{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;direction:ltr}
-#works .motionIndex{font:600 9px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.16em;color:#6f675f}
-#works .motionLine{width:48px;height:1px;background:#cfc4b9}
 #works .worksArchive{padding:30px 12px 46px;background:#f3eee7;color:#171513}
 #works .worksSectionHead{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 2px 16px}
 #works .worksSectionHead h2{margin:0;font:500 clamp(32px,4vw,50px)/.95 Georgia,"Times New Roman",serif;letter-spacing:-.04em}
@@ -80,17 +73,9 @@
   #works .viewerGrid{column-count:2}
 }
 @media(max-width:760px){
-  #works .worksHero{padding:10px 0 8px}
-  #works .motionShowcase{max-width:none}
-  #works .motionRail{justify-content:flex-start;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:8vw;padding:0 8vw 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-  #works .motionRail::-webkit-scrollbar{display:none}
-  #works .motionCard{flex:0 0 82vw;width:82vw;margin:0;scroll-snap-align:center;border-radius:20px;box-shadow:0 12px 34px rgba(38,30,23,.09)}
-  #works .motionPrimary{aspect-ratio:576/944}
-  #works .motionSecondary{aspect-ratio:464/832}
-  #works .motionCard:not(.isActive){opacity:.6;transform:scale(.975)}
-  #works .motionCard.isActive{opacity:1;transform:none}
+  #works .worksHero{padding:9px 8px 8px}
+  #works .singleFilmCard{width:min(86vw,390px);border-radius:20px;box-shadow:0 14px 38px rgba(38,30,23,.11)}
   #works .soundToggle{left:10px;bottom:10px;padding:8px 10px;font-size:8px}
-  #works .motionMeta{margin-top:7px}
   #works .worksArchive{padding:22px 0 26px}
   #works .worksSectionHead{margin:0 8px 13px}
   #works .worksSectionHead h2{font-size:31px}
@@ -109,7 +94,7 @@
   #works .lightboxNav{width:38px;height:38px;font-size:25px;background:rgba(255,255,255,.1)}
   #works .lightboxStage img,#works .lightboxStage video{max-height:calc(100svh - 66px);border-radius:2px}
 }
-@media(max-width:380px){#works .motionCard{flex-basis:84vw;width:84vw}#works .collectionMeta b{font-size:16px}}
+@media(max-width:380px){#works .singleFilmCard{width:90vw}#works .collectionMeta b{font-size:16px}}#works .collectionMeta b{font-size:16px}}
   #works .ambientPanel{height:190px;min-height:190px}
   #works .collectionMeta b{font-size:16px}
 }
@@ -157,27 +142,16 @@
 
   <section class="view worksView" id="works">
     <div class="worksHero">
-      <div class="motionShowcase">
-        <div class="motionRail" id="motionRail">
-          <article class="motionCard motionPrimary isActive" data-motion="0">
-            <video class="talkingVideo" id="talkingVideo" muted loop playsinline preload="metadata" poster="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/bb2efc827fede69f0ab73ca15b8456b43c00e9e5b92455c75932b133f97acb76.jpg">
-              <source src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/d200821f3a7883c0e15a279629af7e8b8fc03162675fd97979097de51020ed32.mov" type="video/mp4">
-            </video>
-            <button class="soundToggle" id="soundToggle" type="button" aria-label="تشغيل الصوت">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5L11 19V5Z"/><path class="soundWave" d="M15 9.5a4 4 0 0 1 0 5"/><path class="soundWave" d="M17.8 7a7.5 7.5 0 0 1 0 10"/></svg>
-              <span>تشغيل الصوت</span>
-            </button>
-          </article>
-          <article class="motionCard motionSecondary" data-motion="1">
-            <video class="worksBgVideo" id="worksBgVideo" muted loop playsinline preload="metadata" poster="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/a30cb65f58ffc2614846f5f041475156fc9a13d05c27af57dd6c59eb46291b2e.jpg">
-              <source src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/98d6a3fedc667457c1a7068942a24c0b2a5809a5157f6d1be81b376a5ff76f4a.mov" type="video/mp4">
-            </video>
-          </article>
-        </div>
-        <div class="motionMeta" aria-hidden="true">
-          <span class="motionIndex" id="motionIndex">01 / 02</span>
-          <span class="motionLine"></span>
-        </div>
+      <div class="singleFilmWrap">
+        <article class="singleFilmCard">
+          <video class="talkingVideo" id="talkingVideo" muted loop playsinline preload="metadata" poster="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/bb2efc827fede69f0ab73ca15b8456b43c00e9e5b92455c75932b133f97acb76.jpg">
+            <source src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/d200821f3a7883c0e15a279629af7e8b8fc03162675fd97979097de51020ed32.mov" type="video/mp4">
+          </video>
+          <button class="soundToggle" id="soundToggle" type="button" aria-label="تشغيل الصوت">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5L11 19V5Z"/><path class="soundWave" d="M15 9.5a4 4 0 0 1 0 5"/><path class="soundWave" d="M17.8 7a7.5 7.5 0 0 1 0 10"/></svg>
+            <span>تشغيل الصوت</span>
+          </button>
+        </article>
       </div>
     </div>
     <section class="worksArchive" id="worksArchive" hidden>
@@ -207,29 +181,16 @@
 <script>
 const tabs=[...document.querySelectorAll('.tab')];
 const views=[...document.querySelectorAll('.view')];
-const worksBg=document.getElementById('worksBgVideo');
 const talking=document.getElementById('talkingVideo');
 const soundToggle=document.getElementById('soundToggle');
-const motionRail=document.getElementById('motionRail');
-const motionIndex=document.getElementById('motionIndex');
-const motionCards=[...document.querySelectorAll('.motionCard')];
-let activeMotion=0;
 
 function safePlay(video){if(!video)return;const p=video.play();if(p&&p.catch)p.catch(()=>{});}
-function motionVideo(index){return index===0?talking:worksBg}
-function setActiveMotion(index,{scroll=false}={}){
-  activeMotion=Math.max(0,Math.min(index,motionCards.length-1));
-  motionCards.forEach((card,i)=>card.classList.toggle('isActive',i===activeMotion));
-  [talking,worksBg].forEach((video,i)=>{if(!video)return;if(i===activeMotion){video.muted=i===0?video.muted:true;safePlay(video)}else video.pause()});
-  if(motionIndex)motionIndex.textContent=String(activeMotion+1).padStart(2,'0')+' / '+String(motionCards.length).padStart(2,'0');
-  if(scroll&&matchMedia('(max-width:760px)').matches&&motionCards[activeMotion])motionCards[activeMotion].scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
-}
 function setView(tab){
   tabs.forEach(x=>x.classList.toggle('active',x===tab));
   views.forEach(v=>v.classList.toggle('active',v.id===tab.dataset.view));
   const onWorks=tab.dataset.view==='works';
   if(onWorks&&new URLSearchParams(location.search).get('preview')!=='1'){const cv=document.getElementById('collectionViewer'),lb=document.getElementById('mediaLightbox');if(cv)cv.hidden=true;if(lb)lb.hidden=true;document.body.classList.remove('mediaOverlayOpen');}
-  if(onWorks){setActiveMotion(activeMotion);updateSoundUI()}else{[talking,worksBg].forEach(v=>v&&v.pause());if(talking)talking.muted=true;updateSoundUI()}
+  if(onWorks){if(talking){talking.muted=true;safePlay(talking)}updateSoundUI()}else{if(talking){talking.pause();talking.muted=true}updateSoundUI()}
 }
 tabs.forEach(t=>t.addEventListener('click',()=>setView(t)));
 const initialView=new URLSearchParams(location.search).get('view');if(initialView){const initialTab=tabs.find(t=>t.dataset.view===initialView);if(initialTab)setView(initialTab)}
@@ -242,14 +203,10 @@ function updateSoundUI(){
   soundToggle.querySelectorAll('.soundWave').forEach(x=>x.style.opacity=talking.muted?'.28':'1');
 }
 if(soundToggle&&talking){
-  soundToggle.addEventListener('click',e=>{e.stopPropagation();talking.muted=!talking.muted;if(activeMotion!==0)setActiveMotion(0,{scroll:true});else safePlay(talking);updateSoundUI()});
+  soundToggle.addEventListener('click',e=>{e.stopPropagation();talking.muted=!talking.muted;safePlay(talking);updateSoundUI()});
+  talking.addEventListener('click',()=>{if(talking.paused)safePlay(talking);else talking.pause()});
+  updateSoundUI();
 }
-motionCards.forEach((card,i)=>card.addEventListener('click',e=>{if(e.target.closest('.soundToggle'))return;setActiveMotion(i,{scroll:true})}));
-if(motionRail){
-  let scrollTimer;
-  motionRail.addEventListener('scroll',()=>{if(!matchMedia('(max-width:760px)').matches)return;clearTimeout(scrollTimer);scrollTimer=setTimeout(()=>{const railBox=motionRail.getBoundingClientRect();const center=railBox.left+railBox.width/2;let best=0,dist=Infinity;motionCards.forEach((card,i)=>{const b=card.getBoundingClientRect();const d=Math.abs((b.left+b.width/2)-center);if(d<dist){dist=d;best=i}});if(best!==activeMotion)setActiveMotion(best)},90)},{passive:true});
-}
-setActiveMotion(0);
 const worksArchive=document.getElementById('worksArchive');
 const worksGrid=document.getElementById('worksGrid');
 const albumsCount=document.getElementById('albumsCount');
