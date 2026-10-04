@@ -20,6 +20,11 @@
 .infoPhoto{background:#fff}.infoPhoto img{object-fit:contain;object-position:center center}.infoPhoto:after{background:none}.photoLabel{color:#67594b;background:rgba(255,255,255,.85);padding:8px 12px;border-radius:20px}@media(max-width:760px){.infoPhoto img{object-fit:contain;object-position:center center}}
 
 /* WORKS — clean portfolio gallery */
+
+/* Critical overlay visibility guard */
+#works .collectionViewer[hidden],
+#works .mediaLightbox[hidden]{display:none!important}
+
 #works{background:#f3eee7;color:#171513;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
 #works::-webkit-scrollbar{display:none}
 #works .worksHero{background:#151311;padding:10px}
