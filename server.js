@@ -1,65 +1,80 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand } = require('@aws-sdk/client-s3');
+const { Upload } = require('@aws-sdk/lib-storage');
 
 const port = process.env.PORT || 3000;
 const root = __dirname;
-
-const types = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'application/javascript; charset=utf-8', '.json':'application/json; charset=utf-8', '.svg':'image/svg+xml', '.png':'image/png', '.jpg':'image/jpeg', '.jpeg':'image/jpeg', '.webp':'image/webp' };
+const types = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'application/javascript; charset=utf-8', '.json':'application/json; charset=utf-8', '.svg':'image/svg+xml', '.png':'image/png', '.jpg':'image/jpeg', '.jpeg':'image/jpeg', '.webp':'image/webp', '.mp4':'video/mp4', '.mov':'video/quicktime' };
+const BUCKET = process.env.AWS_S3_BUCKET_NAME;
+const META_KEY = 'portfolio/index.json';
+const MAX_UPLOAD = 300 * 1024 * 1024;
+const s3 = new S3Client({
+  region: process.env.AWS_DEFAULT_REGION || 'auto',
+  endpoint: process.env.AWS_ENDPOINT_URL,
+  forcePathStyle: false,
+  credentials: { accessKeyId: process.env.AWS_ACCESS_KEY_ID || '', secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '' }
+});
+const managerHtml = "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\">\n<title>AML · إدارة الأعمال</title>\n<style>\n:root{--bg:#f4efe7;--ink:#161412;--muted:#7c746a;--line:#d9d0c5;--card:#fff;--dark:#151311}\n*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Tahoma,sans-serif}\nbutton,input{font:inherit}.wrap{max-width:980px;margin:auto;padding:22px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}\n.brand{font-family:Georgia,serif;font-size:28px}.ghost,.primary,.danger{border:0;border-radius:999px;padding:11px 16px;cursor:pointer}\n.ghost{background:#e8e0d7}.primary{background:var(--dark);color:#fff}.danger{background:#f4d9d6;color:#7e2219}\n.login{min-height:80svh;display:grid;place-items:center}.loginCard{width:min(100%,390px);background:#fff;border:1px solid var(--line);border-radius:26px;padding:24px;box-shadow:0 24px 70px rgba(36,30,24,.08)}\n.loginCard h1{font:500 34px/1 Georgia,serif;margin:0 0 18px}.field{display:grid;gap:7px;margin:12px 0}.field label{font-size:12px;color:var(--muted)}.field input{width:100%;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fbf8f4}\n.err{color:#a52a1f;font-size:12px;min-height:18px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}\n.toolbar h1{margin:0;font:500 38px/1 Georgia,serif}.hint{font-size:12px;color:var(--muted);margin:5px 0 0}\n.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.folder{background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden}\n.cover{aspect-ratio:4/3;background:#e6ddd3;position:relative;overflow:hidden}.cover img,.cover video{width:100%;height:100%;object-fit:cover;display:block}.empty{height:100%;display:grid;place-items:center;color:#988f86;font-size:12px}\n.folderHead{padding:14px;display:flex;align-items:center;justify-content:space-between;gap:10px}.folderTitle{font-weight:700}.folderCount{font-size:11px;color:var(--muted)}\n.actions{display:flex;gap:7px;flex-wrap:wrap}.mini{border:0;background:#eee7df;border-radius:999px;padding:8px 10px;font-size:11px;cursor:pointer}.mini.dark{background:#171513;color:#fff}.mini.red{background:#f3dfdc;color:#8d2b21}\n.items{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:0 10px 10px}.item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#e8e0d7}.item img,.item video{width:100%;height:100%;object-fit:cover}.item button{position:absolute;border:0;border-radius:999px;font-size:9px;padding:5px 7px;cursor:pointer}.coverBtn{right:5px;bottom:5px;background:rgba(255,255,255,.9)}.delBtn{left:5px;top:5px;background:rgba(30,20,20,.78);color:#fff}\n.uploading{position:fixed;inset:auto 16px 16px 16px;background:#151311;color:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.25);display:none;z-index:20}\n@media(max-width:650px){.wrap{padding:14px}.toolbar{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.items{grid-template-columns:repeat(4,1fr)}.toolbar h1{font-size:32px}}\n</style>\n</head>\n<body>\n<div id=\"loginView\" class=\"login\">\n  <form class=\"loginCard\" id=\"loginForm\">\n    <h1>AML Manage</h1>\n    <div class=\"field\"><label>اسم المستخدم</label><input id=\"user\" autocomplete=\"username\" required></div>\n    <div class=\"field\"><label>كلمة المرور</label><input id=\"pass\" type=\"password\" autocomplete=\"current-password\" required></div>\n    <div class=\"err\" id=\"loginErr\"></div>\n    <button class=\"primary\" style=\"width:100%\" type=\"submit\">دخول</button>\n  </form>\n</div>\n<div id=\"appView\" class=\"wrap\" hidden>\n  <div class=\"top\"><div class=\"brand\">AML</div><button class=\"ghost\" id=\"logoutBtn\">تسجيل خروج</button></div>\n  <div class=\"toolbar\">\n    <div><h1>الأعمال</h1><div class=\"hint\">كل جلسة في فولدر مستقل. أنشئي الفولدر بالاسم ثم ارفعي الصور أو الفيديوهات داخله.</div></div>\n    <button class=\"primary\" id=\"newFolderBtn\">+ فولدر جديد</button>\n  </div>\n  <div class=\"grid\" id=\"folders\"></div>\n  <input id=\"picker\" type=\"file\" accept=\"image/*,video/*\" multiple hidden>\n</div>\n<div class=\"uploading\" id=\"uploading\"></div>\n<script>\nconst $=s=>document.querySelector(s);let currentFolder=null;\nasync function api(path,opts={}){const r=await fetch(path,opts);if(r.status===401)throw new Error(\"AUTH\");const ct=r.headers.get(\"content-type\")||\"\";const data=ct.includes(\"json\")?await r.json():await r.text();if(!r.ok)throw new Error(data.error||data||\"Request failed\");return data}\nfunction esc(s){return String(s||\"\").replace(/[&<>\"']/g,c=>({\"&\":\"&amp;\",\"<\":\"&lt;\",\">\":\"&gt;\",'\"':\"&quot;\",\"'\":\"&#39;\"}[c]))}\nfunction mediaTag(item,cls=\"\"){if(!item)return '<div class=\"empty\">لا توجد ملفات</div>';return item.type===\"video\"?'<video class=\"'+cls+'\" src=\"'+item.url+'\" muted playsinline preload=\"metadata\"></video>':'<img class=\"'+cls+'\" src=\"'+item.url+'\" alt=\"\">'}\nasync function boot(){try{await api(\"/api/session\");$(\"#loginView\").hidden=true;$(\"#appView\").hidden=false;await load()}catch(e){$(\"#loginView\").hidden=false;$(\"#appView\").hidden=true}}\n$(\"#loginForm\").addEventListener(\"submit\",async e=>{e.preventDefault();$(\"#loginErr\").textContent=\"\";try{await api(\"/api/login\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},body:JSON.stringify({username:$(\"#user\").value,password:$(\"#pass\").value})});await boot()}catch(e){$(\"#loginErr\").textContent=\"بيانات الدخول غير صحيحة\"}});\n$(\"#logoutBtn\").onclick=async()=>{await fetch(\"/api/logout\",{method:\"POST\"});location.reload()};\n$(\"#newFolderBtn\").onclick=async()=>{const name=prompt(\"اسم الفولدر / الجلسة\");if(!name||!name.trim())return;const c=await api(\"/api/admin/collections\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},body:JSON.stringify({name:name.trim()})});currentFolder=c.id;await load();$(\"#picker\").click()};\n$(\"#picker\").addEventListener(\"change\",async()=>{const files=[...$(\"#picker\").files];$(\"#picker\").value=\"\";if(!currentFolder||!files.length)return;const box=$(\"#uploading\");box.style.display=\"block\";for(let i=0;i<files.length;i++){const f=files[i];box.textContent=\"جاري رفع \"+(i+1)+\" / \"+files.length+\" — \"+f.name;try{await api(\"/api/admin/upload?collection=\"+encodeURIComponent(currentFolder)+\"&name=\"+encodeURIComponent(f.name),{method:\"POST\",headers:{\"Content-Type\":f.type||\"application/octet-stream\"},body:f})}catch(e){alert(\"فشل رفع \"+f.name+\": \"+e.message);break}}box.style.display=\"none\";await load()});\nasync function load(){const data=await api(\"/api/admin/collections\");const root=$(\"#folders\");root.innerHTML=data.collections.map(c=>{const cover=c.cover||c.items[0];return '<section class=\"folder\"><div class=\"cover\">'+mediaTag(cover)+'</div><div class=\"folderHead\"><div><div class=\"folderTitle\">'+esc(c.name)+'</div><div class=\"folderCount\">'+c.items.length+' ملف</div></div><div class=\"actions\"><button class=\"mini dark\" data-upload=\"'+c.id+'\">إضافة ملفات</button><button class=\"mini red\" data-del-folder=\"'+c.id+'\">حذف</button></div></div><div class=\"items\">'+c.items.map(i=>'<div class=\"item\">'+mediaTag(i)+'<button class=\"delBtn\" data-del-item=\"'+i.id+'\" data-folder=\"'+c.id+'\">×</button><button class=\"coverBtn\" data-cover=\"'+i.id+'\" data-folder=\"'+c.id+'\">غلاف</button></div>').join(\"\")+'</div></section>'}).join(\"\");\nroot.querySelectorAll(\"[data-upload]\").forEach(b=>b.onclick=()=>{currentFolder=b.dataset.upload;$(\"#picker\").click()});\nroot.querySelectorAll(\"[data-cover]\").forEach(b=>b.onclick=async()=>{await api(\"/api/admin/cover\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},body:JSON.stringify({collection:b.dataset.folder,item:b.dataset.cover})});await load()});\nroot.querySelectorAll(\"[data-del-item]\").forEach(b=>b.onclick=async()=>{if(!confirm(\"حذف الملف؟\"))return;await api(\"/api/admin/item?collection=\"+encodeURIComponent(b.dataset.folder)+\"&item=\"+encodeURIComponent(b.dataset.delItem),{method:\"DELETE\"});await load()});\nroot.querySelectorAll(\"[data-del-folder]\").forEach(b=>b.onclick=async()=>{if(!confirm(\"حذف الفولدر وكل الملفات داخله؟\"))return;await api(\"/api/admin/collection?id=\"+encodeURIComponent(b.dataset.delFolder),{method:\"DELETE\"});await load()});\n}\nboot();\n</script>\n</body>\n</html>";
 
 const socialDock = `
 <style>
 .socialDock{position:fixed;right:28px;bottom:28px;z-index:50;display:flex;gap:10px;direction:ltr}
 .socialLink{width:46px;height:46px;border-radius:999px;display:grid;place-items:center;text-decoration:none;box-shadow:0 10px 28px rgba(0,0,0,.18);backdrop-filter:blur(16px);transition:transform .22s ease,box-shadow .22s ease}
-.socialLink:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 14px 34px rgba(0,0,0,.24)}
-.socialLink:active{transform:scale(.96)}
-.socialLink svg{width:24px;height:24px;display:block}
-.socialLink.tiktok{background:#111;color:#fff;border:1px solid rgba(255,255,255,.16)}
-.socialLink.snapchat{background:#fffc00;color:#111;border:1px solid rgba(17,17,17,.12)}
+.socialLink:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 14px 34px rgba(0,0,0,.24)}.socialLink:active{transform:scale(.96)}
+.socialLink svg{width:24px;height:24px;display:block}.socialLink.tiktok{background:#111;color:#fff;border:1px solid rgba(255,255,255,.16)}.socialLink.snapchat{background:#fffc00;color:#111;border:1px solid rgba(17,17,17,.12)}
 @media(max-width:760px){.socialDock{right:14px;bottom:16px;gap:8px}.socialLink{width:44px;height:44px}.socialLink svg{width:23px;height:23px}}
 </style>
 <div class="socialDock" aria-label="Social media links">
-  <a class="socialLink tiktok" href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer" aria-label="TikTok — AML Suabhi" title="TikTok">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M14.25 3.2v10.15a4.5 4.5 0 1 1-3.15-4.29v2.35a2.3 2.3 0 1 0 1.05 1.94V3.2h2.1Z" fill="#25F4EE" transform="translate(-.55 .35)"/>
-      <path d="M14.25 3.2c.45 2.45 1.82 3.86 4.15 4.28V9.7a7.12 7.12 0 0 1-4.15-1.6v5.25a4.5 4.5 0 1 1-3.15-4.29v2.35a2.3 2.3 0 1 0 1.05 1.94V3.2h2.1Z" fill="#FE2C55" transform="translate(.45 -.1)"/>
-      <path d="M14.25 3.2c.45 2.45 1.82 3.86 4.15 4.28V9.7a7.12 7.12 0 0 1-4.15-1.6v5.25a4.5 4.5 0 1 1-3.15-4.29v2.35a2.3 2.3 0 1 0 1.05 1.94V3.2h2.1Z" fill="currentColor"/>
-    </svg>
-  </a>
-  <a class="socialLink snapchat" href="https://snapchat.com/t/OtS0exp9" target="_blank" rel="noopener noreferrer" aria-label="Snapchat — AML" title="Snapchat">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 3.1c-2.7 0-4.65 2.14-4.65 5.15 0 1.08.12 1.95-.45 2.88-.43.7-1.15 1.2-2.06 1.49-.39.12-.48.67-.14.9.62.43 1.28.72 1.98.89.18.04.31.2.32.38.05.74.68 1.02 1.28 1.12.21.04.39.17.49.36.54 1.08 1.78 1.22 2.45.84.49-.28 1.07-.28 1.56 0 .67.38 1.91.24 2.45-.84.1-.19.28-.32.49-.36.6-.1 1.23-.38 1.28-1.12.01-.18.14-.34.32-.38.7-.17 1.36-.46 1.98-.89.34-.23.25-.78-.14-.9-.91-.29-1.63-.79-2.06-1.49-.57-.93-.45-1.8-.45-2.88C16.65 5.24 14.7 3.1 12 3.1Z" fill="#fff" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
-    </svg>
-  </a>
+<a class="socialLink tiktok" href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.25 3.2c.45 2.45 1.82 3.86 4.15 4.28V9.7a7.12 7.12 0 0 1-4.15-1.6v5.25a4.5 4.5 0 1 1-3.15-4.29v2.35a2.3 2.3 0 1 0 1.05 1.94V3.2h2.1Z" fill="currentColor"/></svg></a>
+<a class="socialLink snapchat" href="https://snapchat.com/t/OtS0exp9" target="_blank" rel="noopener noreferrer" aria-label="Snapchat" title="Snapchat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.1c-2.7 0-4.65 2.14-4.65 5.15 0 1.08.12 1.95-.45 2.88-.43.7-1.15 1.2-2.06 1.49-.39.12-.48.67-.14.9.62.43 1.28.72 1.98.89.18.04.31.2.32.38.05.74.68 1.02 1.28 1.12.21.04.39.17.49.36.54 1.08 1.78 1.22 2.45.84.49-.28 1.07-.28 1.56 0 .67.38 1.91.24 2.45-.84.1-.19.28-.32.49-.36.6-.1 1.23-.38 1.28-1.12.01-.18.14-.34.32-.38.7-.17 1.36-.46 1.98-.89.34-.23.25-.78-.14-.9-.91-.29-1.63-.79-2.06-1.49-.57-.93-.45-1.8-.45-2.88C16.65 5.24 14.7 3.1 12 3.1Z" fill="#fff" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/></svg></a>
 </div>`;
 
-function injectSocialDock(buffer) {
-  const html = buffer.toString('utf8');
-  if (html.includes('class="socialDock"')) return html;
-  return html.replace(/<\/body>/i, `${socialDock}\n</body>`);
+function injectSocialDock(buffer){const html=buffer.toString('utf8');return html.includes('class="socialDock"')?html:html.replace(/<\/body>/i,socialDock+'\n</body>')}
+function sendHtml(res,buffer){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-cache'});res.end(injectSocialDock(buffer))}
+function json(res,status,data){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data))}
+function parseCookies(req){const out={};String(req.headers.cookie||'').split(';').forEach(v=>{const i=v.indexOf('=');if(i>0)out[v.slice(0,i).trim()]=decodeURIComponent(v.slice(i+1).trim())});return out}
+function sign(v){return crypto.createHmac('sha256',process.env.SESSION_SECRET||'').update(v).digest('base64url')}
+function makeSession(user){const p=Buffer.from(JSON.stringify({u:user,exp:Date.now()+8*60*60*1000})).toString('base64url');return p+'.'+sign(p)}
+function sessionUser(req){const token=parseCookies(req).aml_session;if(!token)return null;const [p,s]=token.split('.');if(!p||!s)return null;const a=Buffer.from(sign(p)),b=Buffer.from(s);if(a.length!==b.length||!crypto.timingSafeEqual(a,b))return null;try{const o=JSON.parse(Buffer.from(p,'base64url').toString());return o.exp>Date.now()?o.u:null}catch{return null}}
+function requireAuth(req,res){const u=sessionUser(req);if(!u){json(res,401,{error:'Unauthorized'});return null}return u}
+function readBody(req,limit=1024*1024){return new Promise((resolve,reject)=>{let n=0,chunks=[];req.on('data',c=>{n+=c.length;if(n>limit){reject(new Error('Too large'));req.destroy();return}chunks.push(c)});req.on('end',()=>resolve(Buffer.concat(chunks)));req.on('error',reject)})}
+async function readJson(req){const b=await readBody(req);return JSON.parse(b.toString('utf8')||'{}')}
+function safeName(s){return String(s||'').trim().replace(/[<>:"/\\|?*\x00-\x1F]/g,'').slice(0,80)}
+function slug(s){return safeName(s).toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'collection'}
+function extOf(name,type){const e=path.extname(name||'').toLowerCase().replace(/[^.a-z0-9]/g,'');if(e&&e.length<=8)return e;return type.startsWith('video/')?'.mp4':'.jpg'}
+async function streamToBuffer(stream){const chunks=[];for await(const c of stream)chunks.push(Buffer.from(c));return Buffer.concat(chunks)}
+async function readMeta(){try{const o=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:META_KEY}));return JSON.parse((await streamToBuffer(o.Body)).toString('utf8'))}catch(e){if(e.name==='NoSuchKey'||e.$metadata?.httpStatusCode===404)return {version:1,collections:[]};throw e}}
+async function writeMeta(meta){await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:META_KEY,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}))}
+function publicMeta(meta){return {collections:meta.collections.map(c=>({id:c.id,name:c.name,createdAt:c.createdAt,cover:(c.items.find(i=>i.id===c.cover)||c.items[0]||null),items:c.items})).map(c=>({...c,cover:c.cover?{...c.cover,url:'/media/'+encodeURIComponent(c.cover.key)}:null,items:c.items.map(i=>({...i,url:'/media/'+encodeURIComponent(i.key)}))}))}}
+
+async function handleApi(req,res,pathname,url){
+  if(pathname==='/api/session'&&req.method==='GET'){const u=sessionUser(req);return u?json(res,200,{ok:true,user:u}):json(res,401,{error:'Unauthorized'})}
+  if(pathname==='/api/login'&&req.method==='POST'){try{const b=await readJson(req);const okUser=String(b.username||'')===(process.env.ADMIN_USER||'');const salt=Buffer.from(process.env.ADMIN_PASSWORD_SALT||'','base64');const expected=Buffer.from(process.env.ADMIN_PASSWORD_HASH||'','base64');const actual=crypto.scryptSync(String(b.password||''),salt,32,{N:16384,r:8,p:1});const okPass=expected.length===actual.length&&crypto.timingSafeEqual(expected,actual);if(!okUser||!okPass)return json(res,401,{error:'Invalid login'});const token=makeSession(b.username);res.writeHead(200,{'Content-Type':'application/json','Set-Cookie':'aml_session='+encodeURIComponent(token)+'; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800'});return res.end('{"ok":true}')}catch(e){return json(res,400,{error:'Bad request'})}}
+  if(pathname==='/api/logout'&&req.method==='POST'){res.writeHead(200,{'Content-Type':'application/json','Set-Cookie':'aml_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0'});return res.end('{"ok":true}')}
+  if(pathname==='/api/works'&&req.method==='GET'){try{return json(res,200,publicMeta(await readMeta()))}catch(e){console.error(e);return json(res,500,{error:'Could not load works'})}}
+  if(pathname.startsWith('/media/')&&req.method==='GET'){try{const key=decodeURIComponent(pathname.slice(7));const out=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key,Range:req.headers.range}));const headers={'Content-Type':out.ContentType||'application/octet-stream','Cache-Control':'public,max-age=3600','Accept-Ranges':'bytes'};if(out.ContentLength!=null)headers['Content-Length']=String(out.ContentLength);if(out.ContentRange)headers['Content-Range']=out.ContentRange;res.writeHead(out.ContentRange?206:200,headers);return out.Body.pipe(res)}catch(e){return json(res,404,{error:'Not found'})}
+  }
+  if(!pathname.startsWith('/api/admin/'))return false;
+  if(!requireAuth(req,res))return true;
+  try{
+    if(pathname==='/api/admin/collections'&&req.method==='GET')return json(res,200,publicMeta(await readMeta()));
+    if(pathname==='/api/admin/collections'&&req.method==='POST'){const b=await readJson(req);const name=safeName(b.name);if(!name)return json(res,400,{error:'Name required'});const meta=await readMeta();const id=slug(name)+'-'+crypto.randomBytes(3).toString('hex');meta.collections.unshift({id,name,createdAt:new Date().toISOString(),cover:null,items:[]});await writeMeta(meta);return json(res,201,{id,name})}
+    if(pathname==='/api/admin/upload'&&req.method==='POST'){const collection=url.searchParams.get('collection');const original=safeName(url.searchParams.get('name')||'file');const type=String(req.headers['content-type']||'');const len=Number(req.headers['content-length']||0);if(!type.startsWith('image/')&&!type.startsWith('video/'))return json(res,415,{error:'Images and videos only'});if(len>MAX_UPLOAD)return json(res,413,{error:'File too large'});const meta=await readMeta();const c=meta.collections.find(x=>x.id===collection);if(!c)return json(res,404,{error:'Folder not found'});const id=crypto.randomUUID();const key='works/'+c.id+'/'+Date.now()+'-'+crypto.randomBytes(4).toString('hex')+extOf(original,type);await new Upload({client:s3,params:{Bucket:BUCKET,Key:key,Body:req,ContentType:type,CacheControl:'public,max-age=31536000,immutable'}}).done();const item={id,key,type:type.startsWith('video/')?'video':'image',name:original,createdAt:new Date().toISOString()};c.items.push(item);if(!c.cover)c.cover=id;await writeMeta(meta);return json(res,201,{ok:true,item:{...item,url:'/media/'+encodeURIComponent(key)}})}
+    if(pathname==='/api/admin/cover'&&req.method==='POST'){const b=await readJson(req);const meta=await readMeta();const c=meta.collections.find(x=>x.id===b.collection);if(!c||!c.items.some(i=>i.id===b.item))return json(res,404,{error:'Not found'});c.cover=b.item;await writeMeta(meta);return json(res,200,{ok:true})}
+    if(pathname==='/api/admin/item'&&req.method==='DELETE'){const cid=url.searchParams.get('collection'),iid=url.searchParams.get('item');const meta=await readMeta();const c=meta.collections.find(x=>x.id===cid);if(!c)return json(res,404,{error:'Folder not found'});const i=c.items.findIndex(x=>x.id===iid);if(i<0)return json(res,404,{error:'Item not found'});const item=c.items[i];await s3.send(new DeleteObjectCommand({Bucket:BUCKET,Key:item.key}));c.items.splice(i,1);if(c.cover===iid)c.cover=c.items[0]?.id||null;await writeMeta(meta);return json(res,200,{ok:true})}
+    if(pathname==='/api/admin/collection'&&req.method==='DELETE'){const id=url.searchParams.get('id');const meta=await readMeta();const i=meta.collections.findIndex(x=>x.id===id);if(i<0)return json(res,404,{error:'Folder not found'});const c=meta.collections[i];if(c.items.length)await s3.send(new DeleteObjectsCommand({Bucket:BUCKET,Delete:{Objects:c.items.map(x=>({Key:x.key})),Quiet:true}}));meta.collections.splice(i,1);await writeMeta(meta);return json(res,200,{ok:true})}
+  }catch(e){console.error(e);return json(res,500,{error:'Server error'})}
+  return json(res,404,{error:'Not found'});
 }
 
-function sendHtml(res, buffer) {
-  res.writeHead(200, { 'Content-Type':'text/html; charset=utf-8', 'Cache-Control':'no-cache' });
-  res.end(injectSocialDock(buffer));
-}
-
-http.createServer((req, res) => {
-  let pathname = decodeURIComponent((req.url || '/').split('?')[0]);
-  if (pathname === '/') pathname = '/index.html';
-  const file = path.join(root, pathname.replace(/^\/+/, ''));
-  if (!file.startsWith(root)) { res.writeHead(403); return res.end('Forbidden'); }
-  fs.readFile(file, (err, data) => {
-    if (err) {
-      fs.readFile(path.join(root, 'index.html'), (e2, fallback) => {
-        if (e2) { res.writeHead(404); return res.end('Not found'); }
-        sendHtml(res, fallback);
-      });
-      return;
-    }
-    const ext = path.extname(file).toLowerCase();
-    if (ext === '.html') return sendHtml(res, data);
-    res.writeHead(200, { 'Content-Type': types[ext] || 'application/octet-stream', 'Cache-Control':'public, max-age=300' });
-    res.end(data);
-  });
-}).listen(port, '0.0.0.0', () => console.log(`AML portfolio listening on ${port}`));
+http.createServer(async (req,res)=>{
+  const url=new URL(req.url||'/', 'http://localhost');
+  const pathname=decodeURIComponent(url.pathname);
+  try{const handled=await handleApi(req,res,pathname,url);if(handled!==false)return}catch(e){console.error(e);return json(res,500,{error:'Server error'})}
+  if(pathname==='/manage'||pathname==='/manage/'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow'});return res.end(managerHtml)}
+  let filePath=pathname==='/'?'/index.html':pathname;const file=path.join(root,filePath.replace(/^\/+/,''));if(!file.startsWith(root)){res.writeHead(403);return res.end('Forbidden')}
+  fs.readFile(file,(err,data)=>{if(err){fs.readFile(path.join(root,'index.html'),(e2,fallback)=>{if(e2){res.writeHead(404);return res.end('Not found')}sendHtml(res,fallback)});return}const ext=path.extname(file).toLowerCase();if(ext==='.html')return sendHtml(res,data);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public,max-age=300'});res.end(data)})
+}).listen(port,'0.0.0.0',()=>console.log('AML portfolio listening on '+port));
