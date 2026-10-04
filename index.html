@@ -202,7 +202,7 @@ function setView(tab){
   tabs.forEach(x=>x.classList.toggle('active',x===tab));
   views.forEach(v=>v.classList.toggle('active',v.id===tab.dataset.view));
   const onWorks=tab.dataset.view==='works';
-  if(onWorks&&new URLSearchParams(location.search).get('preview')!=='1'){collectionViewer?.setAttribute('hidden','');mediaLightbox?.setAttribute('hidden','');document.body.classList.remove('mediaOverlayOpen');}
+  if(onWorks&&new URLSearchParams(location.search).get('preview')!=='1'){const cv=document.getElementById('collectionViewer'),lb=document.getElementById('mediaLightbox');if(cv)cv.hidden=true;if(lb)lb.hidden=true;document.body.classList.remove('mediaOverlayOpen');}
   if(onWorks){
     if(worksBg){worksBg.playbackRate=.86;safePlay(worksBg);}
     if(talking){talking.muted=true;safePlay(talking);}
