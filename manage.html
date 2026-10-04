@@ -25,7 +25,7 @@
 <div id="loginView" class="loginWrap">
   <form class="loginCard" id="loginForm">
     <h1>AML Studio</h1>
-    <div class="field"><label>اسم المستخدم</label><input id="user" autocomplete="username" required></div>
+    <div class="field"><label>اسم المستخدم</label><input id="user" autocomplete="username" autocorrect="off" spellcheck="false" required></div>
     <div class="field"><label>كلمة المرور</label><input id="pass" type="password" autocomplete="current-password" required></div>
     <div class="error" id="loginErr"></div>
     <button class="btn dark" style="width:100%" type="submit">دخول</button>
@@ -73,7 +73,7 @@ function mediaTag(item,opts={}){if(!item)return '<div class="emptyCover">لا ت
 function openNameModal(mode){nameMode=mode;$('#nameModalTitle').textContent=mode==='create'?'ألبوم جديد':'تعديل اسم الألبوم';$('#albumNameInput').value=mode==='rename'&&current?current.name:'';$('#nameModal').hidden=false;setTimeout(()=>$('#albumNameInput').focus(),20)}
 function closeNameModal(){$('#nameModal').hidden=true}
 async function boot(){try{await api('/api/session');$('#loginView').hidden=true;$('#appView').hidden=false;await load()}catch(e){$('#loginView').hidden=false;$('#appView').hidden=true}}
-$('#loginForm').addEventListener('submit',async e=>{e.preventDefault();$('#loginErr').textContent='';try{await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('#user').value,password:$('#pass').value})});await boot()}catch(e){$('#loginErr').textContent='بيانات الدخول غير صحيحة'}});
+$('#loginForm').addEventListener('submit',async e=>{e.preventDefault();$('#loginErr').textContent='';try{await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('#user').value.trim().toLowerCase(),password:$('#pass').value})});await boot()}catch(e){$('#loginErr').textContent='بيانات الدخول غير صحيحة'}});
 $('#logoutBtn').onclick=async()=>{await fetch('/api/logout',{method:'POST'});location.reload()};
 $('#newFolderBtn').onclick=()=>openNameModal('create');
 $('#renameBtn').onclick=()=>openNameModal('rename');
