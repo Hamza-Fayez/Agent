@@ -51,8 +51,8 @@
 #works .viewerClose,#works .lightboxClose{flex:0 0 auto;width:42px;height:42px;border-radius:999px;border:1px solid #d8cec4;background:#fff;color:#171513;font-size:26px;line-height:1}
 #works .viewerTitle{font:500 30px/1 Georgia,"Times New Roman",serif;letter-spacing:-.03em}
 #works .viewerCount{font-size:9px;color:#777067;margin-top:4px}
-#works .viewerGrid{column-count:3;column-gap:8px}
-#works .viewerItem{position:relative;display:block;width:100%;margin:0 0 8px;border:0;padding:0;border-radius:14px;overflow:hidden;background:#ddd3ca;break-inside:avoid;cursor:zoom-in}
+#works .viewerGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:start}
+#works .viewerItem{position:relative;display:block;width:100%;margin:0;border:0;padding:0;border-radius:14px;overflow:hidden;background:#ddd3ca;cursor:zoom-in}
 #works .viewerItem img,#works .viewerItem video{display:block;width:100%;height:auto;object-fit:cover;background:#111}
 #works .viewerItem.isVideo:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:999px;display:grid;place-items:center;background:rgba(15,13,12,.6);color:#fff;font-size:15px;backdrop-filter:blur(12px)}
 
@@ -70,7 +70,7 @@
 
 @media(max-width:900px){
   #works .collectionsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #works .viewerGrid{column-count:2}
+  #works .viewerGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:760px){
   #works .worksHero{padding:9px 8px 8px}
@@ -88,8 +88,8 @@
   #works .collectionTop{min-height:58px;padding:4px 3px 8px}
   #works .viewerClose{width:39px;height:39px}
   #works .viewerTitle{font-size:25px}
-  #works .viewerGrid{column-count:2;column-gap:5px}
-  #works .viewerItem{margin-bottom:5px;border-radius:10px}
+  #works .viewerGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+  #works .viewerItem{margin:0;border-radius:10px}
   #works .mediaLightbox{grid-template-columns:44px minmax(0,1fr) 44px;grid-template-rows:52px minmax(0,1fr);padding:max(5px,env(safe-area-inset-top)) 3px max(7px,env(safe-area-inset-bottom))}
   #works .lightboxNav{width:38px;height:38px;font-size:25px;background:rgba(255,255,255,.1)}
   #works .lightboxStage img,#works .lightboxStage video{max-height:calc(100svh - 66px);border-radius:2px}
