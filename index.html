@@ -19,43 +19,52 @@
 .app{grid-template-rows:58px 1fr;padding:0 7px 7px}.top{grid-template-columns:1fr auto}.brandmeta,.loc{display:none}.brandmark{font-size:27px}.tabs{justify-self:end}.tab{padding:8px 13px;font-size:10px}.stage{border-radius:22px}.composition{grid-template-columns:1.35fr .78fr;grid-template-rows:1.15fr .85fr .82fr;gap:5px;padding:5px}.p1{grid-column:1;grid-row:1/4;border-radius:18px 6px 6px 18px}.p2{grid-column:2;grid-row:1;border-radius:6px 18px 6px 6px}.p3{grid-column:2;grid-row:2;border-radius:6px}.p4{grid-column:2;grid-row:3;border-radius:6px 6px 18px 6px}.p5{display:none}.composition:after{inset:5px;border-radius:18px;background:linear-gradient(180deg,transparent 25%,rgba(0,0,0,.12) 50%,rgba(0,0,0,.72) 100%)}.heroCopy{left:18px;right:18px;bottom:22px}.heroCopy h1{font-size:clamp(52px,17vw,74px)}.heroCopy p{font-size:10px}.eyebrow{font-size:7px}.edition{right:16px;top:14px;bottom:auto;font-size:20px}.infoView{grid-template-columns:1fr;grid-template-rows:42% 58%}.infoPhoto img{object-position:center 16%}.infoPanel{padding:18px 20px;justify-content:flex-start}.small{font-size:7px}.infoPanel h2{font-size:40px;margin:6px 0 10px}.fact{padding:8px 0}.fact span{font-size:9px}.fact b{font-size:11px}.bio{font-size:9px;line-height:1.55;margin-top:10px}}
 .infoPhoto{background:#fff}.infoPhoto img{object-fit:contain;object-position:center center}.infoPhoto:after{background:none}.photoLabel{color:#67594b;background:rgba(255,255,255,.85);padding:8px 12px;border-radius:20px}@media(max-width:760px){.infoPhoto img{object-fit:contain;object-position:center center}}
 
-/* WORKS — clean portfolio gallery */
-
-/* Critical overlay visibility guard */
-#works .collectionViewer[hidden],
-#works .mediaLightbox[hidden]{display:none!important}
-
-#works{background:#f3eee7;color:#171513;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+/* WORKS — profile landing + portfolio browser */
+#works .collectionViewer[hidden],#works .mediaLightbox[hidden],#works .worksArchive[hidden]{display:none!important}
+#works{background:#aaa;overflow-y:auto;scrollbar-width:none;color:#141414}
 #works::-webkit-scrollbar{display:none}
-#works .worksHero{background:#f3eee7;padding:18px 12px 10px}
-#works .singleFilmWrap{display:flex;justify-content:center;max-width:1100px;margin:0 auto}
-#works .singleFilmCard{position:relative;width:min(38vw,430px);aspect-ratio:576/944;overflow:hidden;border-radius:24px;background:#171513;border:1px solid rgba(23,21,19,.1);box-shadow:0 24px 64px rgba(38,30,23,.14)}
-#works .singleFilmCard .talkingVideo{width:100%;height:100%;display:block;object-fit:cover;object-position:center;background:#171513}
-#works .singleFilmCard:after{content:"";position:absolute;inset:72% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.32));pointer-events:none}
-#works .soundToggle{position:absolute;left:13px;bottom:13px;z-index:3;border:1px solid rgba(255,255,255,.24);background:rgba(14,13,12,.5);color:#fff;border-radius:999px;padding:9px 12px;display:flex;align-items:center;gap:7px;backdrop-filter:blur(16px);font-size:9px}
-#works .soundToggle svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-#works .worksArchive{padding:30px 12px 46px;background:#f3eee7;color:#171513}
-#works .worksSectionHead{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 2px 16px}
-#works .worksSectionHead h2{margin:0;font:500 clamp(32px,4vw,50px)/.95 Georgia,"Times New Roman",serif;letter-spacing:-.04em}
-#works .worksSectionHead span{font-size:10px;color:#777067}
-#works .collectionsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-#works .collectionCard{position:relative;aspect-ratio:4/5;border:0;border-radius:20px;overflow:hidden;background:#dcd2c8;padding:0;cursor:pointer;color:#fff;text-align:right;box-shadow:0 10px 28px rgba(41,31,21,.06)}
+#works .worksLanding{min-height:100%;display:grid;place-items:center;padding:28px;background:#a9aaac}
+#works .profileCard{position:relative;width:min(100%,650px);min-height:min(780px,calc(100svh - 120px));padding:80px 32px 34px;border-radius:28px;background:
+linear-gradient(145deg,rgba(255,255,255,.96),rgba(242,238,235,.93)),
+radial-gradient(circle at 20% 15%,rgba(255,255,255,.8),transparent 32%);
+box-shadow:0 28px 80px rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center}
+#works .shareBtn{position:absolute;top:28px;right:28px;width:46px;height:46px;border:0;border-radius:14px;background:#fff;color:#111;display:grid;place-items:center;box-shadow:0 5px 18px rgba(0,0,0,.08)}
+#works .shareBtn svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#works .profileAvatarWrap{width:108px;height:108px;border-radius:999px;overflow:hidden;background:#d8d2cc;border:1px solid rgba(0,0,0,.06);box-shadow:0 8px 26px rgba(0,0,0,.1)}
+#works .profileAvatar{width:100%;height:100%;display:block;object-fit:cover}
+#works .profileName{margin:17px 0 6px;font:500 30px/1 Georgia,"Times New Roman",serif;letter-spacing:.28em;padding-left:.28em}
+#works .profileTagline{margin:0 0 38px;font:400 17px/1.5 Georgia,"Times New Roman",serif;color:#25211d;text-align:center}
+#works .linkStack{width:100%;display:grid;gap:13px}
+#works .profileLink{width:100%;min-height:74px;border:1.4px solid #171513;border-radius:999px;background:transparent;color:#171513;text-decoration:none;display:grid;grid-template-columns:52px 1fr 52px;align-items:center;padding:0 14px;font-size:14px;transition:transform .18s ease,background .18s ease}
+#works .profileLink:active{transform:scale(.985)}
+#works .profileLink:hover{background:rgba(255,255,255,.52)}
+#works .linkIcon{display:grid;place-items:center}
+#works .linkIcon svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#works .linkDots{font-size:13px;letter-spacing:2px;color:#5f5a55;direction:ltr}
+#works .profileSocials{margin-top:auto;padding-top:34px;display:flex;gap:24px;direction:ltr}
+#works .profileSocials a{color:#111;text-decoration:none;font-size:27px;line-height:1}
+
+#works .portfolioBrowser{position:fixed;inset:0;z-index:75;background:#f3eee7;overflow:auto;padding:max(10px,env(safe-area-inset-top)) 12px 34px}
+#works .portfolioTop{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:14px;min-height:68px;background:rgba(243,238,231,.93);backdrop-filter:blur(18px);padding:6px 0 10px}
+#works .portfolioTop h2{margin:0;font:500 30px/1 Georgia,"Times New Roman",serif}
+#works .portfolioTop span{display:block;margin-top:4px;font-size:9px;color:#777067}
+#works .portfolioClose,#works .viewerClose,#works .lightboxClose{width:42px;height:42px;flex:0 0 auto;border-radius:999px;border:1px solid #d8cec4;background:#fff;color:#171513;font-size:26px;line-height:1}
+#works .collectionsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:1080px;margin:0 auto}
+#works .collectionCard{position:relative;aspect-ratio:4/5;border:0;border-radius:20px;overflow:hidden;background:#dcd2c8;padding:0;cursor:pointer;color:#fff;text-align:right}
 #works .collectionCard img,#works .collectionCard video{width:100%;height:100%;object-fit:cover;display:block}
 #works .collectionCard:after{content:"";position:absolute;inset:48% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.78));pointer-events:none}
 #works .collectionMeta{position:absolute;z-index:2;right:14px;left:14px;bottom:13px}
-#works .collectionMeta b{display:block;font:500 23px/1.05 Georgia,"Times New Roman",serif;letter-spacing:-.02em}
+#works .collectionMeta b{display:block;font:500 23px/1.05 Georgia,"Times New Roman",serif}
+#works .collectionMeta b:empty{display:none}
 #works .collectionMeta span{display:block;margin-top:5px;font-size:9px;color:rgba(255,255,255,.75)}
 
 #works .collectionViewer{position:fixed;inset:0;z-index:80;background:#f3eee7;color:#171513;overflow:auto;padding:max(12px,env(safe-area-inset-top)) 14px 30px}
 #works .collectionTop{position:sticky;top:0;z-index:4;min-height:66px;display:flex;align-items:center;gap:14px;background:rgba(243,238,231,.94);backdrop-filter:blur(18px);padding:7px 0 10px}
-#works .viewerClose,#works .lightboxClose{flex:0 0 auto;width:42px;height:42px;border-radius:999px;border:1px solid #d8cec4;background:#fff;color:#171513;font-size:26px;line-height:1}
-#works .viewerTitle{font:500 30px/1 Georgia,"Times New Roman",serif;letter-spacing:-.03em}
-#works .viewerCount{font-size:9px;color:#777067;margin-top:4px}
+#works .viewerTitle{font:500 30px/1 Georgia,"Times New Roman",serif}.viewerCount{font-size:9px;color:#777067;margin-top:4px}
 #works .viewerGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:start}
 #works .viewerItem{position:relative;display:block;width:100%;margin:0;border:0;padding:0;border-radius:14px;overflow:hidden;background:#ddd3ca;cursor:zoom-in}
 #works .viewerItem img,#works .viewerItem video{display:block;width:100%;height:auto;object-fit:cover;background:#111}
 #works .viewerItem.isVideo:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:999px;display:grid;place-items:center;background:rgba(15,13,12,.6);color:#fff;font-size:15px;backdrop-filter:blur(12px)}
-
 #works .mediaLightbox{position:fixed;inset:0;z-index:100;background:#0c0b0a;color:#fff;display:grid;grid-template-columns:72px minmax(0,1fr) 72px;grid-template-rows:58px minmax(0,1fr);padding:max(6px,env(safe-area-inset-top)) 8px max(8px,env(safe-area-inset-bottom))}
 #works .lightboxTop{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;direction:ltr}
 #works .lightboxClose{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff}
@@ -64,39 +73,31 @@
 #works .lightboxStage img,#works .lightboxStage video{display:block;max-width:100%;max-height:calc(100svh - 78px);width:auto;height:auto;object-fit:contain;border-radius:5px}
 #works .lightboxStage video{width:min(100%,1000px);background:#000}
 #works .lightboxNav{grid-row:2;align-self:center;width:52px;height:52px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;font-size:34px}
-#works .lightboxPrev{grid-column:1}
-#works .lightboxNext{grid-column:3}
-.mediaOverlayOpen{overflow:hidden!important}
-
-@media(max-width:900px){
-  #works .collectionsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #works .viewerGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
+#works .lightboxPrev{grid-column:1}#works .lightboxNext{grid-column:3}
+.mediaOverlayOpen{overflow:hidden!important}.worksLandingActive .socialDock{display:none!important}
+@media(max-width:900px){#works .collectionsGrid,#works .viewerGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){
-  #works .worksHero{padding:9px 8px 8px}
-  #works .singleFilmCard{width:min(86vw,390px);border-radius:20px;box-shadow:0 14px 38px rgba(38,30,23,.11)}
-  #works .soundToggle{left:10px;bottom:10px;padding:8px 10px;font-size:8px}
-  #works .worksArchive{padding:22px 0 26px}
-  #works .worksSectionHead{margin:0 8px 13px}
-  #works .worksSectionHead h2{font-size:31px}
-  #works .collectionsGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-  #works .collectionCard{border-radius:15px}
+  #works .worksLanding{padding:0;background:#f3eee7}
+  #works .profileCard{width:100%;min-height:100%;border-radius:0;padding:72px 22px 28px;box-shadow:none;background:linear-gradient(155deg,#f8f5f1,#eee8e1)}
+  #works .shareBtn{top:18px;right:18px;width:43px;height:43px}
+  #works .profileAvatarWrap{width:96px;height:96px}
+  #works .profileName{font-size:27px;margin-top:15px}
+  #works .profileTagline{font-size:15px;margin-bottom:31px}
+  #works .linkStack{gap:11px}
+  #works .profileLink{min-height:67px;padding:0 12px;grid-template-columns:48px 1fr 48px;font-size:13px}
+  #works .linkIcon svg{width:25px;height:25px}
+  #works .profileSocials{padding-top:28px}
+  #works .portfolioBrowser{padding:max(7px,env(safe-area-inset-top)) 7px 18px}
+  #works .collectionsGrid{gap:6px}
+  #works .collectionCard{border-radius:14px}
   #works .collectionMeta{right:10px;left:10px;bottom:10px}
   #works .collectionMeta b{font-size:18px}
-  #works .collectionMeta span{font-size:8px}
   #works .collectionViewer{padding:max(7px,env(safe-area-inset-top)) 6px 18px}
-  #works .collectionTop{min-height:58px;padding:4px 3px 8px}
-  #works .viewerClose{width:39px;height:39px}
-  #works .viewerTitle{font-size:25px}
   #works .viewerGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
-  #works .viewerItem{margin:0;border-radius:10px}
+  #works .viewerItem{border-radius:10px}
   #works .mediaLightbox{grid-template-columns:44px minmax(0,1fr) 44px;grid-template-rows:52px minmax(0,1fr);padding:max(5px,env(safe-area-inset-top)) 3px max(7px,env(safe-area-inset-bottom))}
-  #works .lightboxNav{width:38px;height:38px;font-size:25px;background:rgba(255,255,255,.1)}
-  #works .lightboxStage img,#works .lightboxStage video{max-height:calc(100svh - 66px);border-radius:2px}
-}
-@media(max-width:380px){#works .singleFilmCard{width:90vw}#works .collectionMeta b{font-size:16px}}#works .collectionMeta b{font-size:16px}}
-  #works .ambientPanel{height:190px;min-height:190px}
-  #works .collectionMeta b{font-size:16px}
+  #works .lightboxNav{width:38px;height:38px;font-size:25px}
+  #works .lightboxStage img,#works .lightboxStage video{max-height:calc(100svh - 66px)}
 }
 
 </style>
@@ -141,30 +142,58 @@
   </section>
 
   <section class="view worksView" id="works">
-    <div class="worksHero">
-      <div class="singleFilmWrap">
-        <article class="singleFilmCard">
-          <video class="talkingVideo" id="talkingVideo" muted loop playsinline preload="metadata" poster="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/bb2efc827fede69f0ab73ca15b8456b43c00e9e5b92455c75932b133f97acb76.jpg">
-            <source src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/d200821f3a7883c0e15a279629af7e8b8fc03162675fd97979097de51020ed32.mov" type="video/mp4">
-          </video>
-          <button class="soundToggle" id="soundToggle" type="button" aria-label="تشغيل الصوت">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5L11 19V5Z"/><path class="soundWave" d="M15 9.5a4 4 0 0 1 0 5"/><path class="soundWave" d="M17.8 7a7.5 7.5 0 0 1 0 10"/></svg>
-            <span>تشغيل الصوت</span>
+    <div class="worksLanding">
+      <div class="profileCard">
+        <button class="shareBtn" id="shareWorks" type="button" aria-label="مشاركة">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M6 11H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>
+        </button>
+        <div class="profileAvatarWrap">
+          <img id="worksAvatar" class="profileAvatar" alt="AMAL">
+        </div>
+        <h1 class="profileName">AMAL</h1>
+        <p class="profileTagline" id="profileTagline">Model Portfolio</p>
+
+        <div class="linkStack">
+          <button class="profileLink primaryLink" id="portfolioOpenBtn" type="button">
+            <span class="linkIcon"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v5h5M10 13h6M10 17h6"/></svg></span>
+            <span>ملف الأعمال</span>
+            <span class="linkDots">•••</span>
           </button>
-        </article>
+          <a class="profileLink" href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer">
+            <span class="linkIcon"><svg viewBox="0 0 24 24"><path d="M14.25 3.2c.45 2.45 1.82 3.86 4.15 4.28V9.7a7.12 7.12 0 0 1-4.15-1.6v5.25a4.5 4.5 0 1 1-3.15-4.29v2.35a2.3 2.3 0 1 0 1.05 1.94V3.2h2.1Z" fill="currentColor" stroke="none"/></svg></span>
+            <span>تيك توك</span>
+            <span class="linkDots">•••</span>
+          </a>
+          <a class="profileLink" href="https://snapchat.com/t/OtS0exp9" target="_blank" rel="noopener noreferrer">
+            <span class="linkIcon"><svg viewBox="0 0 24 24"><path d="M12 3.1c-2.7 0-4.65 2.14-4.65 5.15 0 1.08.12 1.95-.45 2.88-.43.7-1.15 1.2-2.06 1.49-.39.12-.48.67-.14.9.62.43 1.28.72 1.98.89.18.04.31.2.32.38.05.74.68 1.02 1.28 1.12.21.04.39.17.49.36.54 1.08 1.78 1.22 2.45.84.49-.28 1.07-.28 1.56 0 .67.38 1.91.24 2.45-.84.1-.19.28-.32.49-.36.6-.1 1.23-.38 1.28-1.12.01-.18.14-.34.32-.38.7-.17 1.36-.46 1.98-.89.34-.23.25-.78-.14-.9-.91-.29-1.63-.79-2.06-1.49-.57-.93-.45-1.8-.45-2.88C16.65 5.24 14.7 3.1 12 3.1Z" fill="none"/></svg></span>
+            <span>سناب شات</span>
+            <span class="linkDots">•••</span>
+          </a>
+        </div>
+
+        <div class="profileSocials">
+          <a href="https://snapchat.com/t/OtS0exp9" target="_blank" rel="noopener noreferrer" aria-label="Snapchat">◉</a>
+          <a href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer" aria-label="TikTok">♪</a>
+        </div>
       </div>
     </div>
-    <section class="worksArchive" id="worksArchive" hidden>
-      <div class="worksSectionHead"><h2>الألبومات</h2><span id="albumsCount"></span></div>
+
+    <section class="worksArchive portfolioBrowser" id="worksArchive" hidden>
+      <header class="portfolioTop">
+        <button class="portfolioClose" id="portfolioClose" type="button" aria-label="إغلاق">×</button>
+        <div><h2>ملف الأعمال</h2><span id="albumsCount"></span></div>
+      </header>
       <div class="collectionsGrid" id="worksGrid"></div>
     </section>
+
     <div class="collectionViewer" id="collectionViewer" hidden>
       <header class="collectionTop">
-        <button class="viewerClose" id="viewerClose" type="button" aria-label="إغلاق">×</button>
+        <button class="viewerClose" id="viewerClose" type="button" aria-label="رجوع">‹</button>
         <div><div class="viewerTitle" id="viewerTitle"></div><div class="viewerCount" id="viewerCount"></div></div>
       </header>
       <div class="viewerGrid" id="viewerGrid"></div>
     </div>
+
     <div class="mediaLightbox" id="mediaLightbox" hidden>
       <header class="lightboxTop">
         <button class="lightboxClose" id="lightboxClose" type="button" aria-label="إغلاق">×</button>
@@ -181,35 +210,13 @@
 <script>
 const tabs=[...document.querySelectorAll('.tab')];
 const views=[...document.querySelectorAll('.view')];
-const talking=document.getElementById('talkingVideo');
-const soundToggle=document.getElementById('soundToggle');
-
-function safePlay(video){if(!video)return;const p=video.play();if(p&&p.catch)p.catch(()=>{});}
-function setView(tab){
-  tabs.forEach(x=>x.classList.toggle('active',x===tab));
-  views.forEach(v=>v.classList.toggle('active',v.id===tab.dataset.view));
-  const onWorks=tab.dataset.view==='works';
-  if(onWorks&&new URLSearchParams(location.search).get('preview')!=='1'){const cv=document.getElementById('collectionViewer'),lb=document.getElementById('mediaLightbox');if(cv)cv.hidden=true;if(lb)lb.hidden=true;document.body.classList.remove('mediaOverlayOpen');}
-  if(onWorks){if(talking){talking.muted=true;safePlay(talking)}updateSoundUI()}else{if(talking){talking.pause();talking.muted=true}updateSoundUI()}
-}
-tabs.forEach(t=>t.addEventListener('click',()=>setView(t)));
-const initialView=new URLSearchParams(location.search).get('view');if(initialView){const initialTab=tabs.find(t=>t.dataset.view===initialView);if(initialTab)setView(initialTab)}
-
-function updateSoundUI(){
-  if(!soundToggle||!talking)return;
-  const label=soundToggle.querySelector('span');
-  if(label)label.textContent=talking.muted?'تشغيل الصوت':'كتم الصوت';
-  soundToggle.setAttribute('aria-label',talking.muted?'تشغيل الصوت':'كتم الصوت');
-  soundToggle.querySelectorAll('.soundWave').forEach(x=>x.style.opacity=talking.muted?'.28':'1');
-}
-if(soundToggle&&talking){
-  soundToggle.addEventListener('click',e=>{e.stopPropagation();talking.muted=!talking.muted;safePlay(talking);updateSoundUI()});
-  talking.addEventListener('click',()=>{if(talking.paused)safePlay(talking);else talking.pause()});
-  updateSoundUI();
-}
 const worksArchive=document.getElementById('worksArchive');
 const worksGrid=document.getElementById('worksGrid');
 const albumsCount=document.getElementById('albumsCount');
+const portfolioOpenBtn=document.getElementById('portfolioOpenBtn');
+const portfolioClose=document.getElementById('portfolioClose');
+const worksAvatar=document.getElementById('worksAvatar');
+const shareWorks=document.getElementById('shareWorks');
 const collectionViewer=document.getElementById('collectionViewer');
 const viewerClose=document.getElementById('viewerClose');
 const viewerTitle=document.getElementById('viewerTitle');
@@ -223,21 +230,35 @@ const lightboxPrev=document.getElementById('lightboxPrev');
 const lightboxNext=document.getElementById('lightboxNext');
 let worksCollections=[],activeCollection=null,activeIndex=0,touchStartX=0;
 function htmlEsc(s){return String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
-function mediaMarkup(item,mode){if(!item)return '';if(item.type==='video'){return mode==='lightbox'?'<video src="'+item.url+'" controls playsinline preload="metadata"></video>':'<video src="'+item.url+'" muted playsinline preload="metadata"></video>'}return '<img src="'+item.url+'" alt="" loading="'+(mode==='lightbox'?'eager':'lazy')+'">'}
-function setOverlayState(){document.body.classList.toggle('mediaOverlayOpen',!collectionViewer.hidden||!mediaLightbox.hidden)}
+function mediaMarkup(item,mode){if(!item)return '';if(item.type==='video')return mode==='lightbox'?'<video src="'+item.url+'" controls playsinline preload="metadata"></video>':'<video src="'+item.url+'" muted playsinline preload="metadata"></video>';return '<img src="'+item.url+'" alt="" loading="'+(mode==='lightbox'?'eager':'lazy')+'">'}
+function setOverlayState(){document.body.classList.toggle('mediaOverlayOpen',!worksArchive.hidden||!collectionViewer.hidden||!mediaLightbox.hidden)}
+function setView(tab){
+  tabs.forEach(x=>x.classList.toggle('active',x===tab));
+  views.forEach(v=>v.classList.toggle('active',v.id===tab.dataset.view));
+  const onWorks=tab.dataset.view==='works';
+  document.body.classList.toggle('worksLandingActive',onWorks);
+  if(!onWorks){worksArchive.hidden=true;collectionViewer.hidden=true;mediaLightbox.hidden=true;setOverlayState()}
+}
+tabs.forEach(t=>t.addEventListener('click',()=>setView(t)));
+const initialView=new URLSearchParams(location.search).get('view');if(initialView){const initialTab=tabs.find(t=>t.dataset.view===initialView);if(initialTab)setView(initialTab)}
+
+function openPortfolio(){worksArchive.hidden=false;setOverlayState()}
+function closePortfolio(){worksArchive.hidden=true;setOverlayState()}
+portfolioOpenBtn?.addEventListener('click',openPortfolio);
+portfolioClose?.addEventListener('click',closePortfolio);
+
 function openCollection(c){activeCollection=c;viewerTitle.textContent=c.name||'';viewerCount.textContent=c.items.length+' ملف';viewerGrid.innerHTML=c.items.map((i,idx)=>'<button class="viewerItem '+(i.type==='video'?'isVideo':'')+'" type="button" data-index="'+idx+'">'+mediaMarkup(i,'thumb')+'</button>').join('');viewerGrid.querySelectorAll('.viewerItem').forEach(b=>b.onclick=()=>openLightbox(Number(b.dataset.index)));collectionViewer.hidden=false;setOverlayState()}
-function closeCollection(){if(!mediaLightbox.hidden)closeLightbox();collectionViewer.hidden=true;viewerGrid.querySelectorAll('video').forEach(v=>v.pause());viewerGrid.innerHTML='';activeCollection=null;setOverlayState()}
+function closeCollection(){if(!mediaLightbox.hidden)closeLightbox();collectionViewer.hidden=true;viewerGrid.innerHTML='';activeCollection=null;setOverlayState()}
 function renderLightbox(){if(!activeCollection||!activeCollection.items.length)return;activeIndex=(activeIndex+activeCollection.items.length)%activeCollection.items.length;lightboxStage.innerHTML=mediaMarkup(activeCollection.items[activeIndex],'lightbox');lightboxCounter.textContent=(activeIndex+1)+' / '+activeCollection.items.length}
 function openLightbox(index){activeIndex=index;mediaLightbox.hidden=false;renderLightbox();setOverlayState()}
 function closeLightbox(){mediaLightbox.hidden=true;lightboxStage.querySelectorAll('video').forEach(v=>v.pause());lightboxStage.innerHTML='';setOverlayState()}
 function stepLightbox(delta){if(!activeCollection)return;activeIndex+=delta;renderLightbox()}
-if(viewerClose)viewerClose.addEventListener('click',closeCollection);
-if(lightboxClose)lightboxClose.addEventListener('click',closeLightbox);
-if(lightboxPrev)lightboxPrev.addEventListener('click',()=>stepLightbox(-1));
-if(lightboxNext)lightboxNext.addEventListener('click',()=>stepLightbox(1));
+viewerClose?.addEventListener('click',closeCollection);lightboxClose?.addEventListener('click',closeLightbox);lightboxPrev?.addEventListener('click',()=>stepLightbox(-1));lightboxNext?.addEventListener('click',()=>stepLightbox(1));
 if(lightboxStage){lightboxStage.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX},{passive:true});lightboxStage.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>45)stepLightbox(dx>0?-1:1)},{passive:true})}
-document.addEventListener('keydown',e=>{if(!mediaLightbox.hidden){if(e.key==='ArrowRight')stepLightbox(1);if(e.key==='ArrowLeft')stepLightbox(-1);if(e.key==='Escape')closeLightbox()}else if(!collectionViewer.hidden&&e.key==='Escape')closeCollection()});
-async function loadWorks(){try{const r=await fetch('/api/works',{cache:'no-store'});if(!r.ok)return;const data=await r.json();worksCollections=data.collections||[];if(!worksCollections.length){worksArchive.hidden=true;return}worksArchive.hidden=false;albumsCount.textContent=worksCollections.length+' ألبوم';worksGrid.innerHTML=worksCollections.map((c,idx)=>'<button class="collectionCard" type="button" data-i="'+idx+'">'+(c.cover?mediaMarkup(c.cover,'cover'):'')+'<span class="collectionMeta"><b>'+htmlEsc(c.name)+'</b><span>'+c.items.length+' ملف</span></span></button>').join('');worksGrid.querySelectorAll('.collectionCard').forEach(b=>{const c=worksCollections[Number(b.dataset.i)];b.onclick=()=>openCollection(c)});const p=new URLSearchParams(location.search);if(p.get('preview')==='1'&&p.get('album')){const c=worksCollections.find(x=>x.id===p.get('album'));if(c)openCollection(c)}else if(p.has('album')||p.has('item')||p.has('preview')){const u=new URL(location.href);u.searchParams.delete('album');u.searchParams.delete('item');u.searchParams.delete('preview');history.replaceState({},'',u)}}catch(e){console.error(e)}}
+document.addEventListener('keydown',e=>{if(!mediaLightbox.hidden){if(e.key==='ArrowRight')stepLightbox(1);if(e.key==='ArrowLeft')stepLightbox(-1);if(e.key==='Escape')closeLightbox()}else if(!collectionViewer.hidden&&e.key==='Escape')closeCollection();else if(!worksArchive.hidden&&e.key==='Escape')closePortfolio()});
+shareWorks?.addEventListener('click',async()=>{try{if(navigator.share)await navigator.share({title:'AMAL',url:location.origin+'/?view=works'});else await navigator.clipboard.writeText(location.origin+'/?view=works')}catch{}});
+
+async function loadWorks(){try{const r=await fetch('/api/works',{cache:'no-store'});if(!r.ok)return;const data=await r.json();worksCollections=data.collections||[];albumsCount.textContent=worksCollections.length+' ألبوم';worksGrid.innerHTML=worksCollections.map((c,idx)=>'<button class="collectionCard" type="button" data-i="'+idx+'">'+(c.cover?mediaMarkup(c.cover,'cover'):'')+'<span class="collectionMeta"><b>'+htmlEsc(c.name)+'</b><span>'+c.items.length+' ملف</span></span></button>').join('');worksGrid.querySelectorAll('.collectionCard').forEach(b=>{const c=worksCollections[Number(b.dataset.i)];b.onclick=()=>openCollection(c)});const avatar=worksCollections.find(c=>c.cover)?.cover||worksCollections.flatMap(c=>c.items).find(i=>i.type==='image');if(avatar&&worksAvatar)worksAvatar.src=avatar.url;portfolioOpenBtn.disabled=!worksCollections.length}catch(e){console.error(e)}}
 loadWorks();
 </script>
 </body>
