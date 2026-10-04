@@ -107,6 +107,8 @@ html,body{max-width:100%;overflow-x:hidden}
   .homePhotoPair{padding-top:10px!important}
 }
 
+
+.homeLinkIcon img{width:22px;height:22px;display:block;object-fit:contain}
 </style>
 </head>
 <body>
@@ -157,22 +159,22 @@ html,body{max-width:100%;overflow-x:hidden}
             <span class="homeArrow">‹</span>
           </button>
           <a class="homeLink" href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer">
-            <span class="homeLinkIcon"><svg viewBox="0 0 24 24"><path d="M14.25 3.2c.45 2.45 1.82 3.86 4.15 4.28V9.7a7.12 7.12 0 0 1-4.15-1.6v5.25a4.5 4.5 0 1 0-3.15-4.29v2.35a2.3 2.3 0 1 1 1.05 1.94V3.2h2.1Z" fill="currentColor" stroke="none"/></svg></span>
+            <span class="homeLinkIcon brandIcon"><img src="https://cdn.simpleicons.org/tiktok/FFFFFF" alt=""></span>
             <span class="homeLinkText"><b>تيك توك</b><small>@aml_suabhi</small></span>
             <span class="homeArrow">‹</span>
           </a>
           <a class="homeLink" href="https://www.instagram.com/aml_suabhi?stkn=cTdmbGoxNTZndXNr" target="_blank" rel="noopener noreferrer">
-            <span class="homeLinkIcon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="3.5"/><circle cx="17.4" cy="6.7" r=".8" fill="currentColor" stroke="none"/></svg></span>
+            <span class="homeLinkIcon brandIcon"><img src="https://cdn.simpleicons.org/instagram/FFFFFF" alt=""></span>
             <span class="homeLinkText"><b>إنستجرام</b><small>@aml_suabhi</small></span>
             <span class="homeArrow">‹</span>
           </a>
           <a class="homeLink" href="https://wa.me/966500730856" target="_blank" rel="noopener noreferrer" aria-label="واتساب">
-            <span class="homeLinkIcon"><svg viewBox="0 0 24 24"><path d="M20 11.6A8 8 0 0 1 8.2 18.7L4 20l1.3-4.1A8 8 0 1 1 20 11.6Z"/><path d="M9.2 8.2c.2-.5.4-.5.7-.5h.5c.2 0 .4.1.5.4l.8 1.9c.1.3 0 .5-.2.7l-.6.7c.7 1.4 1.8 2.5 3.2 3.2l.7-.8c.2-.2.4-.3.7-.2l1.8.9c.3.1.4.3.4.5v.5c0 .3 0 .5-.4.8-.5.4-1.2.7-1.9.7-1.2 0-3.5-1-5.4-2.8-1.8-1.8-2.8-4.2-2.8-5.4 0-.7.2-1.2.5-1.6Z"/></svg></span>
+            <span class="homeLinkIcon brandIcon"><img src="https://cdn.simpleicons.org/whatsapp/FFFFFF" alt=""></span>
             <span class="homeLinkText"><b>واتساب</b><small>Direct chat</small></span>
             <span class="homeArrow">‹</span>
           </a>
           <a class="homeLink" href="https://snapchat.com/t/OtS0exp9" target="_blank" rel="noopener noreferrer">
-            <span class="homeLinkIcon snapIcon"><svg viewBox="0 0 24 24"><path d="M12 3.1c-2.7 0-4.65 2.14-4.65 5.15 0 1.08.12 1.95-.45 2.88-.43.7-1.15 1.2-2.06 1.49-.39.12-.48.67-.14.9.62.43 1.28.72 1.98.89.18.04.31.2.32.38.05.74.68 1.02 1.28 1.12.21.04.39.17.49.36.54 1.08 1.78 1.22 2.45.84.49-.28 1.07-.28 1.56 0 .67.38 1.91.24 2.45-.84.1-.19.28-.32.49-.36.6-.1 1.23-.38 1.28-1.12.01-.18.14-.34.32-.38.7-.17 1.36-.46 1.98-.89.34-.23.25-.78-.14-.9-.91-.29-1.63-.79-2.06-1.49-.57-.93-.45-1.8-.45-2.88C16.65 5.24 14.7 3.1 12 3.1Z"/></svg></span>
+            <span class="homeLinkIcon brandIcon"><img src="https://cdn.simpleicons.org/snapchat/FFFFFF" alt=""></span>
             <span class="homeLinkText"><b>سناب شات</b><small>Snapchat</small></span>
             <span class="homeArrow">‹</span>
           </a>
@@ -353,44 +355,54 @@ function setEditorialImages(images){
   const pick=i=>images.length?images[i%images.length]:null;
   if(images.length){
     homeAvatar.src=(pick(2)||pick(0)).url;
-    homeHeroImage.src=(pick(0)).url;
-    homeHeroImageNext.src=(pick(1)||pick(0)).url;
     homeCollage1.src=(pick(2)||pick(0)).url;
     homeCollage2.src=(pick(3)||pick(1)||pick(0)).url;
-
-    // Information deliberately uses different portfolio photos from Home.
     infoHeroImage.src=(pick(1)||pick(3)||pick(0)).url;
     infoThumb1.src=(pick(0)).url;
     infoThumb2.src=(pick(2)||pick(0)).url;
     infoThumb3.src=(pick(3)||pick(0)).url;
     infoAboutImage.src=(pick(3)||pick(2)||pick(0)).url;
-
     editorialHeroImage.src=(pick(0)).url;
   }
   for(let i=0;i<4;i++){const el=document.getElementById('featuredImage'+i);const item=pick(i+1)||pick(0);if(el&&item){el.src=item.url;el.closest('button').hidden=false}else if(el)el.closest('button').hidden=true}
   document.querySelectorAll('[data-feature-index]').forEach(btn=>btn.onclick=()=>{const idx=Number(btn.dataset.featureIndex)+1;const item=pick(idx)||pick(0);if(!item)return;activeCollection={name:'',items:images};openLightbox(Math.max(0,images.indexOf(item)))});
-
-  if(images.length>1&&!window.__amlHeroTimer){
-    let heroIndex=0,front=true;
-    window.__amlHeroTimer=setInterval(()=>{
-      heroIndex=(heroIndex+1)%images.length;
-      const incoming=front?homeHeroImageNext:homeHeroImage;
-      const outgoing=front?homeHeroImage:homeHeroImageNext;
-      incoming.src=images[heroIndex].url;
-      incoming.classList.add('isVisible');
-      outgoing.classList.remove('isVisible');
-      front=!front;
-    },2800);
-  }
 }
+function setHomeSlides(images){
+  if(window.__amlHeroTimer){clearInterval(window.__amlHeroTimer);window.__amlHeroTimer=null}
+  if(!images||!images.length){homeHeroImage.removeAttribute('src');homeHeroImageNext.removeAttribute('src');return}
+  let heroIndex=0,front=true;
+  homeHeroImage.src=images[0].url;
+  homeHeroImage.classList.add('isVisible');
+  homeHeroImageNext.classList.remove('isVisible');
+  homeHeroImageNext.src=(images[1]||images[0]).url;
+  if(images.length===1)return;
+  window.__amlHeroTimer=setInterval(()=>{
+    heroIndex=(heroIndex+1)%images.length;
+    const incoming=front?homeHeroImageNext:homeHeroImage;
+    const outgoing=front?homeHeroImage:homeHeroImageNext;
+    incoming.src=images[heroIndex].url;
+    incoming.classList.add('isVisible');
+    outgoing.classList.remove('isVisible');
+    front=!front;
+  },2800);
+}
+
 async function loadWorks(){try{
-  const r=await fetch('/api/works',{cache:'no-store'});if(!r.ok)return;
-  const data=await r.json();worksCollections=data.collections||[];
+  const [worksRes,homeRes]=await Promise.all([
+    fetch('/api/works',{cache:'no-store'}),
+    fetch('/api/home-slides',{cache:'no-store'})
+  ]);
+  if(!worksRes.ok)return;
+  const data=await worksRes.json();
+  const homeData=homeRes.ok?await homeRes.json():{collection:null};
+  worksCollections=data.collections||[];
   albumsCount.textContent=worksCollections.length+' ألبوم';
   worksGrid.innerHTML=worksCollections.map((c,idx)=>'<button class="collectionCard" type="button" data-i="'+idx+'">'+(c.cover?mediaMarkup(c.cover,'cover'):'')+'<span class="collectionMeta"><b>'+htmlEsc(c.name)+'</b><span>'+c.items.length+' ملف</span></span></button>').join('');
   worksGrid.querySelectorAll('.collectionCard').forEach(b=>{const c=worksCollections[Number(b.dataset.i)];b.onclick=()=>openCollection(c)});
-  const images=worksCollections.flatMap(c=>c.items).filter(i=>i.type==='image');
-  setEditorialImages(images);
+  const workImages=worksCollections.flatMap(c=>c.items).filter(i=>i.type==='image');
+  const homeImages=(homeData.collection?.items||[]).filter(i=>i.type==='image');
+  setEditorialImages(workImages);
+  setHomeSlides(homeImages.length?homeImages:workImages);
   portfolioOpenBtn.disabled=!worksCollections.length;
 }catch(e){console.error(e)}}
 loadWorks();
