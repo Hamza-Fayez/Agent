@@ -76,4 +76,7 @@ http.createServer(async (req,res)=>{
   if(pathname==='/manage'||pathname==='/manage/'){return fs.readFile(path.join(root,'manage.html'),(err,data)=>{if(err){res.writeHead(500);return res.end('Manager unavailable')}res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow'});res.end(data)})}
   let filePath=pathname==='/'?'/index.html':pathname;const file=path.join(root,filePath.replace(/^\/+/,''));if(!file.startsWith(root)){res.writeHead(403);return res.end('Forbidden')}
   fs.readFile(file,(err,data)=>{if(err){fs.readFile(path.join(root,'index.html'),(e2,fallback)=>{if(e2){res.writeHead(404);return res.end('Not found')}sendHtml(res,fallback)});return}const ext=path.extname(file).toLowerCase();if(ext==='.html')return sendHtml(res,data);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public,max-age=300'});res.end(data)})
-}).listen(port,'0.0.0.0',()=>console.log('AML portfolio listening on '+port));
+}).listen(port,'0.0.0.0',()=>{
+  console.log('AML portfolio listening on '+port);
+  readMeta().then(meta=>console.log('AML_META_AUDIT '+JSON.stringify({collections:(meta.collections||[]).map(c=>({id:c.id,name:c.name,createdAt:c.createdAt,cover:c.cover,items:(c.items||[]).map(i=>({id:i.id,key:i.key,name:i.name,type:i.type,createdAt:i.createdAt}))}))}))).catch(e=>console.error('AML_META_AUDIT_ERROR',e?.message||e));
+});
