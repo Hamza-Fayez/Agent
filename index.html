@@ -136,6 +136,21 @@ linear-gradient(180deg,rgba(10,9,8,.12),rgba(10,9,8,.62))}
   .soundToggle{left:12px!important;right:auto!important;bottom:12px!important}
 }
 
+
+/* Dynamic works collections */
+.worksArchive{background:#11100f!important;color:#fff!important;padding:12px 12px 70px!important;min-height:auto!important}
+.collectionsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.collectionCard{position:relative;aspect-ratio:4/5;border:0;border-radius:18px;overflow:hidden;background:#26221f;padding:0;cursor:pointer;text-align:right;color:#fff}
+.collectionCard img,.collectionCard video{width:100%;height:100%;object-fit:cover;display:block}
+.collectionCard:after{content:"";position:absolute;inset:42% 0 0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.72))}
+.collectionMeta{position:absolute;z-index:2;right:12px;left:12px;bottom:12px}.collectionMeta b{display:block;font-size:13px}.collectionMeta span{font-size:9px;color:rgba(255,255,255,.72)}
+.collectionViewer{position:fixed;inset:0;z-index:90;background:#11100f;color:#fff;overflow:auto;padding:70px 12px 28px}
+.viewerClose{position:fixed;top:max(14px,env(safe-area-inset-top));left:14px;z-index:91;width:42px;height:42px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(20,18,16,.76);color:#fff;font-size:27px;backdrop-filter:blur(12px)}
+.viewerTitle{font:500 30px/1 Georgia,serif;margin:0 4px 16px}.viewerGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.viewerItem{border-radius:14px;overflow:hidden;background:#24211f;aspect-ratio:4/5}.viewerItem img,.viewerItem video{width:100%;height:100%;object-fit:cover;display:block}
+.viewerItem video{background:#000}
+@media(min-width:761px){.worksArchive{padding:20px 20px 80px!important}.collectionsGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.collectionCard{border-radius:22px}.collectionViewer{padding:82px max(22px,5vw) 40px}.viewerGrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}}
+
 </style>
 </head>
 <body>
@@ -200,9 +215,13 @@ linear-gradient(180deg,rgba(10,9,8,.12),rgba(10,9,8,.62))}
       </div>
     </div>
     <section class="worksArchive" id="worksArchive" hidden>
-      <div class="archiveHead"><h3>Selected Works</h3><p>صور وفيديوهات إضافية تظهر هنا تلقائياً عند إضافتها إلى قائمة الأعمال.</p></div>
-      <div class="worksGrid" id="worksGrid"></div>
+      <div class="collectionsGrid" id="worksGrid"></div>
     </section>
+    <div class="collectionViewer" id="collectionViewer" hidden>
+      <button class="viewerClose" id="viewerClose" type="button" aria-label="إغلاق">×</button>
+      <div class="viewerTitle" id="viewerTitle"></div>
+      <div class="viewerGrid" id="viewerGrid"></div>
+    </div>
   </section>
 
 </main>
@@ -251,22 +270,43 @@ if(soundToggle&&talking){
   updateSoundUI();
 }
 
-/* Future gallery foundation: add {type:'image'|'video',src,poster?,title} objects here. */
-const worksMedia=[];
-function renderWorks(){
-  const archive=document.getElementById('worksArchive');
-  const grid=document.getElementById('worksGrid');
-  if(!archive||!grid||!worksMedia.length)return;
-  archive.hidden=false;
-  grid.innerHTML=worksMedia.map(item=>{
-    const media=item.type==='video'
-      ? '<video muted loop playsinline preload="metadata" '+(item.poster?'poster="'+item.poster+'"':'')+'><source src="'+item.src+'"></video>'
-      : '<img src="'+item.src+'" alt="'+(item.title||'AML work')+'" loading="lazy">';
-    return '<article class="workItem">'+media+'<div class="workItemLabel">'+(item.title||'AML · WORK')+'</div></article>';
-  }).join('');
-  grid.querySelectorAll('video').forEach(v=>{v.addEventListener('mouseenter',()=>safePlay(v));v.addEventListener('mouseleave',()=>v.pause());});
+const worksArchive=document.getElementById('worksArchive');
+const worksGrid=document.getElementById('worksGrid');
+const collectionViewer=document.getElementById('collectionViewer');
+const viewerClose=document.getElementById('viewerClose');
+const viewerTitle=document.getElementById('viewerTitle');
+const viewerGrid=document.getElementById('viewerGrid');
+let worksCollections=[];
+function mediaMarkup(item,preview=false){
+  if(!item)return '';
+  if(item.type==='video')return '<video src="'+item.url+'" '+(preview?'muted loop playsinline preload="metadata"':'controls playsinline preload="metadata"')+'></video>';
+  return '<img src="'+item.url+'" alt="" loading="lazy">';
 }
-renderWorks();
+function openCollection(c){
+  viewerTitle.textContent=c.name;
+  viewerGrid.innerHTML=c.items.map(i=>'<div class="viewerItem">'+mediaMarkup(i,false)+'</div>').join('');
+  collectionViewer.hidden=false;
+  document.body.style.overflow='hidden';
+}
+function closeCollection(){
+  collectionViewer.hidden=true;
+  viewerGrid.querySelectorAll('video').forEach(v=>v.pause());
+  viewerGrid.innerHTML='';
+  document.body.style.overflow='';
+}
+if(viewerClose)viewerClose.addEventListener('click',closeCollection);
+if(collectionViewer)collectionViewer.addEventListener('click',e=>{if(e.target===collectionViewer)closeCollection()});
+async function loadWorks(){
+  try{
+    const r=await fetch('/api/works',{cache:'no-store'});if(!r.ok)return;
+    const data=await r.json();worksCollections=data.collections||[];
+    if(!worksCollections.length){worksArchive.hidden=true;return}
+    worksArchive.hidden=false;
+    worksGrid.innerHTML=worksCollections.map((c,idx)=>'<button class="collectionCard" type="button" data-i="'+idx+'">'+(c.cover?mediaMarkup(c.cover,true):'')+'<span class="collectionMeta"><b>'+String(c.name).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))+'</b><span>'+c.items.length+' ملف</span></span></button>').join('');
+    worksGrid.querySelectorAll('.collectionCard').forEach(b=>{const c=worksCollections[Number(b.dataset.i)];b.onclick=()=>openCollection(c);const v=b.querySelector('video');if(v){v.muted=true;safePlay(v)}})
+  }catch(e){console.error(e)}
+}
+loadWorks();
 </script>
 </body>
 </html>
