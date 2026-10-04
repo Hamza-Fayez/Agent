@@ -19,85 +19,71 @@
 .app{grid-template-rows:58px 1fr;padding:0 7px 7px}.top{grid-template-columns:1fr auto}.brandmeta,.loc{display:none}.brandmark{font-size:27px}.tabs{justify-self:end}.tab{padding:8px 13px;font-size:10px}.stage{border-radius:22px}.composition{grid-template-columns:1.35fr .78fr;grid-template-rows:1.15fr .85fr .82fr;gap:5px;padding:5px}.p1{grid-column:1;grid-row:1/4;border-radius:18px 6px 6px 18px}.p2{grid-column:2;grid-row:1;border-radius:6px 18px 6px 6px}.p3{grid-column:2;grid-row:2;border-radius:6px}.p4{grid-column:2;grid-row:3;border-radius:6px 6px 18px 6px}.p5{display:none}.composition:after{inset:5px;border-radius:18px;background:linear-gradient(180deg,transparent 25%,rgba(0,0,0,.12) 50%,rgba(0,0,0,.72) 100%)}.heroCopy{left:18px;right:18px;bottom:22px}.heroCopy h1{font-size:clamp(52px,17vw,74px)}.heroCopy p{font-size:10px}.eyebrow{font-size:7px}.edition{right:16px;top:14px;bottom:auto;font-size:20px}.infoView{grid-template-columns:1fr;grid-template-rows:42% 58%}.infoPhoto img{object-position:center 16%}.infoPanel{padding:18px 20px;justify-content:flex-start}.small{font-size:7px}.infoPanel h2{font-size:40px;margin:6px 0 10px}.fact{padding:8px 0}.fact span{font-size:9px}.fact b{font-size:11px}.bio{font-size:9px;line-height:1.55;margin-top:10px}}
 .infoPhoto{background:#fff}.infoPhoto img{object-fit:contain;object-position:center center}.infoPhoto:after{background:none}.photoLabel{color:#67594b;background:rgba(255,255,255,.85);padding:8px 12px;border-radius:20px}@media(max-width:760px){.infoPhoto img{object-fit:contain;object-position:center center}}
 
-/* WORKS — profile landing + portfolio browser */
+/* HOME PROFILE + WORKS EDITORIAL */
+#home{background:#a9aaac;overflow-y:auto;scrollbar-width:none}
+#home::-webkit-scrollbar,#works::-webkit-scrollbar{display:none}
+.homeLinkPage{min-height:100%;display:grid;place-items:center;padding:28px}
+.homeProfileCard{position:relative;width:min(100%,650px);min-height:min(780px,calc(100svh - 120px));padding:80px 32px 34px;border-radius:28px;background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(242,238,235,.93));box-shadow:0 28px 80px rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center}
+.homeShareBtn{position:absolute;top:28px;right:28px;width:46px;height:46px;border:0;border-radius:14px;background:#fff;color:#111;display:grid;place-items:center;box-shadow:0 5px 18px rgba(0,0,0,.08)}
+.homeShareBtn svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7}
+.homeAvatarWrap{width:108px;height:108px;border-radius:999px;overflow:hidden;background:#d8d2cc}
+.homeAvatar{width:100%;height:100%;object-fit:cover;display:block}
+.homeName{margin:17px 0 6px;font:500 30px/1 Georgia,serif;letter-spacing:.28em;padding-left:.28em}
+.homeTagline{margin:0 0 38px;font:400 17px/1.5 Georgia,serif}
+.homeLinks{width:100%;display:grid;gap:13px}
+.homeLink{width:100%;min-height:74px;border:1.4px solid #171513;border-radius:999px;background:transparent;color:#171513;text-decoration:none;display:grid;grid-template-columns:52px 1fr 52px;align-items:center;padding:0 14px;font-size:14px}
+.homeLinkIcon{display:grid;place-items:center}.homeLinkIcon svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.8}
+.homeDots{font-size:13px;letter-spacing:2px;color:#5f5a55;direction:ltr}.homeMiniSocials{margin-top:auto;padding-top:34px;display:flex;gap:24px;direction:ltr}.homeMiniSocials a{color:#111;text-decoration:none;font-size:27px}
+
 #works .collectionViewer[hidden],#works .mediaLightbox[hidden],#works .worksArchive[hidden]{display:none!important}
-#works{background:#aaa;overflow-y:auto;scrollbar-width:none;color:#141414}
-#works::-webkit-scrollbar{display:none}
-#works .worksLanding{min-height:100%;display:grid;place-items:center;padding:28px;background:#a9aaac}
-#works .profileCard{position:relative;width:min(100%,650px);min-height:min(780px,calc(100svh - 120px));padding:80px 32px 34px;border-radius:28px;background:
-linear-gradient(145deg,rgba(255,255,255,.96),rgba(242,238,235,.93)),
-radial-gradient(circle at 20% 15%,rgba(255,255,255,.8),transparent 32%);
-box-shadow:0 28px 80px rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center}
-#works .shareBtn{position:absolute;top:28px;right:28px;width:46px;height:46px;border:0;border-radius:14px;background:#fff;color:#111;display:grid;place-items:center;box-shadow:0 5px 18px rgba(0,0,0,.08)}
-#works .shareBtn svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-#works .profileAvatarWrap{width:108px;height:108px;border-radius:999px;overflow:hidden;background:#d8d2cc;border:1px solid rgba(0,0,0,.06);box-shadow:0 8px 26px rgba(0,0,0,.1)}
-#works .profileAvatar{width:100%;height:100%;display:block;object-fit:cover}
-#works .profileName{margin:17px 0 6px;font:500 30px/1 Georgia,"Times New Roman",serif;letter-spacing:.28em;padding-left:.28em}
-#works .profileTagline{margin:0 0 38px;font:400 17px/1.5 Georgia,"Times New Roman",serif;color:#25211d;text-align:center}
-#works .linkStack{width:100%;display:grid;gap:13px}
-#works .profileLink{width:100%;min-height:74px;border:1.4px solid #171513;border-radius:999px;background:transparent;color:#171513;text-decoration:none;display:grid;grid-template-columns:52px 1fr 52px;align-items:center;padding:0 14px;font-size:14px;transition:transform .18s ease,background .18s ease}
-#works .profileLink:active{transform:scale(.985)}
-#works .profileLink:hover{background:rgba(255,255,255,.52)}
-#works .linkIcon{display:grid;place-items:center}
-#works .linkIcon svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-#works .linkDots{font-size:13px;letter-spacing:2px;color:#5f5a55;direction:ltr}
-#works .profileSocials{margin-top:auto;padding-top:34px;display:flex;gap:24px;direction:ltr}
-#works .profileSocials a{color:#111;text-decoration:none;font-size:27px;line-height:1}
+#works{background:#eadfd5;color:#261412;overflow-y:auto;scrollbar-width:none}
+.editorialPage{min-height:100%;background:#eadfd5}
+.editorialHero{position:relative;min-height:620px;overflow:hidden;padding:42px 5vw 0;background:linear-gradient(180deg,#efe4da 0%,#eadfd5 100%)}
+.editorialWord{position:absolute;top:16px;left:3vw;right:3vw;font:500 clamp(90px,15vw,210px)/.8 Georgia,serif;letter-spacing:-.08em;color:#4a1717;opacity:.98;white-space:nowrap;direction:ltr}
+.editorialIntro{position:absolute;left:6vw;bottom:70px;z-index:2;max-width:330px;direction:ltr;text-align:left;color:#3f1716}
+.editorialKicker{font-size:10px;letter-spacing:.27em;margin-bottom:18px}.editorialIntro h1{margin:0;font:500 clamp(48px,7vw,86px)/.9 Georgia,serif}.editorialIntro p{margin:16px 0 0;font-size:14px;letter-spacing:.04em}
+.editorialHeroImage{position:absolute;right:7vw;bottom:0;width:min(42vw,470px);height:78%;overflow:hidden;border-radius:48% 48% 0 0;background:#7b3d37}
+.editorialHeroImage img{width:100%;height:100%;object-fit:cover;object-position:center 18%;display:block}
+
+.editorialMotion{display:grid;grid-template-columns:minmax(220px,.7fr) 1.3fr;gap:40px;align-items:center;padding:48px 7vw;background:#3e0f12;color:#f4e8dd}
+.motionVideoCard{position:relative;width:min(100%,280px);aspect-ratio:576/944;overflow:hidden;border-radius:22px;background:#160708;justify-self:center}
+.motionVideoCard video{width:100%;height:100%;object-fit:cover;display:block}.editorialSound{position:absolute;left:10px;bottom:10px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.38);color:#fff;border-radius:999px;padding:8px 10px;font-size:9px;backdrop-filter:blur(12px)}
+.motionCopy{direction:ltr;text-align:left}.motionCopy span{font-size:9px;letter-spacing:.28em;color:#cfae9e}.motionCopy h2{margin:13px 0 12px;font:500 clamp(52px,7vw,94px)/.88 Georgia,serif;letter-spacing:-.05em}.motionCopy p{margin:0;font-size:13px;color:#d8c2b5}
+
+.featuredStrip{padding:34px 4vw 40px;background:#3e0f12;color:#f4e8dd}.sectionLabel{text-align:center;font:500 11px/1 Georgia,serif;letter-spacing:.28em;margin-bottom:18px}.featuredGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:1100px;margin:0 auto}.featuredCard{border:0;padding:0;background:#22090b;overflow:hidden;aspect-ratio:4/3}.featuredCard img{width:100%;height:100%;object-fit:cover;display:block}.featuredTall{transform:translateY(-12px)}
+
+.editorialCollage{position:relative;display:grid;grid-template-columns:1.1fr .7fr .9fr;grid-template-rows:220px 260px;gap:14px;padding:56px 5vw 70px;background:#efe4da;min-height:620px}.collageTitle{grid-column:1;grid-row:1;align-self:end;direction:ltr;text-align:left;color:#4a1717}.collageTitle span{font-size:9px;letter-spacing:.27em}.collageTitle h2{margin:8px 0 0;font:500 clamp(54px,7vw,90px)/.9 Georgia,serif}.collageItem{border:0;padding:0;overflow:hidden;background:#c5b3a8;border-radius:14px}.collageItem img{width:100%;height:100%;object-fit:cover;display:block}.c1{grid-column:2;grid-row:1/3}.c2{grid-column:3;grid-row:1}.c3{grid-column:1/2;grid-row:2}
+
+.albumCta{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:42px 6vw;background:#3e0f12;color:#f4e8dd}.albumCta span{font-size:9px;letter-spacing:.28em}.albumCta h2{margin:8px 0 0;font:500 clamp(34px,5vw,62px)/.95 Georgia,serif}.albumCta button{border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;border-radius:999px;padding:14px 22px;font-size:12px}
 
 #works .portfolioBrowser{position:fixed;inset:0;z-index:75;background:#f3eee7;overflow:auto;padding:max(10px,env(safe-area-inset-top)) 12px 34px}
 #works .portfolioTop{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:14px;min-height:68px;background:rgba(243,238,231,.93);backdrop-filter:blur(18px);padding:6px 0 10px}
-#works .portfolioTop h2{margin:0;font:500 30px/1 Georgia,"Times New Roman",serif}
-#works .portfolioTop span{display:block;margin-top:4px;font-size:9px;color:#777067}
+#works .portfolioTop h2{margin:0;font:500 30px/1 Georgia,serif}#works .portfolioTop span{display:block;margin-top:4px;font-size:9px;color:#777067}
 #works .portfolioClose,#works .viewerClose,#works .lightboxClose{width:42px;height:42px;flex:0 0 auto;border-radius:999px;border:1px solid #d8cec4;background:#fff;color:#171513;font-size:26px;line-height:1}
 #works .collectionsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:1080px;margin:0 auto}
 #works .collectionCard{position:relative;aspect-ratio:4/5;border:0;border-radius:20px;overflow:hidden;background:#dcd2c8;padding:0;cursor:pointer;color:#fff;text-align:right}
 #works .collectionCard img,#works .collectionCard video{width:100%;height:100%;object-fit:cover;display:block}
 #works .collectionCard:after{content:"";position:absolute;inset:48% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.78));pointer-events:none}
-#works .collectionMeta{position:absolute;z-index:2;right:14px;left:14px;bottom:13px}
-#works .collectionMeta b{display:block;font:500 23px/1.05 Georgia,"Times New Roman",serif}
-#works .collectionMeta b:empty{display:none}
-#works .collectionMeta span{display:block;margin-top:5px;font-size:9px;color:rgba(255,255,255,.75)}
-
+#works .collectionMeta{position:absolute;z-index:2;right:14px;left:14px;bottom:13px}.collectionMeta b{display:block;font:500 23px/1.05 Georgia,serif}.collectionMeta b:empty{display:none}.collectionMeta span{display:block;margin-top:5px;font-size:9px;color:rgba(255,255,255,.75)}
 #works .collectionViewer{position:fixed;inset:0;z-index:80;background:#f3eee7;color:#171513;overflow:auto;padding:max(12px,env(safe-area-inset-top)) 14px 30px}
 #works .collectionTop{position:sticky;top:0;z-index:4;min-height:66px;display:flex;align-items:center;gap:14px;background:rgba(243,238,231,.94);backdrop-filter:blur(18px);padding:7px 0 10px}
-#works .viewerTitle{font:500 30px/1 Georgia,"Times New Roman",serif}.viewerCount{font-size:9px;color:#777067;margin-top:4px}
-#works .viewerGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:start}
-#works .viewerItem{position:relative;display:block;width:100%;margin:0;border:0;padding:0;border-radius:14px;overflow:hidden;background:#ddd3ca;cursor:zoom-in}
-#works .viewerItem img,#works .viewerItem video{display:block;width:100%;height:auto;object-fit:cover;background:#111}
-#works .viewerItem.isVideo:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:999px;display:grid;place-items:center;background:rgba(15,13,12,.6);color:#fff;font-size:15px;backdrop-filter:blur(12px)}
+#works .viewerTitle{font:500 30px/1 Georgia,serif}.viewerCount{font-size:9px;color:#777067;margin-top:4px}
+#works .viewerGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:start}.viewerItem{position:relative;display:block;width:100%;margin:0;border:0;padding:0;border-radius:14px;overflow:hidden;background:#ddd3ca;cursor:zoom-in}.viewerItem img,.viewerItem video{display:block;width:100%;height:auto;object-fit:cover;background:#111}.viewerItem.isVideo:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:999px;display:grid;place-items:center;background:rgba(15,13,12,.6);color:#fff}
 #works .mediaLightbox{position:fixed;inset:0;z-index:100;background:#0c0b0a;color:#fff;display:grid;grid-template-columns:72px minmax(0,1fr) 72px;grid-template-rows:58px minmax(0,1fr);padding:max(6px,env(safe-area-inset-top)) 8px max(8px,env(safe-area-inset-bottom))}
-#works .lightboxTop{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;direction:ltr}
-#works .lightboxClose{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff}
-#works .lightboxCounter{font-size:10px;color:rgba(255,255,255,.68);padding-right:10px}
-#works .lightboxStage{grid-column:2;grid-row:2;display:grid;place-items:center;min-width:0;min-height:0;touch-action:pan-y}
-#works .lightboxStage img,#works .lightboxStage video{display:block;max-width:100%;max-height:calc(100svh - 78px);width:auto;height:auto;object-fit:contain;border-radius:5px}
-#works .lightboxStage video{width:min(100%,1000px);background:#000}
-#works .lightboxNav{grid-row:2;align-self:center;width:52px;height:52px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;font-size:34px}
-#works .lightboxPrev{grid-column:1}#works .lightboxNext{grid-column:3}
-.mediaOverlayOpen{overflow:hidden!important}.worksLandingActive .socialDock{display:none!important}
-@media(max-width:900px){#works .collectionsGrid,#works .viewerGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#works .lightboxTop{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;direction:ltr}.lightboxClose{border-color:rgba(255,255,255,.18)!important;background:rgba(255,255,255,.08)!important;color:#fff!important}.lightboxCounter{font-size:10px;color:rgba(255,255,255,.68)}.lightboxStage{grid-column:2;grid-row:2;display:grid;place-items:center;min-width:0;min-height:0;touch-action:pan-y}.lightboxStage img,.lightboxStage video{max-width:100%;max-height:calc(100svh - 78px);width:auto;height:auto;object-fit:contain}.lightboxNav{grid-row:2;align-self:center;width:52px;height:52px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;font-size:34px}.lightboxPrev{grid-column:1}.lightboxNext{grid-column:3}
+.mediaOverlayOpen{overflow:hidden!important}.portfolioSurfaceActive .socialDock{display:none!important}
+
+@media(max-width:900px){#works .collectionsGrid,#works .viewerGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.editorialCollage{grid-template-columns:1fr 1fr;grid-template-rows:auto 260px 260px}.collageTitle{grid-column:1/3;grid-row:1}.c1{grid-column:1;grid-row:2/4}.c2{grid-column:2;grid-row:2}.c3{grid-column:2;grid-row:3}}
 @media(max-width:760px){
-  #works .worksLanding{padding:0;background:#f3eee7}
-  #works .profileCard{width:100%;min-height:100%;border-radius:0;padding:72px 22px 28px;box-shadow:none;background:linear-gradient(155deg,#f8f5f1,#eee8e1)}
-  #works .shareBtn{top:18px;right:18px;width:43px;height:43px}
-  #works .profileAvatarWrap{width:96px;height:96px}
-  #works .profileName{font-size:27px;margin-top:15px}
-  #works .profileTagline{font-size:15px;margin-bottom:31px}
-  #works .linkStack{gap:11px}
-  #works .profileLink{min-height:67px;padding:0 12px;grid-template-columns:48px 1fr 48px;font-size:13px}
-  #works .linkIcon svg{width:25px;height:25px}
-  #works .profileSocials{padding-top:28px}
-  #works .portfolioBrowser{padding:max(7px,env(safe-area-inset-top)) 7px 18px}
-  #works .collectionsGrid{gap:6px}
-  #works .collectionCard{border-radius:14px}
-  #works .collectionMeta{right:10px;left:10px;bottom:10px}
-  #works .collectionMeta b{font-size:18px}
-  #works .collectionViewer{padding:max(7px,env(safe-area-inset-top)) 6px 18px}
-  #works .viewerGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
-  #works .viewerItem{border-radius:10px}
-  #works .mediaLightbox{grid-template-columns:44px minmax(0,1fr) 44px;grid-template-rows:52px minmax(0,1fr);padding:max(5px,env(safe-area-inset-top)) 3px max(7px,env(safe-area-inset-bottom))}
-  #works .lightboxNav{width:38px;height:38px;font-size:25px}
-  #works .lightboxStage img,#works .lightboxStage video{max-height:calc(100svh - 66px)}
+  #home{background:#f3eee7}.homeLinkPage{padding:0}.homeProfileCard{width:100%;min-height:100%;border-radius:0;padding:72px 22px 28px;box-shadow:none;background:linear-gradient(155deg,#f8f5f1,#eee8e1)}.homeShareBtn{top:18px;right:18px;width:43px;height:43px}.homeAvatarWrap{width:96px;height:96px}.homeName{font-size:27px}.homeTagline{font-size:15px;margin-bottom:31px}.homeLinks{gap:11px}.homeLink{min-height:67px;padding:0 12px;grid-template-columns:48px 1fr 48px;font-size:13px}.homeLinkIcon svg{width:25px;height:25px}.homeMiniSocials{padding-top:28px}
+  .editorialHero{min-height:520px;padding:24px 18px 0}.editorialWord{top:18px;left:10px;font-size:23vw}.editorialIntro{left:22px;bottom:28px;max-width:190px}.editorialIntro h1{font-size:48px}.editorialIntro p{font-size:11px}.editorialHeroImage{right:-8%;width:72vw;height:76%;border-radius:50% 50% 0 0}
+  .editorialMotion{grid-template-columns:128px 1fr;gap:18px;padding:28px 18px}.motionVideoCard{width:128px;border-radius:15px}.motionCopy span{font-size:7px}.motionCopy h2{font-size:40px;margin:10px 0}.motionCopy p{font-size:10px}
+  .featuredStrip{padding:28px 10px 32px}.featuredGrid{gap:6px}.featuredCard{aspect-ratio:3/4}.featuredTall{transform:translateY(-8px)}
+  .editorialCollage{grid-template-columns:1fr 1fr;grid-template-rows:auto 220px 190px;padding:35px 10px 44px;gap:7px;min-height:0}.collageTitle{grid-column:1/3;grid-row:1;padding:0 4px}.collageTitle h2{font-size:48px}.c1{grid-column:1;grid-row:2/4}.c2{grid-column:2;grid-row:2}.c3{grid-column:2;grid-row:3}
+  .albumCta{padding:30px 16px}.albumCta h2{font-size:32px}.albumCta button{padding:12px 16px;font-size:10px}
+  #works .portfolioBrowser{padding:max(7px,env(safe-area-inset-top)) 7px 18px}#works .collectionsGrid{gap:6px}#works .collectionCard{border-radius:14px}#works .collectionMeta{right:10px;left:10px;bottom:10px}#works .collectionMeta b{font-size:18px}
+  #works .collectionViewer{padding:max(7px,env(safe-area-inset-top)) 6px 18px}#works .viewerGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}#works .viewerItem{border-radius:10px}
+  #works .mediaLightbox{grid-template-columns:44px minmax(0,1fr) 44px;grid-template-rows:52px minmax(0,1fr);padding:max(5px,env(safe-area-inset-top)) 3px max(7px,env(safe-area-inset-bottom))}#works .lightboxNav{width:38px;height:38px;font-size:25px}#works .lightboxStage img,#works .lightboxStage video{max-height:calc(100svh - 66px)}
 }
 
 </style>
@@ -115,15 +101,31 @@ box-shadow:0 28px 80px rgba(0,0,0,.12);display:flex;flex-direction:column;align-
 </header>
 <main class="stage">
   <section class="view home active" id="home">
-    <div class="composition" aria-label="AML portfolio editorial collage">
-      <div class="panel p1"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/68eae6717ab334d64f7c9239ee86a316f6da2107c6ac3f73aeb606399a5d7646.jpg" alt="AML full look"></div>
-      <div class="panel p2"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/e95065db094d32536cde02b8abb528683e726d2b486c68827a234b3f20d394a4.jpg" alt="AML portrait"></div>
-      <div class="panel p3"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/cb41de1bf0ab6c5381ab839df84c9c88badcff9070f7a85265da4a4ab2fad6b7.jpg" alt="AML beauty"></div>
-      <div class="panel p4"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/a8f3bc95efc926be237e6b1dab7b9b80b93b387f2b400a99592bb4363b92e4c3.jpg" alt="AML profile"></div>
-      <div class="panel p5"><img src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/6080501664488dd00e9c51c7de86448dfa131aa6522029173b95e2d9e0ac8694.jpg" alt="AML editorial"></div>
+    <div class="homeLinkPage">
+      <div class="homeProfileCard">
+        <button class="homeShareBtn" id="homeShareBtn" type="button" aria-label="مشاركة">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M6 11H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>
+        </button>
+        <div class="homeAvatarWrap"><img id="homeAvatar" class="homeAvatar" alt="AMAL"></div>
+        <h1 class="homeName">AMAL</h1>
+        <p class="homeTagline">Model · Riyadh</p>
+        <div class="homeLinks">
+          <button class="homeLink primary" id="homeWorksBtn" type="button">
+            <span class="homeLinkIcon"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v5h5M10 13h6M10 17h6"/></svg></span>
+            <span>ملف الأعمال</span><span class="homeDots">•••</span>
+          </button>
+          <a class="homeLink" href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer">
+            <span class="homeLinkIcon"><svg viewBox="0 0 24 24"><path d="M14.25 3.2c.45 2.45 1.82 3.86 4.15 4.28V9.7a7.12 7.12 0 0 1-4.15-1.6v5.25a4.5 4.5 0 1 1-3.15-4.29v2.35a2.3 2.3 0 1 0 1.05 1.94V3.2h2.1Z" fill="currentColor" stroke="none"/></svg></span>
+            <span>تيك توك</span><span class="homeDots">•••</span>
+          </a>
+          <a class="homeLink" href="https://snapchat.com/t/OtS0exp9" target="_blank" rel="noopener noreferrer">
+            <span class="homeLinkIcon"><svg viewBox="0 0 24 24"><path d="M12 3.1c-2.7 0-4.65 2.14-4.65 5.15 0 1.08.12 1.95-.45 2.88-.43.7-1.15 1.2-2.06 1.49-.39.12-.48.67-.14.9.62.43 1.28.72 1.98.89.18.04.31.2.32.38.05.74.68 1.02 1.28 1.12.21.04.39.17.49.36.54 1.08 1.78 1.22 2.45.84.49-.28 1.07-.28 1.56 0 .67.38 1.91.24 2.45-.84.1-.19.28-.32.49-.36.6-.1 1.23-.38 1.28-1.12.01-.18.14-.34.32-.38.7-.17 1.36-.46 1.98-.89.34-.23.25-.78-.14-.9-.91-.29-1.63-.79-2.06-1.49-.57-.93-.45-1.8-.45-2.88C16.65 5.24 14.7 3.1 12 3.1Z" fill="none"/></svg></span>
+            <span>سناب شات</span><span class="homeDots">•••</span>
+          </a>
+        </div>
+        <div class="homeMiniSocials"><a href="https://snapchat.com/t/OtS0exp9" target="_blank" rel="noopener noreferrer">◉</a><a href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer">♪</a></div>
+      </div>
     </div>
-    <div class="heroCopy"><div class="eyebrow">Saudi Model · Riyadh</div><h1>Amal<br>Portfolio</h1><p>FASHION · BEAUTY · EDITORIAL · COMMERCIAL</p></div>
-    <div class="edition">01 / 02</div>
   </section>
 
   <section class="view infoView" id="info">
@@ -142,40 +144,47 @@ box-shadow:0 28px 80px rgba(0,0,0,.12);display:flex;flex-direction:column;align-
   </section>
 
   <section class="view worksView" id="works">
-    <div class="worksLanding">
-      <div class="profileCard">
-        <button class="shareBtn" id="shareWorks" type="button" aria-label="مشاركة">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M6 11H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>
-        </button>
-        <div class="profileAvatarWrap">
-          <img id="worksAvatar" class="profileAvatar" alt="AMAL">
+    <div class="editorialPage">
+      <section class="editorialHero">
+        <div class="editorialWord">PORTFOLIO</div>
+        <div class="editorialIntro">
+          <div class="editorialKicker">MODEL · RIYADH</div>
+          <h1>AMAL</h1>
+          <p>Fashion · Beauty · Editorial</p>
         </div>
-        <h1 class="profileName">AMAL</h1>
-        <p class="profileTagline" id="profileTagline">Model Portfolio</p>
+        <div class="editorialHeroImage"><img id="editorialHeroImage" alt="AMAL portfolio"></div>
+      </section>
 
-        <div class="linkStack">
-          <button class="profileLink primaryLink" id="portfolioOpenBtn" type="button">
-            <span class="linkIcon"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v5h5M10 13h6M10 17h6"/></svg></span>
-            <span>ملف الأعمال</span>
-            <span class="linkDots">•••</span>
-          </button>
-          <a class="profileLink" href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer">
-            <span class="linkIcon"><svg viewBox="0 0 24 24"><path d="M14.25 3.2c.45 2.45 1.82 3.86 4.15 4.28V9.7a7.12 7.12 0 0 1-4.15-1.6v5.25a4.5 4.5 0 1 1-3.15-4.29v2.35a2.3 2.3 0 1 0 1.05 1.94V3.2h2.1Z" fill="currentColor" stroke="none"/></svg></span>
-            <span>تيك توك</span>
-            <span class="linkDots">•••</span>
-          </a>
-          <a class="profileLink" href="https://snapchat.com/t/OtS0exp9" target="_blank" rel="noopener noreferrer">
-            <span class="linkIcon"><svg viewBox="0 0 24 24"><path d="M12 3.1c-2.7 0-4.65 2.14-4.65 5.15 0 1.08.12 1.95-.45 2.88-.43.7-1.15 1.2-2.06 1.49-.39.12-.48.67-.14.9.62.43 1.28.72 1.98.89.18.04.31.2.32.38.05.74.68 1.02 1.28 1.12.21.04.39.17.49.36.54 1.08 1.78 1.22 2.45.84.49-.28 1.07-.28 1.56 0 .67.38 1.91.24 2.45-.84.1-.19.28-.32.49-.36.6-.1 1.23-.38 1.28-1.12.01-.18.14-.34.32-.38.7-.17 1.36-.46 1.98-.89.34-.23.25-.78-.14-.9-.91-.29-1.63-.79-2.06-1.49-.57-.93-.45-1.8-.45-2.88C16.65 5.24 14.7 3.1 12 3.1Z" fill="none"/></svg></span>
-            <span>سناب شات</span>
-            <span class="linkDots">•••</span>
-          </a>
+      <section class="editorialMotion">
+        <div class="motionVideoCard">
+          <video id="editorialVideo" muted loop playsinline preload="metadata" poster="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/bb2efc827fede69f0ab73ca15b8456b43c00e9e5b92455c75932b133f97acb76.jpg">
+            <source src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/d200821f3a7883c0e15a279629af7e8b8fc03162675fd97979097de51020ed32.mov" type="video/mp4">
+          </video>
+          <button class="editorialSound" id="editorialSound" type="button">تشغيل الصوت</button>
         </div>
+        <div class="motionCopy"><span>01 / MOTION</span><h2>Presence<br>in motion.</h2><p>Fashion · Beauty · Editorial</p></div>
+      </section>
 
-        <div class="profileSocials">
-          <a href="https://snapchat.com/t/OtS0exp9" target="_blank" rel="noopener noreferrer" aria-label="Snapchat">◉</a>
-          <a href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer" aria-label="TikTok">♪</a>
+      <section class="featuredStrip">
+        <div class="sectionLabel">FEATURED WORK</div>
+        <div class="featuredGrid">
+          <button class="featuredCard" data-feature-index="0"><img id="featuredImage0" alt=""></button>
+          <button class="featuredCard featuredTall" data-feature-index="1"><img id="featuredImage1" alt=""></button>
+          <button class="featuredCard" data-feature-index="2"><img id="featuredImage2" alt=""></button>
         </div>
-      </div>
+      </section>
+
+      <section class="editorialCollage">
+        <div class="collageTitle"><span>SELECTED</span><h2>Editorial</h2></div>
+        <button class="collageItem c1" data-feature-index="3"><img id="featuredImage3" alt=""></button>
+        <button class="collageItem c2" data-feature-index="4"><img id="featuredImage4" alt=""></button>
+        <button class="collageItem c3" data-feature-index="5"><img id="featuredImage5" alt=""></button>
+      </section>
+
+      <section class="albumCta">
+        <div><span>FULL PORTFOLIO</span><h2>View every album.</h2></div>
+        <button id="portfolioOpenBtn" type="button">فتح الألبومات</button>
+      </section>
     </div>
 
     <section class="worksArchive portfolioBrowser" id="worksArchive" hidden>
@@ -215,8 +224,12 @@ const worksGrid=document.getElementById('worksGrid');
 const albumsCount=document.getElementById('albumsCount');
 const portfolioOpenBtn=document.getElementById('portfolioOpenBtn');
 const portfolioClose=document.getElementById('portfolioClose');
-const worksAvatar=document.getElementById('worksAvatar');
-const shareWorks=document.getElementById('shareWorks');
+const homeAvatar=document.getElementById('homeAvatar');
+const homeWorksBtn=document.getElementById('homeWorksBtn');
+const homeShareBtn=document.getElementById('homeShareBtn');
+const editorialHeroImage=document.getElementById('editorialHeroImage');
+const editorialVideo=document.getElementById('editorialVideo');
+const editorialSound=document.getElementById('editorialSound');
 const collectionViewer=document.getElementById('collectionViewer');
 const viewerClose=document.getElementById('viewerClose');
 const viewerTitle=document.getElementById('viewerTitle');
@@ -228,24 +241,30 @@ const lightboxStage=document.getElementById('lightboxStage');
 const lightboxCounter=document.getElementById('lightboxCounter');
 const lightboxPrev=document.getElementById('lightboxPrev');
 const lightboxNext=document.getElementById('lightboxNext');
-let worksCollections=[],activeCollection=null,activeIndex=0,touchStartX=0;
+let worksCollections=[],featuredImages=[],activeCollection=null,activeIndex=0,touchStartX=0;
+
 function htmlEsc(s){return String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 function mediaMarkup(item,mode){if(!item)return '';if(item.type==='video')return mode==='lightbox'?'<video src="'+item.url+'" controls playsinline preload="metadata"></video>':'<video src="'+item.url+'" muted playsinline preload="metadata"></video>';return '<img src="'+item.url+'" alt="" loading="'+(mode==='lightbox'?'eager':'lazy')+'">'}
 function setOverlayState(){document.body.classList.toggle('mediaOverlayOpen',!worksArchive.hidden||!collectionViewer.hidden||!mediaLightbox.hidden)}
 function setView(tab){
   tabs.forEach(x=>x.classList.toggle('active',x===tab));
   views.forEach(v=>v.classList.toggle('active',v.id===tab.dataset.view));
-  const onWorks=tab.dataset.view==='works';
-  document.body.classList.toggle('worksLandingActive',onWorks);
-  if(!onWorks){worksArchive.hidden=true;collectionViewer.hidden=true;mediaLightbox.hidden=true;setOverlayState()}
+  const active=tab.dataset.view;
+  document.body.classList.toggle('portfolioSurfaceActive',active==='home'||active==='works');
+  if(active!=='works'){worksArchive.hidden=true;collectionViewer.hidden=true;mediaLightbox.hidden=true;setOverlayState()}
+  if(active==='works'&&editorialVideo){editorialVideo.muted=true;editorialVideo.play().catch(()=>{})}else if(editorialVideo)editorialVideo.pause();
 }
 tabs.forEach(t=>t.addEventListener('click',()=>setView(t)));
 const initialView=new URLSearchParams(location.search).get('view');if(initialView){const initialTab=tabs.find(t=>t.dataset.view===initialView);if(initialTab)setView(initialTab)}
 
+function goWorks(){const tab=tabs.find(t=>t.dataset.view==='works');if(tab)setView(tab)}
+homeWorksBtn?.addEventListener('click',goWorks);
+homeShareBtn?.addEventListener('click',async()=>{try{if(navigator.share)await navigator.share({title:'AMAL',url:location.origin});else await navigator.clipboard.writeText(location.origin)}catch{}});
+editorialSound?.addEventListener('click',()=>{if(!editorialVideo)return;editorialVideo.muted=!editorialVideo.muted;editorialVideo.play().catch(()=>{});editorialSound.textContent=editorialVideo.muted?'تشغيل الصوت':'كتم الصوت'});
+
 function openPortfolio(){worksArchive.hidden=false;setOverlayState()}
 function closePortfolio(){worksArchive.hidden=true;setOverlayState()}
-portfolioOpenBtn?.addEventListener('click',openPortfolio);
-portfolioClose?.addEventListener('click',closePortfolio);
+portfolioOpenBtn?.addEventListener('click',openPortfolio);portfolioClose?.addEventListener('click',closePortfolio);
 
 function openCollection(c){activeCollection=c;viewerTitle.textContent=c.name||'';viewerCount.textContent=c.items.length+' ملف';viewerGrid.innerHTML=c.items.map((i,idx)=>'<button class="viewerItem '+(i.type==='video'?'isVideo':'')+'" type="button" data-index="'+idx+'">'+mediaMarkup(i,'thumb')+'</button>').join('');viewerGrid.querySelectorAll('.viewerItem').forEach(b=>b.onclick=()=>openLightbox(Number(b.dataset.index)));collectionViewer.hidden=false;setOverlayState()}
 function closeCollection(){if(!mediaLightbox.hidden)closeLightbox();collectionViewer.hidden=true;viewerGrid.innerHTML='';activeCollection=null;setOverlayState()}
@@ -256,9 +275,24 @@ function stepLightbox(delta){if(!activeCollection)return;activeIndex+=delta;rend
 viewerClose?.addEventListener('click',closeCollection);lightboxClose?.addEventListener('click',closeLightbox);lightboxPrev?.addEventListener('click',()=>stepLightbox(-1));lightboxNext?.addEventListener('click',()=>stepLightbox(1));
 if(lightboxStage){lightboxStage.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX},{passive:true});lightboxStage.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>45)stepLightbox(dx>0?-1:1)},{passive:true})}
 document.addEventListener('keydown',e=>{if(!mediaLightbox.hidden){if(e.key==='ArrowRight')stepLightbox(1);if(e.key==='ArrowLeft')stepLightbox(-1);if(e.key==='Escape')closeLightbox()}else if(!collectionViewer.hidden&&e.key==='Escape')closeCollection();else if(!worksArchive.hidden&&e.key==='Escape')closePortfolio()});
-shareWorks?.addEventListener('click',async()=>{try{if(navigator.share)await navigator.share({title:'AMAL',url:location.origin+'/?view=works'});else await navigator.clipboard.writeText(location.origin+'/?view=works')}catch{}});
 
-async function loadWorks(){try{const r=await fetch('/api/works',{cache:'no-store'});if(!r.ok)return;const data=await r.json();worksCollections=data.collections||[];albumsCount.textContent=worksCollections.length+' ألبوم';worksGrid.innerHTML=worksCollections.map((c,idx)=>'<button class="collectionCard" type="button" data-i="'+idx+'">'+(c.cover?mediaMarkup(c.cover,'cover'):'')+'<span class="collectionMeta"><b>'+htmlEsc(c.name)+'</b><span>'+c.items.length+' ملف</span></span></button>').join('');worksGrid.querySelectorAll('.collectionCard').forEach(b=>{const c=worksCollections[Number(b.dataset.i)];b.onclick=()=>openCollection(c)});const avatar=worksCollections.find(c=>c.cover)?.cover||worksCollections.flatMap(c=>c.items).find(i=>i.type==='image');if(avatar&&worksAvatar)worksAvatar.src=avatar.url;portfolioOpenBtn.disabled=!worksCollections.length}catch(e){console.error(e)}}
+function setEditorialImages(images){
+  featuredImages=images;
+  if(images[0]){homeAvatar.src=images[0].url;editorialHeroImage.src=images[0].url}
+  for(let i=0;i<6;i++){const el=document.getElementById('featuredImage'+i);const item=images[i+1]||images[i]||images[0];if(el&&item){el.src=item.url;el.closest('button').hidden=false}else if(el)el.closest('button').hidden=true}
+  document.querySelectorAll('[data-feature-index]').forEach(btn=>btn.addEventListener('click',()=>{const idx=Number(btn.dataset.featureIndex)+1;const item=images[idx]||images[Number(btn.dataset.featureIndex)]||images[0];if(!item)return;const pseudo={name:'',items:images};activeCollection=pseudo;openLightbox(Math.max(0,images.indexOf(item)))},{once:false}));
+}
+
+async function loadWorks(){try{
+  const r=await fetch('/api/works',{cache:'no-store'});if(!r.ok)return;
+  const data=await r.json();worksCollections=data.collections||[];
+  albumsCount.textContent=worksCollections.length+' ألبوم';
+  worksGrid.innerHTML=worksCollections.map((c,idx)=>'<button class="collectionCard" type="button" data-i="'+idx+'">'+(c.cover?mediaMarkup(c.cover,'cover'):'')+'<span class="collectionMeta"><b>'+htmlEsc(c.name)+'</b><span>'+c.items.length+' ملف</span></span></button>').join('');
+  worksGrid.querySelectorAll('.collectionCard').forEach(b=>{const c=worksCollections[Number(b.dataset.i)];b.onclick=()=>openCollection(c)});
+  const images=worksCollections.flatMap(c=>c.items).filter(i=>i.type==='image');
+  setEditorialImages(images);
+  portfolioOpenBtn.disabled=!worksCollections.length;
+}catch(e){console.error(e)}}
 loadWorks();
 </script>
 </body>
