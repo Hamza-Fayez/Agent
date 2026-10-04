@@ -74,6 +74,7 @@ function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function mediaTag(item,opts={}){if(!item)return '<div class="emptyCover">لا توجد ملفات</div>';if(item.type==='video')return '<video src="'+item.url+'" '+(opts.controls?'controls':'muted playsinline preload="metadata"')+'></video>';return '<img src="'+item.url+'" alt="">'}
 function openNameModal(mode){nameMode=mode;$('#nameModalTitle').textContent=mode==='create'?'ألبوم جديد':'تعديل اسم الألبوم';$('#albumNameInput').value=mode==='rename'&&current?current.name:'';$('#nameModal').hidden=false;setTimeout(()=>$('#albumNameInput').focus(),20)}
 function closeNameModal(){$('#nameModal').hidden=true}
+function chooseFilesFor(id){currentFolder=id;const c=collections.find(x=>x.id===id);$('#picker').accept=c?.systemRole==='home_slideshow'?'image/*':'image/*,video/*';$('#picker').click()}
 async function boot(){try{await api('/api/session');$('#loginView').hidden=true;$('#appView').hidden=false;await load()}catch(e){$('#loginView').hidden=false;$('#appView').hidden=true}}
 $('#loginForm').addEventListener('submit',async e=>{e.preventDefault();$('#loginErr').textContent='';try{await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('#user').value.trim().toLowerCase(),password:$('#pass').value})});await boot()}catch(e){$('#loginErr').textContent='بيانات الدخول غير صحيحة'}});
 $('#logoutBtn').onclick=async()=>{await fetch('/api/logout',{method:'POST'});location.reload()};
@@ -81,10 +82,10 @@ $('#newFolderBtn').onclick=()=>openNameModal('create');
 $('#renameBtn').onclick=()=>openNameModal('rename');
 $('#cancelNameBtn').onclick=closeNameModal;
 $('#nameModal').addEventListener('click',e=>{if(e.target===$('#nameModal'))closeNameModal()});
-$('#saveNameBtn').onclick=async()=>{const name=$('#albumNameInput').value.trim();if(nameMode==='create'){const c=await api('/api/admin/collections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});closeNameModal();await load();openEditor(c.id);currentFolder=c.id;$('#picker').click()}else if(current){const id=current.id;await api('/api/admin/rename',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({collection:id,name})});closeNameModal();await load();openEditor(id)}};
+$('#saveNameBtn').onclick=async()=>{const name=$('#albumNameInput').value.trim();if(nameMode==='create'){const c=await api('/api/admin/collections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});closeNameModal();await load();openEditor(c.id);chooseFilesFor(c.id)}else if(current){const id=current.id;await api('/api/admin/rename',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({collection:id,name})});closeNameModal();await load();openEditor(id)}};
 $('#albumNameInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#saveNameBtn').click()});
 $('#backBtn').onclick=()=>{$('#editorView').hidden=true;$('#albumsView').hidden=false;current=null};
-$('#addFilesBtn').onclick=()=>{if(current){currentFolder=current.id;$('#picker').click()}};
+$('#addFilesBtn').onclick=()=>{if(current)chooseFilesFor(current.id)};
 $('#changeCoverHint').onclick=()=>$('#mediaGrid').scrollIntoView({behavior:'smooth',block:'start'});
 function renderPendingFiles(){
   $('#selectedCount').textContent=pendingFiles.length+' ملف';
@@ -123,7 +124,7 @@ function renderAlbums(){
     return '<article class="albumCard '+(system?'systemAlbum':'')+'"><div class="albumCover">'+mediaTag(cover)+(cover?'<span class="coverBadge">'+(system?'صور متحركة':'الغلاف')+'</span>':'')+'</div><div class="albumBody">'+protectedBadge+'<div class="albumTitle">'+esc(title)+'</div><div class="albumMeta">'+meta+'</div>'+extra+'<div class="albumActions"><button class="btn dark small" data-open="'+c.id+'">فتح وإدارة</button><button class="btn small" data-upload="'+c.id+'">إضافة صور</button>'+standardActions+'</div></div></article>';
   }).join('');
   root.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openEditor(b.dataset.open));
-  root.querySelectorAll('[data-upload]').forEach(b=>b.onclick=()=>{currentFolder=b.dataset.upload;$('#picker').click()});
+  root.querySelectorAll('[data-upload]').forEach(b=>b.onclick=()=>chooseFilesFor(b.dataset.upload));
   root.querySelectorAll('[data-rename]').forEach(b=>b.onclick=()=>{current=collections.find(c=>c.id===b.dataset.rename);openNameModal('rename')});
   root.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{const c=collections.find(x=>x.id===b.dataset.delete);if(!confirm('حذف الألبوم '+(c?.name||'بدون اسم')+' وكل الملفات داخله؟'))return;await api('/api/admin/collection?id='+encodeURIComponent(b.dataset.delete),{method:'DELETE'});await load()})
 }
