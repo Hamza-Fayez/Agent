@@ -12,6 +12,7 @@ const BUCKET = process.env.AWS_S3_BUCKET_NAME;
 const META_KEY = 'aml-suabhi/portfolio/index.json';
 const LEGACY_META_KEY = 'portfolio/index.json';
 const MEDIA_PREFIX = 'aml-suabhi/works/';
+const HOME_MEDIA_PREFIX = 'aml-suabhi/home-slideshow/';
 const MAX_UPLOAD = 300 * 1024 * 1024;
 const s3 = new S3Client({
   region: process.env.AWS_DEFAULT_REGION || 'auto',
@@ -47,25 +48,66 @@ function slug(s){return safeName(s).toLowerCase().replace(/[^a-z0-9\u0600-\u06ff
 function extOf(name,type){const e=path.extname(name||'').toLowerCase().replace(/[^.a-z0-9]/g,'');if(e&&e.length<=8)return e;return type.startsWith('video/')?'.mp4':'.jpg'}
 async function streamToBuffer(stream){const chunks=[];for await(const c of stream)chunks.push(Buffer.from(c));return Buffer.concat(chunks)}
 async function readMetaKey(key){try{const o=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key}));return JSON.parse((await streamToBuffer(o.Body)).toString('utf8'))}catch(e){if(e.name==='NoSuchKey'||e.$metadata?.httpStatusCode===404)return null;throw e}}
+function ensureSystemCollections(meta){
+  if(!meta||!Array.isArray(meta.collections))meta={version:1,collections:[]};
+  let home=meta.collections.find(c=>c.systemRole==='home_slideshow'||c.id==='home-slideshow');
+  let changed=false;
+  if(!home){
+    const seed=meta.collections
+      .filter(c=>!c.systemRole)
+      .flatMap(c=>(c.items||[]).filter(i=>i.type==='image').map(i=>({...i,id:'home-seed-'+i.id,shared:true,sourceCollectionId:c.id})));
+    home={id:'home-slideshow',name:'فيديو متحرك',systemRole:'home_slideshow',locked:true,createdAt:new Date().toISOString(),cover:seed[0]?.id||null,items:seed};
+    meta.collections.unshift(home);
+    changed=true;
+  }else{
+    if(home.name!=='فيديو متحرك'){home.name='فيديو متحرك';changed=true}
+    if(home.systemRole!=='home_slideshow'){home.systemRole='home_slideshow';changed=true}
+    if(home.locked!==true){home.locked=true;changed=true}
+  }
+  return {meta,changed};
+}
+
 async function readMeta(){
-  const scoped=await readMetaKey(META_KEY);if(scoped)return scoped;
+  const scoped=await readMetaKey(META_KEY);
+  if(scoped){
+    const ensured=ensureSystemCollections(scoped);
+    if(ensured.changed)await writeMeta(ensured.meta);
+    return ensured.meta;
+  }
   const legacy=await readMetaKey(LEGACY_META_KEY);
-  if(!legacy)return {version:1,collections:[]};
+  if(!legacy){
+    const ensured=ensureSystemCollections({version:1,collections:[]});
+    await writeMeta(ensured.meta);
+    return ensured.meta;
+  }
   await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:'aml-suabhi/backups/legacy-before-isolation-20261004.json',Body:JSON.stringify(legacy),ContentType:'application/json',CacheControl:'no-cache'}));
   const unexpected=new Set(['d532919e-eaaf-424c-829a-a235d96b6689','da57832a-b672-439c-82a7-0564d857c1de']);
   for(const c of legacy.collections||[]){c.items=(c.items||[]).filter(i=>!unexpected.has(i.id));if(unexpected.has(c.cover))c.cover=(c.items.find(i=>i.type==='image')||c.items[0]||{}).id||null}
-  await writeMeta(legacy);
+  const ensured=ensureSystemCollections(legacy);
+  await writeMeta(ensured.meta);
   console.log('AML_STORAGE_ISOLATED migrated='+String((legacy.collections||[]).length)+' quarantined=2');
-  return legacy;
+  return ensured.meta;
 }
 async function writeMeta(meta){await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:META_KEY,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}))}
-function publicMeta(meta){return {collections:meta.collections.map(c=>({id:c.id,name:c.name,createdAt:c.createdAt,cover:(c.items.find(i=>i.id===c.cover)||c.items.find(i=>i.type==='image')||c.items[0]||null),items:c.items})).map(c=>({...c,cover:c.cover?{...c.cover,url:'/media/'+encodeURIComponent(c.cover.key)}:null,items:c.items.map(i=>({...i,url:'/media/'+encodeURIComponent(i.key)}))}))}}
+function publicCollection(c){
+  const cover=(c.items.find(i=>i.id===c.cover)||c.items.find(i=>i.type==='image')||c.items[0]||null);
+  return {
+    id:c.id,name:c.name,createdAt:c.createdAt,systemRole:c.systemRole||null,locked:!!c.locked,
+    cover:cover?{...cover,url:'/media/'+encodeURIComponent(cover.key)}:null,
+    items:(c.items||[]).map(i=>({...i,url:'/media/'+encodeURIComponent(i.key)}))
+  };
+}
+function publicMeta(meta,{includeSystem=true}={}){
+  const rows=(meta.collections||[]).filter(c=>includeSystem||!c.systemRole).map(publicCollection);
+  return {collections:rows};
+}
 
 async function handleApi(req,res,pathname,url){
   if(pathname==='/api/session'&&req.method==='GET'){const u=sessionUser(req);return u?json(res,200,{ok:true,user:u}):json(res,401,{error:'Unauthorized'})}
   if(pathname==='/api/login'&&req.method==='POST'){try{const b=await readJson(req);const okUser=String(b.username||'')===(process.env.ADMIN_USER||'');const salt=Buffer.from(process.env.ADMIN_PASSWORD_SALT||'','base64');const expected=Buffer.from(process.env.ADMIN_PASSWORD_HASH||'','base64');const actual=crypto.scryptSync(String(b.password||''),salt,32,{N:16384,r:8,p:1});const okPass=expected.length===actual.length&&crypto.timingSafeEqual(expected,actual);if(!okUser||!okPass)return json(res,401,{error:'Invalid login'});const token=makeSession(b.username);res.writeHead(200,{'Content-Type':'application/json','Set-Cookie':'aml_session='+encodeURIComponent(token)+'; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800'});return res.end('{"ok":true}')}catch(e){return json(res,400,{error:'Bad request'})}}
   if(pathname==='/api/logout'&&req.method==='POST'){res.writeHead(200,{'Content-Type':'application/json','Set-Cookie':'aml_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0'});return res.end('{"ok":true}')}
-  if(pathname==='/api/works'&&req.method==='GET'){try{return json(res,200,publicMeta(await readMeta()))}catch(e){console.error(e);return json(res,500,{error:'Could not load works'})}}
+  if(pathname==='/api/works'&&req.method==='GET'){try{return json(res,200,publicMeta(await readMeta(),{includeSystem:false}))}catch(e){console.error(e);return json(res,500,{error:'Could not load works'})}}
+  if(pathname==='/api/home-slides'&&req.method==='GET'){try{const meta=await readMeta();const c=meta.collections.find(x=>x.systemRole==='home_slideshow');return json(res,200,{collection:c?publicCollection(c):null})}catch(e){console.error(e);return json(res,500,{error:'Could not load home slides'})}}
   if(pathname.startsWith('/media/')&&req.method==='GET'){try{const key=decodeURIComponent(pathname.slice(7));const out=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key,Range:req.headers.range}));const headers={'Content-Type':out.ContentType||'application/octet-stream','Cache-Control':'public,max-age=3600','Accept-Ranges':'bytes'};if(out.ContentLength!=null)headers['Content-Length']=String(out.ContentLength);if(out.ContentRange)headers['Content-Range']=out.ContentRange;res.writeHead(out.ContentRange?206:200,headers);return out.Body.pipe(res)}catch(e){return json(res,404,{error:'Not found'})}
   }
   if(!pathname.startsWith('/api/admin/'))return false;
@@ -73,11 +115,11 @@ async function handleApi(req,res,pathname,url){
   try{
     if(pathname==='/api/admin/collections'&&req.method==='GET')return json(res,200,publicMeta(await readMeta()));
     if(pathname==='/api/admin/collections'&&req.method==='POST'){const b=await readJson(req);const name=safeName(b.name||'');const meta=await readMeta();const id=slug(name)+'-'+crypto.randomBytes(3).toString('hex');meta.collections.unshift({id,name,createdAt:new Date().toISOString(),cover:null,items:[]});await writeMeta(meta);return json(res,201,{id,name})}
-    if(pathname==='/api/admin/upload'&&req.method==='POST'){const collection=url.searchParams.get('collection');const original=safeName(url.searchParams.get('name')||'file');const type=String(req.headers['content-type']||'');const len=Number(req.headers['content-length']||0);if(!type.startsWith('image/')&&!type.startsWith('video/'))return json(res,415,{error:'Images and videos only'});if(len>MAX_UPLOAD)return json(res,413,{error:'File too large'});const meta=await readMeta();const c=meta.collections.find(x=>x.id===collection);if(!c)return json(res,404,{error:'Folder not found'});const id=crypto.randomUUID();const key=MEDIA_PREFIX+c.id+'/'+Date.now()+'-'+crypto.randomBytes(4).toString('hex')+extOf(original,type);await new Upload({client:s3,params:{Bucket:BUCKET,Key:key,Body:req,ContentType:type,CacheControl:'public,max-age=31536000,immutable'}}).done();const item={id,key,type:type.startsWith('video/')?'video':'image',name:original,createdAt:new Date().toISOString()};c.items.push(item);if(!c.cover&&item.type==='image')c.cover=id;await writeMeta(meta);return json(res,201,{ok:true,item:{...item,url:'/media/'+encodeURIComponent(key)}})}
-    if(pathname==='/api/admin/rename'&&req.method==='POST'){const b=await readJson(req);const name=safeName(b.name||'');const meta=await readMeta();const c=meta.collections.find(x=>x.id===b.collection);if(!c)return json(res,404,{error:'Folder not found'});c.name=name;await writeMeta(meta);return json(res,200,{ok:true,name})}
+    if(pathname==='/api/admin/upload'&&req.method==='POST'){const collection=url.searchParams.get('collection');const original=safeName(url.searchParams.get('name')||'file');const type=String(req.headers['content-type']||'');const len=Number(req.headers['content-length']||0);if(!type.startsWith('image/')&&!type.startsWith('video/'))return json(res,415,{error:'Images and videos only'});if(len>MAX_UPLOAD)return json(res,413,{error:'File too large'});const meta=await readMeta();const c=meta.collections.find(x=>x.id===collection);if(!c)return json(res,404,{error:'Folder not found'});const id=crypto.randomUUID();const prefix=c.systemRole==='home_slideshow'?HOME_MEDIA_PREFIX:(MEDIA_PREFIX+c.id+'/');const key=prefix+Date.now()+'-'+crypto.randomBytes(4).toString('hex')+extOf(original,type);await new Upload({client:s3,params:{Bucket:BUCKET,Key:key,Body:req,ContentType:type,CacheControl:'public,max-age=31536000,immutable'}}).done();const item={id,key,type:type.startsWith('video/')?'video':'image',name:original,createdAt:new Date().toISOString()};c.items.push(item);if(!c.cover&&item.type==='image')c.cover=id;await writeMeta(meta);return json(res,201,{ok:true,item:{...item,url:'/media/'+encodeURIComponent(key)}})}
+    if(pathname==='/api/admin/rename'&&req.method==='POST'){const b=await readJson(req);const name=safeName(b.name||'');const meta=await readMeta();const c=meta.collections.find(x=>x.id===b.collection);if(!c)return json(res,404,{error:'Folder not found'});if(c.locked)return json(res,409,{error:'System folder cannot be renamed'});c.name=name;await writeMeta(meta);return json(res,200,{ok:true,name})}
     if(pathname==='/api/admin/cover'&&req.method==='POST'){const b=await readJson(req);const meta=await readMeta();const c=meta.collections.find(x=>x.id===b.collection);if(!c||!c.items.some(i=>i.id===b.item))return json(res,404,{error:'Not found'});c.cover=b.item;await writeMeta(meta);return json(res,200,{ok:true})}
-    if(pathname==='/api/admin/item'&&req.method==='DELETE'){const cid=url.searchParams.get('collection'),iid=url.searchParams.get('item');const meta=await readMeta();const c=meta.collections.find(x=>x.id===cid);if(!c)return json(res,404,{error:'Folder not found'});const i=c.items.findIndex(x=>x.id===iid);if(i<0)return json(res,404,{error:'Item not found'});const item=c.items[i];await s3.send(new DeleteObjectCommand({Bucket:BUCKET,Key:item.key}));c.items.splice(i,1);if(c.cover===iid)c.cover=c.items[0]?.id||null;await writeMeta(meta);return json(res,200,{ok:true})}
-    if(pathname==='/api/admin/collection'&&req.method==='DELETE'){const id=url.searchParams.get('id');const meta=await readMeta();const i=meta.collections.findIndex(x=>x.id===id);if(i<0)return json(res,404,{error:'Folder not found'});const c=meta.collections[i];if(c.items.length)await s3.send(new DeleteObjectsCommand({Bucket:BUCKET,Delete:{Objects:c.items.map(x=>({Key:x.key})),Quiet:true}}));meta.collections.splice(i,1);await writeMeta(meta);return json(res,200,{ok:true})}
+    if(pathname==='/api/admin/item'&&req.method==='DELETE'){const cid=url.searchParams.get('collection'),iid=url.searchParams.get('item');const meta=await readMeta();const c=meta.collections.find(x=>x.id===cid);if(!c)return json(res,404,{error:'Folder not found'});const i=c.items.findIndex(x=>x.id===iid);if(i<0)return json(res,404,{error:'Item not found'});const item=c.items[i];if(!item.shared)await s3.send(new DeleteObjectCommand({Bucket:BUCKET,Key:item.key}));c.items.splice(i,1);if(c.cover===iid)c.cover=c.items.find(x=>x.type==='image')?.id||c.items[0]?.id||null;await writeMeta(meta);return json(res,200,{ok:true})}
+    if(pathname==='/api/admin/collection'&&req.method==='DELETE'){const id=url.searchParams.get('id');const meta=await readMeta();const i=meta.collections.findIndex(x=>x.id===id);if(i<0)return json(res,404,{error:'Folder not found'});const c=meta.collections[i];if(c.locked)return json(res,409,{error:'System folder cannot be deleted'});if(c.items.length)await s3.send(new DeleteObjectsCommand({Bucket:BUCKET,Delete:{Objects:c.items.filter(x=>!x.shared).map(x=>({Key:x.key})),Quiet:true}}));meta.collections.splice(i,1);await writeMeta(meta);return json(res,200,{ok:true})}
   }catch(e){console.error(e);return json(res,500,{error:'Server error'})}
   return json(res,404,{error:'Not found'});
 }
