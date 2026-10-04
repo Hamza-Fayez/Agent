@@ -16,6 +16,7 @@
 .mediaGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.mediaCard{position:relative;aspect-ratio:4/5;border-radius:15px;overflow:hidden;background:#e3dbd2;border:2px solid transparent}.mediaCard.isCover{border-color:#171513}.mediaCard img,.mediaCard video{width:100%;height:100%;object-fit:cover;display:block}.mediaType{position:absolute;left:7px;top:7px;background:rgba(20,18,16,.72);color:#fff;border-radius:999px;padding:5px 7px;font-size:8px}.mediaTools{position:absolute;right:6px;left:6px;bottom:6px;display:flex;gap:5px;justify-content:space-between}.chip{border:0;border-radius:999px;padding:6px 8px;font-size:9px;background:rgba(255,255,255,.9);color:#171513;backdrop-filter:blur(10px)}.chip.red{background:rgba(111,31,24,.86);color:#fff}.chip.coverOn{background:#171513;color:#fff}
 .modal{position:fixed;inset:0;z-index:50;background:rgba(22,19,16,.44);backdrop-filter:blur(10px);display:grid;place-items:center;padding:18px}.modalCard{width:min(100%,430px);background:#fff;border-radius:26px;padding:20px;box-shadow:0 30px 100px rgba(0,0,0,.18)}.modalCard h3{font:500 30px/1 Georgia,serif;margin:0 0 14px}.modalActions{display:flex;gap:7px;margin-top:14px}.modalActions .btn{flex:1}
 .uploadBar{position:fixed;right:16px;left:16px;bottom:16px;z-index:70;background:#151311;color:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.28)}.progress{height:4px;border-radius:999px;background:rgba(255,255,255,.18);margin-top:9px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:#fff;transition:width .2s}
+.selectionModal{position:fixed;inset:0;z-index:75;background:rgba(18,16,14,.58);backdrop-filter:blur(12px);display:grid;place-items:end center;padding:14px}.selectionCard{width:min(100%,760px);max-height:88svh;overflow:auto;background:#fff;border-radius:26px;padding:18px;box-shadow:0 28px 90px rgba(0,0,0,.24)}.selectionHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.selectionHead h3{margin:0;font:500 28px/1 Georgia,serif}.selectionHead span{font-size:10px;color:var(--muted)}.selectedGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.selectedFile{position:relative;aspect-ratio:1;border-radius:13px;overflow:hidden;background:#e5ddd5}.selectedFile img,.selectedFile video{width:100%;height:100%;object-fit:cover;display:block}.selectedFile button{position:absolute;top:6px;left:6px;width:26px;height:26px;border:0;border-radius:999px;background:rgba(15,13,12,.75);color:#fff}.selectionActions{display:flex;gap:8px;margin-top:14px}.selectionActions .btn{flex:1}@media(max-width:650px){.selectionModal{padding:7px}.selectionCard{border-radius:22px;padding:13px}.selectedGrid{grid-template-columns:repeat(3,1fr);gap:5px}.selectionHead h3{font-size:24px}}
 .previewOverlay{position:fixed;inset:0;z-index:80;background:rgba(10,9,8,.96);display:grid;grid-template-rows:auto 1fr;color:#fff}.previewTop{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 14px}.previewTop button{width:42px;height:42px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font-size:24px}.previewMedia{display:grid;place-items:center;min-height:0;padding:10px 14px 20px}.previewMedia img,.previewMedia video{max-width:100%;max-height:calc(100svh - 88px);object-fit:contain;border-radius:12px}
 @media(max-width:900px){.albumGrid{grid-template-columns:repeat(2,1fr)}.mediaGrid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:650px){.page{padding:10px}.topbar{height:56px}.brand{font-size:21px}.heroRow{align-items:flex-start;flex-direction:column;margin-top:6px}.heroRow h1{font-size:38px}.stats{gap:6px}.stat{padding:11px}.stat b{font-size:20px}.albumGrid{grid-template-columns:1fr;gap:9px}.albumCover{aspect-ratio:16/10}.coverPreview{grid-template-columns:1fr}.coverBig{min-height:240px;aspect-ratio:4/3}.coverInfo{display:none}.mediaGrid{grid-template-columns:repeat(3,1fr);gap:6px}.mediaCard{border-radius:12px}.editorHead{align-items:flex-start;flex-direction:column}.editorActions{width:100%}.editorActions .btn{flex:1}.albumActions .btn{flex:1}.topActions .btn:first-child{display:none}}
@@ -61,12 +62,13 @@
 </div>
 
 <div class="modal" id="nameModal" hidden><div class="modalCard"><h3 id="nameModalTitle">ألبوم جديد</h3><div class="field"><label>اسم الألبوم <span style="color:var(--muted)">(اختياري)</span></label><input id="albumNameInput" maxlength="80" placeholder="يمكن تركه فارغًا"></div><div class="modalActions"><button class="btn" id="cancelNameBtn">إلغاء</button><button class="btn dark" id="saveNameBtn">حفظ</button></div></div></div>
+<div class="selectionModal" id="selectionModal" hidden><div class="selectionCard"><div class="selectionHead"><h3>راجع الملفات قبل الرفع</h3><span id="selectedCount"></span></div><div class="selectedGrid" id="selectedGrid"></div><div class="selectionActions"><button class="btn" id="cancelSelection">إلغاء</button><button class="btn dark" id="confirmUpload">رفع الملفات</button></div></div></div>
 <div class="uploadBar" id="uploading" hidden><div id="uploadText"></div><div class="progress"><i id="uploadProgress"></i></div></div>
 <div class="previewOverlay" id="previewOverlay" hidden><div class="previewTop"><span id="previewLabel"></span><button id="previewClose">×</button></div><div class="previewMedia" id="previewMedia"></div></div>
 
 <script>
 const $=s=>document.querySelector(s);
-let collections=[],current=null,currentFolder=null,nameMode='create';
+let collections=[],current=null,currentFolder=null,nameMode='create',pendingFiles=[];
 async function api(path,opts={}){const r=await fetch(path,opts);if(r.status===401)throw new Error('AUTH');const ct=r.headers.get('content-type')||'';const data=ct.includes('json')?await r.json():await r.text();if(!r.ok)throw new Error(data.error||data||'Request failed');return data}
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function mediaTag(item,opts={}){if(!item)return '<div class="emptyCover">لا توجد ملفات</div>';if(item.type==='video')return '<video src="'+item.url+'" '+(opts.controls?'controls':'muted playsinline preload="metadata"')+'></video>';return '<img src="'+item.url+'" alt="">'}
@@ -84,7 +86,28 @@ $('#albumNameInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#saveN
 $('#backBtn').onclick=()=>{$('#editorView').hidden=true;$('#albumsView').hidden=false;current=null};
 $('#addFilesBtn').onclick=()=>{if(current){currentFolder=current.id;$('#picker').click()}};
 $('#changeCoverHint').onclick=()=>$('#mediaGrid').scrollIntoView({behavior:'smooth',block:'start'});
-$('#picker').addEventListener('change',async()=>{const files=[...$('#picker').files];$('#picker').value='';if(!currentFolder||!files.length)return;const bar=$('#uploading');bar.hidden=false;for(let i=0;i<files.length;i++){const f=files[i];$('#uploadText').textContent='جاري رفع '+(i+1)+' / '+files.length+' — '+f.name;$('#uploadProgress').style.width=Math.round((i/files.length)*100)+'%';try{await api('/api/admin/upload?collection='+encodeURIComponent(currentFolder)+'&name='+encodeURIComponent(f.name),{method:'POST',headers:{'Content-Type':f.type||'application/octet-stream'},body:f})}catch(e){alert('فشل رفع '+f.name+': '+e.message);break}}$('#uploadProgress').style.width='100%';setTimeout(()=>{bar.hidden=true;$('#uploadProgress').style.width='0'},350);await load();if(currentFolder)openEditor(currentFolder)});
+function renderPendingFiles(){
+  $('#selectedCount').textContent=pendingFiles.length+' ملف';
+  $('#selectedGrid').innerHTML=pendingFiles.map((f,i)=>{const u=URL.createObjectURL(f);const media=f.type.startsWith('video/')?'<video src="'+u+'" muted playsinline></video>':'<img src="'+u+'" alt="">';return '<div class="selectedFile">'+media+'<button type="button" data-remove="'+i+'">×</button></div>'}).join('');
+  $('#selectedGrid').querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{pendingFiles.splice(Number(b.dataset.remove),1);renderPendingFiles();if(!pendingFiles.length)closeSelection()});
+}
+function closeSelection(){pendingFiles=[];$('#selectionModal').hidden=true;$('#selectedGrid').innerHTML=''}
+$('#picker').addEventListener('change',()=>{pendingFiles=[...$('#picker').files];$('#picker').value='';if(!currentFolder||!pendingFiles.length)return;renderPendingFiles();$('#selectionModal').hidden=false});
+$('#cancelSelection').onclick=closeSelection;
+$('#selectionModal').addEventListener('click',e=>{if(e.target===$('#selectionModal'))closeSelection()});
+$('#confirmUpload').onclick=async()=>{
+  const files=[...pendingFiles];if(!currentFolder||!files.length)return;
+  $('#selectionModal').hidden=true;
+  const bar=$('#uploading');bar.hidden=false;
+  for(let i=0;i<files.length;i++){
+    const f=files[i];$('#uploadText').textContent='جاري رفع '+(i+1)+' / '+files.length+' — '+f.name;$('#uploadProgress').style.width=Math.round((i/files.length)*100)+'%';
+    try{await api('/api/admin/upload?collection='+encodeURIComponent(currentFolder)+'&name='+encodeURIComponent(f.name),{method:'POST',headers:{'Content-Type':f.type||'application/octet-stream'},body:f})}
+    catch(e){alert('فشل رفع '+f.name+': '+e.message);break}
+  }
+  pendingFiles=[];$('#selectedGrid').innerHTML='';$('#uploadProgress').style.width='100%';
+  setTimeout(()=>{bar.hidden=true;$('#uploadProgress').style.width='0'},350);
+  await load();if(currentFolder)openEditor(currentFolder);
+};
 function previewItem(item){$('#previewLabel').textContent=item.name||'';$('#previewMedia').innerHTML=mediaTag(item,{controls:true});$('#previewOverlay').hidden=false}
 $('#previewClose').onclick=()=>{$('#previewOverlay').hidden=true;$('#previewMedia').querySelectorAll('video').forEach(v=>v.pause());$('#previewMedia').innerHTML=''};
 async function load(){const data=await api('/api/admin/collections');collections=data.collections||[];let images=0,videos=0;collections.forEach(c=>c.items.forEach(i=>i.type==='video'?videos++:images++));$('#albumsStat').textContent=collections.length;$('#imagesStat').textContent=images;$('#videosStat').textContent=videos;renderAlbums()}
