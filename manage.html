@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AML · إدارة الأعمال</title>
+<style>
+:root{--paper:#f3eee7;--card:#fff;--ink:#171513;--muted:#777067;--line:#ddd4ca;--soft:#ebe4dc;--dark:#151311;--danger:#8f3027}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}button,input{font:inherit}button{cursor:pointer}[hidden]{display:none!important}
+.page{max-width:1180px;margin:auto;padding:18px}.topbar{height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font:600 24px/1 Georgia,serif;letter-spacing:-.03em}.topActions{display:flex;gap:8px}.btn{border:0;border-radius:999px;padding:11px 15px;background:var(--soft);color:var(--ink);text-decoration:none}.btn.dark{background:var(--dark);color:#fff}.btn.danger{background:#f1dfdc;color:var(--danger)}.btn.small{padding:8px 11px;font-size:11px}
+.loginWrap{min-height:100svh;display:grid;place-items:center;padding:18px}.loginCard{width:min(100%,390px);background:#fff;border:1px solid var(--line);border-radius:28px;padding:26px;box-shadow:0 28px 80px rgba(48,38,28,.08)}.loginCard h1{margin:0 0 20px;font:500 38px/1 Georgia,serif}.field{display:grid;gap:7px;margin:12px 0}.field label{font-size:11px;color:var(--muted)}.field input{width:100%;border:1px solid var(--line);background:#fbf8f4;border-radius:15px;padding:14px 15px;outline:none}.field input:focus{border-color:#8d8276}.error{min-height:20px;color:#a0352b;font-size:12px}
+.heroRow{display:flex;justify-content:space-between;align-items:end;gap:18px;margin:12px 0 18px}.heroRow h1{margin:0;font:500 clamp(34px,5vw,58px)/.9 Georgia,serif;letter-spacing:-.04em}.heroRow p{margin:8px 0 0;font-size:11px;color:var(--muted)}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:16px}.stat{background:rgba(255,255,255,.6);border:1px solid var(--line);border-radius:18px;padding:13px}.stat b{display:block;font:500 24px/1 Georgia,serif}.stat span{font-size:10px;color:var(--muted)}
+.albumGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.albumCard{background:#fff;border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 12px 34px rgba(42,32,22,.04)}.albumCover{position:relative;aspect-ratio:4/3;background:#e6ddd4;overflow:hidden}.albumCover img,.albumCover video{width:100%;height:100%;object-fit:cover;display:block}.emptyCover{height:100%;display:grid;place-items:center;color:#9c9289;font-size:11px}.coverBadge{position:absolute;right:10px;top:10px;background:rgba(20,18,16,.7);color:#fff;padding:6px 9px;border-radius:999px;font-size:9px;backdrop-filter:blur(10px)}.albumBody{padding:14px}.albumTitle{font-weight:700;font-size:16px}.albumMeta{font-size:10px;color:var(--muted);margin-top:4px}.albumActions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.editorHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 14px}.editorHeadTitle{display:flex;align-items:center;gap:10px}.back{width:40px;height:40px;border-radius:999px;border:0;background:#e7dfd6;font-size:22px}.editorHead h2{margin:0;font:500 32px/1 Georgia,serif}.editorMeta{font-size:10px;color:var(--muted);margin-top:4px}.editorActions{display:flex;gap:7px;flex-wrap:wrap}
+.coverPreview{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-bottom:14px}.coverBig{position:relative;overflow:hidden;border-radius:24px;background:#ddd2c7;min-height:280px}.coverBig img,.coverBig video{width:100%;height:100%;object-fit:cover;display:block}.coverInfo{background:#fff;border:1px solid var(--line);border-radius:24px;padding:18px;display:flex;flex-direction:column;justify-content:space-between}.coverInfo h3{margin:0;font:500 30px/1 Georgia,serif}.coverInfo p{font-size:11px;color:var(--muted);line-height:1.7}
+.mediaGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.mediaCard{position:relative;aspect-ratio:4/5;border-radius:15px;overflow:hidden;background:#e3dbd2;border:2px solid transparent}.mediaCard.isCover{border-color:#171513}.mediaCard img,.mediaCard video{width:100%;height:100%;object-fit:cover;display:block}.mediaType{position:absolute;left:7px;top:7px;background:rgba(20,18,16,.72);color:#fff;border-radius:999px;padding:5px 7px;font-size:8px}.mediaTools{position:absolute;right:6px;left:6px;bottom:6px;display:flex;gap:5px;justify-content:space-between}.chip{border:0;border-radius:999px;padding:6px 8px;font-size:9px;background:rgba(255,255,255,.9);color:#171513;backdrop-filter:blur(10px)}.chip.red{background:rgba(111,31,24,.86);color:#fff}.chip.coverOn{background:#171513;color:#fff}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(22,19,16,.44);backdrop-filter:blur(10px);display:grid;place-items:center;padding:18px}.modalCard{width:min(100%,430px);background:#fff;border-radius:26px;padding:20px;box-shadow:0 30px 100px rgba(0,0,0,.18)}.modalCard h3{font:500 30px/1 Georgia,serif;margin:0 0 14px}.modalActions{display:flex;gap:7px;margin-top:14px}.modalActions .btn{flex:1}
+.uploadBar{position:fixed;right:16px;left:16px;bottom:16px;z-index:70;background:#151311;color:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.28)}.progress{height:4px;border-radius:999px;background:rgba(255,255,255,.18);margin-top:9px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:#fff;transition:width .2s}
+.previewOverlay{position:fixed;inset:0;z-index:80;background:rgba(10,9,8,.96);display:grid;grid-template-rows:auto 1fr;color:#fff}.previewTop{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 14px}.previewTop button{width:42px;height:42px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font-size:24px}.previewMedia{display:grid;place-items:center;min-height:0;padding:10px 14px 20px}.previewMedia img,.previewMedia video{max-width:100%;max-height:calc(100svh - 88px);object-fit:contain;border-radius:12px}
+@media(max-width:900px){.albumGrid{grid-template-columns:repeat(2,1fr)}.mediaGrid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:650px){.page{padding:10px}.topbar{height:56px}.brand{font-size:21px}.heroRow{align-items:flex-start;flex-direction:column;margin-top:6px}.heroRow h1{font-size:38px}.stats{gap:6px}.stat{padding:11px}.stat b{font-size:20px}.albumGrid{grid-template-columns:1fr;gap:9px}.albumCover{aspect-ratio:16/10}.coverPreview{grid-template-columns:1fr}.coverBig{min-height:240px;aspect-ratio:4/3}.coverInfo{display:none}.mediaGrid{grid-template-columns:repeat(3,1fr);gap:6px}.mediaCard{border-radius:12px}.editorHead{align-items:flex-start;flex-direction:column}.editorActions{width:100%}.editorActions .btn{flex:1}.albumActions .btn{flex:1}.topActions .btn:first-child{display:none}}
+</style>
+</head>
+<body>
+<div id="loginView" class="loginWrap">
+  <form class="loginCard" id="loginForm">
+    <h1>AML Studio</h1>
+    <div class="field"><label>اسم المستخدم</label><input id="user" autocomplete="username" required></div>
+    <div class="field"><label>كلمة المرور</label><input id="pass" type="password" autocomplete="current-password" required></div>
+    <div class="error" id="loginErr"></div>
+    <button class="btn dark" style="width:100%" type="submit">دخول</button>
+  </form>
+</div>
+
+<div id="appView" class="page" hidden>
+  <header class="topbar">
+    <div class="brand">AML Studio</div>
+    <div class="topActions"><a class="btn" href="/?view=works" target="_blank">معاينة الموقع</a><button class="btn" id="logoutBtn">خروج</button></div>
+  </header>
+  <section id="albumsView">
+    <div class="heroRow">
+      <div><h1>الألبومات</h1><p>أنشئي ألبوم لكل جلسة، اختاري الغلاف، وبعدها ارفعي الصور والفيديوهات داخله.</p></div>
+      <button class="btn dark" id="newFolderBtn">+ ألبوم جديد</button>
+    </div>
+    <div class="stats"><div class="stat"><b id="albumsStat">0</b><span>ألبومات</span></div><div class="stat"><b id="imagesStat">0</b><span>صور</span></div><div class="stat"><b id="videosStat">0</b><span>فيديوهات</span></div></div>
+    <div class="albumGrid" id="folders"></div>
+  </section>
+
+  <section id="editorView" hidden>
+    <div class="editorHead">
+      <div class="editorHeadTitle"><button class="back" id="backBtn">‹</button><div><h2 id="editorTitle"></h2><div class="editorMeta" id="editorMeta"></div></div></div>
+      <div class="editorActions"><button class="btn" id="renameBtn">تعديل الاسم</button><button class="btn dark" id="addFilesBtn">+ إضافة ملفات</button><a class="btn" id="previewAlbumBtn" target="_blank">معاينة</a></div>
+    </div>
+    <div class="coverPreview">
+      <div class="coverBig" id="coverBig"></div>
+      <div class="coverInfo"><div><h3>غلاف الألبوم</h3><p>اختاري الصورة الأقوى كغلاف. الغلاف هو أول شيء سيظهر للعميل في صفحة الأعمال.</p></div><button class="btn dark" id="changeCoverHint">اختاري من الصور بالأسفل</button></div>
+    </div>
+    <div class="mediaGrid" id="mediaGrid"></div>
+  </section>
+  <input id="picker" type="file" accept="image/*,video/*" multiple hidden>
+</div>
+
+<div class="modal" id="nameModal" hidden><div class="modalCard"><h3 id="nameModalTitle">ألبوم جديد</h3><div class="field"><label>اسم الألبوم</label><input id="albumNameInput" maxlength="80"></div><div class="modalActions"><button class="btn" id="cancelNameBtn">إلغاء</button><button class="btn dark" id="saveNameBtn">حفظ</button></div></div></div>
+<div class="uploadBar" id="uploading" hidden><div id="uploadText"></div><div class="progress"><i id="uploadProgress"></i></div></div>
+<div class="previewOverlay" id="previewOverlay" hidden><div class="previewTop"><span id="previewLabel"></span><button id="previewClose">×</button></div><div class="previewMedia" id="previewMedia"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+let collections=[],current=null,currentFolder=null,nameMode='create';
+async function api(path,opts={}){const r=await fetch(path,opts);if(r.status===401)throw new Error('AUTH');const ct=r.headers.get('content-type')||'';const data=ct.includes('json')?await r.json():await r.text();if(!r.ok)throw new Error(data.error||data||'Request failed');return data}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function mediaTag(item,opts={}){if(!item)return '<div class="emptyCover">لا توجد ملفات</div>';if(item.type==='video')return '<video src="'+item.url+'" '+(opts.controls?'controls':'muted playsinline preload="metadata"')+'></video>';return '<img src="'+item.url+'" alt="">'}
+function openNameModal(mode){nameMode=mode;$('#nameModalTitle').textContent=mode==='create'?'ألبوم جديد':'تعديل اسم الألبوم';$('#albumNameInput').value=mode==='rename'&&current?current.name:'';$('#nameModal').hidden=false;setTimeout(()=>$('#albumNameInput').focus(),20)}
+function closeNameModal(){$('#nameModal').hidden=true}
+async function boot(){try{await api('/api/session');$('#loginView').hidden=true;$('#appView').hidden=false;await load()}catch(e){$('#loginView').hidden=false;$('#appView').hidden=true}}
+$('#loginForm').addEventListener('submit',async e=>{e.preventDefault();$('#loginErr').textContent='';try{await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('#user').value,password:$('#pass').value})});await boot()}catch(e){$('#loginErr').textContent='بيانات الدخول غير صحيحة'}});
+$('#logoutBtn').onclick=async()=>{await fetch('/api/logout',{method:'POST'});location.reload()};
+$('#newFolderBtn').onclick=()=>openNameModal('create');
+$('#renameBtn').onclick=()=>openNameModal('rename');
+$('#cancelNameBtn').onclick=closeNameModal;
+$('#nameModal').addEventListener('click',e=>{if(e.target===$('#nameModal'))closeNameModal()});
+$('#saveNameBtn').onclick=async()=>{const name=$('#albumNameInput').value.trim();if(!name)return;if(nameMode==='create'){const c=await api('/api/admin/collections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});closeNameModal();await load();openEditor(c.id);currentFolder=c.id;$('#picker').click()}else if(current){const id=current.id;await api('/api/admin/rename',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({collection:id,name})});closeNameModal();await load();openEditor(id)}};
+$('#albumNameInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#saveNameBtn').click()});
+$('#backBtn').onclick=()=>{$('#editorView').hidden=true;$('#albumsView').hidden=false;current=null};
+$('#addFilesBtn').onclick=()=>{if(current){currentFolder=current.id;$('#picker').click()}};
+$('#changeCoverHint').onclick=()=>$('#mediaGrid').scrollIntoView({behavior:'smooth',block:'start'});
+$('#picker').addEventListener('change',async()=>{const files=[...$('#picker').files];$('#picker').value='';if(!currentFolder||!files.length)return;const bar=$('#uploading');bar.hidden=false;for(let i=0;i<files.length;i++){const f=files[i];$('#uploadText').textContent='جاري رفع '+(i+1)+' / '+files.length+' — '+f.name;$('#uploadProgress').style.width=Math.round((i/files.length)*100)+'%';try{await api('/api/admin/upload?collection='+encodeURIComponent(currentFolder)+'&name='+encodeURIComponent(f.name),{method:'POST',headers:{'Content-Type':f.type||'application/octet-stream'},body:f})}catch(e){alert('فشل رفع '+f.name+': '+e.message);break}}$('#uploadProgress').style.width='100%';setTimeout(()=>{bar.hidden=true;$('#uploadProgress').style.width='0'},350);await load();if(currentFolder)openEditor(currentFolder)});
+function previewItem(item){$('#previewLabel').textContent=item.name||'';$('#previewMedia').innerHTML=mediaTag(item,{controls:true});$('#previewOverlay').hidden=false}
+$('#previewClose').onclick=()=>{$('#previewOverlay').hidden=true;$('#previewMedia').querySelectorAll('video').forEach(v=>v.pause());$('#previewMedia').innerHTML=''};
+async function load(){const data=await api('/api/admin/collections');collections=data.collections||[];let images=0,videos=0;collections.forEach(c=>c.items.forEach(i=>i.type==='video'?videos++:images++));$('#albumsStat').textContent=collections.length;$('#imagesStat').textContent=images;$('#videosStat').textContent=videos;renderAlbums()}
+function renderAlbums(){const root=$('#folders');root.innerHTML=collections.map(c=>{const cover=c.cover||c.items[0];return '<article class="albumCard"><div class="albumCover">'+mediaTag(cover)+(cover?'<span class="coverBadge">الغلاف</span>':'')+'</div><div class="albumBody"><div class="albumTitle">'+esc(c.name)+'</div><div class="albumMeta">'+c.items.length+' ملف</div><div class="albumActions"><button class="btn dark small" data-open="'+c.id+'">فتح وإدارة</button><button class="btn small" data-upload="'+c.id+'">إضافة</button><button class="btn small" data-rename="'+c.id+'">تسمية</button><button class="btn danger small" data-delete="'+c.id+'">حذف</button></div></div></article>'}).join('');root.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openEditor(b.dataset.open));root.querySelectorAll('[data-upload]').forEach(b=>b.onclick=()=>{currentFolder=b.dataset.upload;$('#picker').click()});root.querySelectorAll('[data-rename]').forEach(b=>b.onclick=()=>{current=collections.find(c=>c.id===b.dataset.rename);openNameModal('rename')});root.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{const c=collections.find(x=>x.id===b.dataset.delete);if(!confirm('حذف ألبوم '+(c?.name||'')+' وكل الملفات داخله؟'))return;await api('/api/admin/collection?id='+encodeURIComponent(b.dataset.delete),{method:'DELETE'});await load()})}
+function openEditor(id){current=collections.find(c=>c.id===id);if(!current)return;currentFolder=id;$('#albumsView').hidden=true;$('#editorView').hidden=false;$('#editorTitle').textContent=current.name;$('#editorMeta').textContent=current.items.length+' ملف';$('#previewAlbumBtn').href='/?view=works&album='+encodeURIComponent(current.id);$('#coverBig').innerHTML=mediaTag(current.cover||current.items[0]);const grid=$('#mediaGrid');grid.innerHTML=current.items.map(i=>'<article class="mediaCard '+(current.cover&&current.cover.id===i.id?'isCover':'')+'" data-preview="'+i.id+'">'+mediaTag(i)+'<span class="mediaType">'+(i.type==='video'?'فيديو':'صورة')+'</span><div class="mediaTools"><button class="chip '+(current.cover&&current.cover.id===i.id?'coverOn':'')+'" data-cover="'+i.id+'">'+(current.cover&&current.cover.id===i.id?'الغلاف الحالي':'تعيين غلاف')+'</button><button class="chip red" data-del="'+i.id+'">حذف</button></div></article>').join('');grid.querySelectorAll('.mediaCard').forEach(card=>card.onclick=e=>{if(e.target.closest('button'))return;const item=current.items.find(i=>i.id===card.dataset.preview);if(item)previewItem(item)});grid.querySelectorAll('[data-cover]').forEach(b=>b.onclick=async()=>{const id=current.id;await api('/api/admin/cover',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({collection:id,item:b.dataset.cover})});await load();openEditor(id)});grid.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(!confirm('حذف الملف؟'))return;const id=current.id;await api('/api/admin/item?collection='+encodeURIComponent(id)+'&item='+encodeURIComponent(b.dataset.del),{method:'DELETE'});await load();openEditor(id)})}
+boot();
+</script>
+</body>
+</html>
