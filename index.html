@@ -151,6 +151,22 @@ linear-gradient(180deg,rgba(10,9,8,.12),rgba(10,9,8,.62))}
 .viewerItem video{background:#000}
 @media(min-width:761px){.worksArchive{padding:20px 20px 80px!important}.collectionsGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.collectionCard{border-radius:22px}.collectionViewer{padding:82px max(22px,5vw) 40px}.viewerGrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}}
 
+
+/* WORKS v3 — professional albums + contact sheet + lightbox */
+.worksView{background:#f3eee7!important;color:#171513!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-width:none}.worksView::-webkit-scrollbar{display:none}
+.worksHero{background:#151311!important;padding:10px!important;min-height:auto!important}.worksLayout{display:grid!important;grid-template-columns:minmax(0,1.35fr) minmax(290px,.68fr)!important;gap:10px!important;align-items:stretch!important;min-height:auto!important;padding:0!important;direction:ltr!important}
+.ambientPanel,.filmFrame{position:relative!important;overflow:hidden!important;border-radius:23px!important;background:#27231f!important;border:1px solid rgba(255,255,255,.11)!important}.ambientPanel{height:min(70vh,720px)!important;min-height:480px!important}.ambientPanel .worksBgVideo{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 32%!important;filter:saturate(.86) contrast(1.02) brightness(.88)!important;transform:none!important;z-index:0!important}
+.featureFilm{width:100%!important;max-width:none!important;margin:0!important;justify-self:stretch!important}.featureFilm:before{display:none!important}.filmFrame{height:min(70vh,720px)!important;aspect-ratio:auto!important;box-shadow:none!important}.talkingVideo{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important}.filmFrame:after{content:"";position:absolute;inset:68% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.35));pointer-events:none}
+.soundToggle{position:absolute!important;left:14px!important;right:auto!important;bottom:14px!important;z-index:6!important;border:1px solid rgba(255,255,255,.28)!important;background:rgba(15,13,12,.5)!important;color:#fff!important;border-radius:999px!important;padding:10px 13px!important;font-size:10px!important;backdrop-filter:blur(14px)}
+.worksArchive{background:#f3eee7!important;color:#171513!important;padding:30px 12px 42px!important;min-height:auto!important}.worksSectionHead{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 2px 17px}.worksSectionHead h2{margin:0;font:500 clamp(32px,4vw,48px)/.95 Georgia,"Times New Roman",serif;letter-spacing:-.04em}.worksSectionHead span{font-size:10px;color:#777067}
+.collectionsGrid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}.collectionCard{position:relative;aspect-ratio:4/5;border:0;border-radius:20px;overflow:hidden;background:#dcd2c8;padding:0;cursor:pointer;color:#fff;text-align:right;box-shadow:0 10px 28px rgba(41,31,21,.06)}.collectionCard img,.collectionCard video{width:100%;height:100%;object-fit:cover;display:block}.collectionCard:after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.76));pointer-events:none}.collectionMeta{position:absolute;z-index:2;right:14px;left:14px;bottom:13px}.collectionMeta b{display:block;font:500 24px/1.05 Georgia,"Times New Roman",serif;letter-spacing:-.02em}.collectionMeta span{display:block;margin-top:5px;font-size:9px;color:rgba(255,255,255,.74)}
+.collectionViewer{position:fixed!important;inset:0!important;z-index:80!important;background:#f3eee7!important;color:#171513!important;overflow:auto!important;padding:max(14px,env(safe-area-inset-top)) 14px 30px!important}.collectionTop{position:sticky;top:0;z-index:4;min-height:66px;display:flex;align-items:center;gap:14px;background:rgba(243,238,231,.91);backdrop-filter:blur(18px);padding:8px 0 10px}.viewerClose,.lightboxClose{flex:0 0 auto;width:42px;height:42px;border-radius:999px;border:1px solid #d8cec4;background:#fff;color:#171513;font-size:26px;line-height:1}.viewerTitle{font:500 30px/1 Georgia,"Times New Roman",serif;letter-spacing:-.03em}.viewerCount{font-size:9px;color:#777067;margin-top:4px}
+.viewerGrid{column-count:3!important;column-gap:8px!important;display:block!important}.viewerItem{position:relative!important;display:block!important;width:100%!important;margin:0 0 8px!important;border:0!important;padding:0!important;border-radius:14px!important;overflow:hidden!important;background:#ddd3ca!important;aspect-ratio:auto!important;break-inside:avoid;cursor:zoom-in}.viewerItem img,.viewerItem video{display:block!important;width:100%!important;height:auto!important;object-fit:cover!important;background:#111}.viewerItem.isVideo:after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:999px;display:grid;place-items:center;background:rgba(15,13,12,.58);color:#fff;font-size:15px;backdrop-filter:blur(12px)}
+.mediaLightbox{position:fixed;inset:0;z-index:100;background:#0c0b0a;color:#fff;display:grid;grid-template-columns:72px minmax(0,1fr) 72px;grid-template-rows:60px minmax(0,1fr);padding:max(6px,env(safe-area-inset-top)) 8px max(8px,env(safe-area-inset-bottom))}.lightboxTop{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;direction:ltr}.lightboxClose{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff}.lightboxCounter{font-size:10px;color:rgba(255,255,255,.68);padding-right:10px}.lightboxStage{grid-column:2;grid-row:2;display:grid;place-items:center;min-width:0;min-height:0;touch-action:pan-y}.lightboxStage img,.lightboxStage video{display:block;max-width:100%;max-height:calc(100svh - 82px);width:auto;height:auto;object-fit:contain;border-radius:6px}.lightboxStage video{width:min(100%,1000px);background:#000}.lightboxNav{grid-row:2;align-self:center;width:52px;height:52px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;font-size:34px}.lightboxPrev{grid-column:1}.lightboxNext{grid-column:3}.mediaOverlayOpen{overflow:hidden!important}
+@media(max-width:900px){.collectionsGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.viewerGrid{column-count:2!important}}
+@media(max-width:760px){.worksHero{padding:7px!important}.worksLayout{grid-template-columns:1fr 1fr!important;gap:7px!important}.ambientPanel,.filmFrame{height:52svh!important;min-height:350px!important;max-height:540px!important;border-radius:18px!important}.ambientPanel .worksBgVideo{object-position:center 28%!important}.soundToggle{left:8px!important;bottom:8px!important;padding:8px 10px!important;font-size:8px!important}.worksArchive{padding:23px 0 24px!important}.worksSectionHead{margin:0 7px 13px}.worksSectionHead h2{font-size:31px}.collectionsGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}.collectionCard{border-radius:16px}.collectionMeta{right:10px;left:10px;bottom:10px}.collectionMeta b{font-size:18px}.collectionMeta span{font-size:8px}.collectionViewer{padding:max(8px,env(safe-area-inset-top)) 7px 18px!important}.collectionTop{min-height:58px;padding:4px 4px 8px}.viewerClose{width:39px;height:39px}.viewerTitle{font-size:25px}.viewerGrid{column-count:2!important;column-gap:5px!important}.viewerItem{margin-bottom:5px!important;border-radius:10px!important}.mediaLightbox{grid-template-columns:46px minmax(0,1fr) 46px;grid-template-rows:54px minmax(0,1fr);padding:max(5px,env(safe-area-inset-top)) 4px max(7px,env(safe-area-inset-bottom))}.lightboxNav{width:40px;height:40px;font-size:26px;background:rgba(255,255,255,.1)}.lightboxStage img,.lightboxStage video{max-height:calc(100svh - 70px);border-radius:3px}}
+@media(max-width:380px){.ambientPanel,.filmFrame{height:49svh!important;min-height:315px!important}.collectionMeta b{font-size:16px}}
+
 </style>
 </head>
 <body>
@@ -195,11 +211,10 @@ linear-gradient(180deg,rgba(10,9,8,.12),rgba(10,9,8,.62))}
   <section class="view worksView" id="works">
     <div class="worksHero">
       <div class="worksLayout">
-        <div class="ambientPanel" aria-hidden="true">
+        <div class="ambientPanel" aria-label="AML motion film">
           <video class="worksBgVideo" id="worksBgVideo" muted loop playsinline preload="metadata" poster="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/a30cb65f58ffc2614846f5f041475156fc9a13d05c27af57dd6c59eb46291b2e.jpg">
             <source src="https://cdn.openart.ai/openart-uploads/production/attachment-transfers/98d6a3fedc667457c1a7068942a24c0b2a5809a5157f6d1be81b376a5ff76f4a.mov" type="video/mp4">
           </video>
-          <div class="ambientShade"></div>
         </div>
         <article class="featureFilm" aria-label="Amal introduction video">
           <div class="filmFrame">
@@ -215,12 +230,24 @@ linear-gradient(180deg,rgba(10,9,8,.12),rgba(10,9,8,.62))}
       </div>
     </div>
     <section class="worksArchive" id="worksArchive" hidden>
+      <div class="worksSectionHead"><h2>الألبومات</h2><span id="albumsCount"></span></div>
       <div class="collectionsGrid" id="worksGrid"></div>
     </section>
     <div class="collectionViewer" id="collectionViewer" hidden>
-      <button class="viewerClose" id="viewerClose" type="button" aria-label="إغلاق">×</button>
-      <div class="viewerTitle" id="viewerTitle"></div>
+      <header class="collectionTop">
+        <button class="viewerClose" id="viewerClose" type="button" aria-label="إغلاق">×</button>
+        <div><div class="viewerTitle" id="viewerTitle"></div><div class="viewerCount" id="viewerCount"></div></div>
+      </header>
       <div class="viewerGrid" id="viewerGrid"></div>
+    </div>
+    <div class="mediaLightbox" id="mediaLightbox" hidden>
+      <header class="lightboxTop">
+        <button class="lightboxClose" id="lightboxClose" type="button" aria-label="إغلاق">×</button>
+        <div class="lightboxCounter" id="lightboxCounter"></div>
+      </header>
+      <button class="lightboxNav lightboxPrev" id="lightboxPrev" type="button" aria-label="السابق">‹</button>
+      <div class="lightboxStage" id="lightboxStage"></div>
+      <button class="lightboxNav lightboxNext" id="lightboxNext" type="button" aria-label="التالي">›</button>
     </div>
   </section>
 
@@ -249,6 +276,7 @@ function setView(tab){
   }
 }
 tabs.forEach(t=>t.addEventListener('click',()=>setView(t)));
+const initialView=new URLSearchParams(location.search).get('view');if(initialView){const initialTab=tabs.find(t=>t.dataset.view===initialView);if(initialTab)setView(initialTab)}
 
 function updateSoundUI(){
   if(!soundToggle||!talking)return;
@@ -272,40 +300,35 @@ if(soundToggle&&talking){
 
 const worksArchive=document.getElementById('worksArchive');
 const worksGrid=document.getElementById('worksGrid');
+const albumsCount=document.getElementById('albumsCount');
 const collectionViewer=document.getElementById('collectionViewer');
 const viewerClose=document.getElementById('viewerClose');
 const viewerTitle=document.getElementById('viewerTitle');
+const viewerCount=document.getElementById('viewerCount');
 const viewerGrid=document.getElementById('viewerGrid');
-let worksCollections=[];
-function mediaMarkup(item,preview=false){
-  if(!item)return '';
-  if(item.type==='video')return '<video src="'+item.url+'" '+(preview?'muted loop playsinline preload="metadata"':'controls playsinline preload="metadata"')+'></video>';
-  return '<img src="'+item.url+'" alt="" loading="lazy">';
-}
-function openCollection(c){
-  viewerTitle.textContent=c.name;
-  viewerGrid.innerHTML=c.items.map(i=>'<div class="viewerItem">'+mediaMarkup(i,false)+'</div>').join('');
-  collectionViewer.hidden=false;
-  document.body.style.overflow='hidden';
-}
-function closeCollection(){
-  collectionViewer.hidden=true;
-  viewerGrid.querySelectorAll('video').forEach(v=>v.pause());
-  viewerGrid.innerHTML='';
-  document.body.style.overflow='';
-}
+const mediaLightbox=document.getElementById('mediaLightbox');
+const lightboxClose=document.getElementById('lightboxClose');
+const lightboxStage=document.getElementById('lightboxStage');
+const lightboxCounter=document.getElementById('lightboxCounter');
+const lightboxPrev=document.getElementById('lightboxPrev');
+const lightboxNext=document.getElementById('lightboxNext');
+let worksCollections=[],activeCollection=null,activeIndex=0,touchStartX=0;
+function htmlEsc(s){return String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function mediaMarkup(item,mode){if(!item)return '';if(item.type==='video'){if(mode==='lightbox')return '<video src="'+item.url+'" controls playsinline preload="metadata"></video>';return '<video src="'+item.url+'" muted playsinline preload="metadata"></video>'}return '<img src="'+item.url+'" alt="" loading="'+(mode==='lightbox'?'eager':'lazy')+'">'}
+function setOverlayState(){document.body.classList.toggle('mediaOverlayOpen',!collectionViewer.hidden||!mediaLightbox.hidden)}
+function openCollection(c,push=true){activeCollection=c;viewerTitle.textContent=c.name;viewerCount.textContent=c.items.length+' ملف';viewerGrid.innerHTML=c.items.map((i,idx)=>'<button class="viewerItem '+(i.type==='video'?'isVideo':'')+'" type="button" data-index="'+idx+'">'+mediaMarkup(i,'thumb')+'</button>').join('');viewerGrid.querySelectorAll('.viewerItem').forEach(b=>b.onclick=()=>openLightbox(Number(b.dataset.index)));collectionViewer.hidden=false;setOverlayState();if(push){const u=new URL(location.href);u.searchParams.set('view','works');u.searchParams.set('album',c.id);u.searchParams.delete('item');history.replaceState({},'',u)}}
+function closeCollection(){collectionViewer.hidden=true;viewerGrid.querySelectorAll('video').forEach(v=>v.pause());viewerGrid.innerHTML='';activeCollection=null;setOverlayState();const u=new URL(location.href);u.searchParams.delete('album');u.searchParams.delete('item');history.replaceState({},'',u)}
+function renderLightbox(){if(!activeCollection||!activeCollection.items.length)return;activeIndex=(activeIndex+activeCollection.items.length)%activeCollection.items.length;const item=activeCollection.items[activeIndex];lightboxStage.innerHTML=mediaMarkup(item,'lightbox');lightboxCounter.textContent=(activeIndex+1)+' / '+activeCollection.items.length;const u=new URL(location.href);u.searchParams.set('item',String(activeIndex+1));history.replaceState({},'',u)}
+function openLightbox(index){activeIndex=index;mediaLightbox.hidden=false;renderLightbox();setOverlayState()}
+function closeLightbox(){mediaLightbox.hidden=true;lightboxStage.querySelectorAll('video').forEach(v=>v.pause());lightboxStage.innerHTML='';setOverlayState();const u=new URL(location.href);u.searchParams.delete('item');history.replaceState({},'',u)}
+function stepLightbox(delta){if(!activeCollection)return;activeIndex+=delta;renderLightbox()}
 if(viewerClose)viewerClose.addEventListener('click',closeCollection);
-if(collectionViewer)collectionViewer.addEventListener('click',e=>{if(e.target===collectionViewer)closeCollection()});
-async function loadWorks(){
-  try{
-    const r=await fetch('/api/works',{cache:'no-store'});if(!r.ok)return;
-    const data=await r.json();worksCollections=data.collections||[];
-    if(!worksCollections.length){worksArchive.hidden=true;return}
-    worksArchive.hidden=false;
-    worksGrid.innerHTML=worksCollections.map((c,idx)=>'<button class="collectionCard" type="button" data-i="'+idx+'">'+(c.cover?mediaMarkup(c.cover,true):'')+'<span class="collectionMeta"><b>'+String(c.name).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))+'</b><span>'+c.items.length+' ملف</span></span></button>').join('');
-    worksGrid.querySelectorAll('.collectionCard').forEach(b=>{const c=worksCollections[Number(b.dataset.i)];b.onclick=()=>openCollection(c);const v=b.querySelector('video');if(v){v.muted=true;safePlay(v)}})
-  }catch(e){console.error(e)}
-}
+if(lightboxClose)lightboxClose.addEventListener('click',closeLightbox);
+if(lightboxPrev)lightboxPrev.addEventListener('click',()=>stepLightbox(-1));
+if(lightboxNext)lightboxNext.addEventListener('click',()=>stepLightbox(1));
+if(lightboxStage){lightboxStage.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX},{passive:true});lightboxStage.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>45)stepLightbox(dx>0?-1:1)},{passive:true})}
+document.addEventListener('keydown',e=>{if(!mediaLightbox.hidden){if(e.key==='ArrowRight')stepLightbox(1);if(e.key==='ArrowLeft')stepLightbox(-1);if(e.key==='Escape')closeLightbox()}else if(!collectionViewer.hidden&&e.key==='Escape')closeCollection()});
+async function loadWorks(){try{const r=await fetch('/api/works',{cache:'no-store'});if(!r.ok)return;const data=await r.json();worksCollections=data.collections||[];if(!worksCollections.length){worksArchive.hidden=true;return}worksArchive.hidden=false;albumsCount.textContent=worksCollections.length+' ألبوم';worksGrid.innerHTML=worksCollections.map((c,idx)=>'<button class="collectionCard" type="button" data-i="'+idx+'">'+(c.cover?mediaMarkup(c.cover,'cover'):'')+'<span class="collectionMeta"><b>'+htmlEsc(c.name)+'</b><span>'+c.items.length+' ملف</span></span></button>').join('');worksGrid.querySelectorAll('.collectionCard').forEach(b=>{const c=worksCollections[Number(b.dataset.i)];b.onclick=()=>openCollection(c)});const params=new URLSearchParams(location.search);const albumId=params.get('album');if(albumId){const c=worksCollections.find(x=>x.id===albumId);if(c){openCollection(c,false);const n=Number(params.get('item'));if(Number.isFinite(n)&&n>0&&n<=c.items.length)openLightbox(n-1)}}}catch(e){console.error(e)}}
 loadWorks();
 </script>
 </body>
