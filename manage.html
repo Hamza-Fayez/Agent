@@ -93,7 +93,7 @@ function openEditor(id){
   current=collections.find(c=>c.id===id);if(!current)return;
   currentFolder=id;$('#albumsView').hidden=true;$('#editorView').hidden=false;
   $('#editorTitle').textContent=current.name;$('#editorMeta').textContent=current.items.length+' ملف';
-  $('#previewAlbumBtn').href='/?view=works&album='+encodeURIComponent(current.id);
+  $('#previewAlbumBtn').href='/?view=works&preview=1&album='+encodeURIComponent(current.id);
   $('#coverBig').innerHTML=mediaTag(current.cover||current.items.find(i=>i.type==='image')||current.items[0]);
   const grid=$('#mediaGrid');
   grid.innerHTML=current.items.map(i=>{
