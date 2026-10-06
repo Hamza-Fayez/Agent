@@ -2,10 +2,6 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const os = require('os');
-const { spawnSync } = require('child_process');
-const { pipeline } = require('stream/promises');
-const ffmpegPath = require('ffmpeg-static');
 const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
 
@@ -31,20 +27,8 @@ const s3 = new S3Client({
   forcePathStyle: false,
   credentials: { accessKeyId: process.env.AWS_ACCESS_KEY_ID || '', secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '' }
 });
-const socialDock = `
-<style>
-.socialDock{position:fixed;right:28px;bottom:28px;z-index:50;display:flex;gap:10px;direction:ltr}
-.socialLink{width:46px;height:46px;border-radius:999px;display:grid;place-items:center;text-decoration:none;box-shadow:0 10px 28px rgba(0,0,0,.18);backdrop-filter:blur(16px);transition:transform .22s ease,box-shadow .22s ease}
-.socialLink:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 14px 34px rgba(0,0,0,.24)}.socialLink:active{transform:scale(.96)}
-.socialLink svg{width:24px;height:24px;display:block}.socialLink.tiktok{background:#111;color:#fff;border:1px solid rgba(255,255,255,.16)}.socialLink.snapchat{background:#fffc00;color:#111;border:1px solid rgba(17,17,17,.12)}
-@media(max-width:760px){.socialDock{right:14px;bottom:16px;gap:8px}.socialLink{width:44px;height:44px}.socialLink svg{width:23px;height:23px}}\n.mediaOverlayOpen .socialDock{display:none!important}
-</style>
-<div class="socialDock" aria-label="Social media links">
-<a class="socialLink tiktok" href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.25 3.2c.45 2.45 1.82 3.86 4.15 4.28V9.7a7.12 7.12 0 0 1-4.15-1.6v5.25a4.5 4.5 0 1 1-3.15-4.29v2.35a2.3 2.3 0 1 0 1.05 1.94V3.2h2.1Z" fill="currentColor"/></svg></a>
-<a class="socialLink snapchat" href="https://snapchat.com/t/OtS0exp9" target="_blank" rel="noopener noreferrer" aria-label="Snapchat" title="Snapchat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.1c-2.7 0-4.65 2.14-4.65 5.15 0 1.08.12 1.95-.45 2.88-.43.7-1.15 1.2-2.06 1.49-.39.12-.48.67-.14.9.62.43 1.28.72 1.98.89.18.04.31.2.32.38.05.74.68 1.02 1.28 1.12.21.04.39.17.49.36.54 1.08 1.78 1.22 2.45.84.49-.28 1.07-.28 1.56 0 .67.38 1.91.24 2.45-.84.1-.19.28-.32.49-.36.6-.1 1.23-.38 1.28-1.12.01-.18.14-.34.32-.38.7-.17 1.36-.46 1.98-.89.34-.23.25-.78-.14-.9-.91-.29-1.63-.79-2.06-1.49-.57-.93-.45-1.8-.45-2.88C16.65 5.24 14.7 3.1 12 3.1Z" fill="#fff" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/></svg></a>
-</div>`;
+function injectSocialDock(buffer){return buffer.toString('utf8')}
 
-function injectSocialDock(buffer){const html=buffer.toString('utf8');return html.includes('class="socialDock"')?html:html.replace(/<\/body>/i,socialDock+'\n</body>')}
 function sendHtml(res,buffer){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-cache'});res.end(injectSocialDock(buffer))}
 function json(res,status,data){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data))}
 function parseCookies(req){const out={};String(req.headers.cookie||'').split(';').forEach(v=>{const i=v.indexOf('=');if(i>0)out[v.slice(0,i).trim()]=decodeURIComponent(v.slice(i+1).trim())});return out}
@@ -133,98 +117,6 @@ async function readMetaKey(key){
   throw lastError;
 }
 
-function auditEmitBase64(label,buffer){
-  const b64=buffer.toString('base64');
-  const size=12000;
-  const total=Math.ceil(b64.length/size);
-  for(let i=0;i<total;i++)console.log('AML_AUDIT_B64 '+label+' '+(i+1)+'/'+total+' '+b64.slice(i*size,(i+1)*size));
-}
-async function auditDownload(key,file){
-  const out=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key}));
-  await pipeline(out.Body,fs.createWriteStream(file));
-}
-function auditDuration(file){
-  const r=spawnSync(ffmpegPath,['-hide_banner','-i',file],{encoding:'utf8',maxBuffer:4*1024*1024});
-  const text=String(r.stderr||'');
-  const m=text.match(/Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/);
-  if(!m)return 10;
-  return Number(m[1])*3600+Number(m[2])*60+Number(m[3]);
-}
-function auditMakeVideoSheet(input,duration,out){
-  const fps=Math.max(.05,4/Math.max(1,duration));
-  const vf="fps="+fps+",scale=120:213:force_original_aspect_ratio=increase,crop=120:213,setsar=1,tile=4x1";
-  const r=spawnSync(ffmpegPath,['-y','-hide_banner','-loglevel','error','-i',input,'-vf',vf,'-frames:v','1','-q:v','10',out],{encoding:'utf8',maxBuffer:8*1024*1024});
-  if(!(r.status===0&&fs.existsSync(out)))console.log('AML_AUDIT_FFMPEG_FAIL '+JSON.stringify({status:r.status,stderr:String(r.stderr||'').slice(-1800)}));
-  return r.status===0&&fs.existsSync(out);
-}
-function auditFrame(input,t,out){
-  const r=spawnSync(ffmpegPath,[
-    '-y','-hide_banner','-loglevel','error','-ss',String(Math.max(.1,t)),'-i',input,
-    '-frames:v','1','-vf',"scale=120:213:force_original_aspect_ratio=decrease,pad=120:213:(ow-iw)/2:(oh-ih)/2:color=black",
-    '-q:v','10',out
-  ],{encoding:'utf8',maxBuffer:4*1024*1024});
-  return r.status===0&&fs.existsSync(out);
-}
-function auditMakeSheet(frames,out){
-  if(frames.length!==4)return false;
-  const args=['-y','-hide_banner','-loglevel','error'];
-  for(const f of frames)args.push('-i',f);
-  args.push('-filter_complex','[0:v][1:v][2:v][3:v]hstack=inputs=4','-frames:v','1','-q:v','11',out);
-  const r=spawnSync(ffmpegPath,args,{encoding:'utf8',maxBuffer:4*1024*1024});
-  return r.status===0&&fs.existsSync(out);
-}
-async function runPortfolioVisualAudit(){
-  try{
-    const meta=await readMeta();
-    const videos=(meta.collections||[]).find(c=>c.systemRole==='video_library')?.items?.filter(i=>i.type==='video')||[];
-    const images=(meta.collections||[]).filter(c=>!c.systemRole).flatMap(c=>(c.items||[]).filter(i=>i.type==='image'));
-    console.log('AML_AUDIT_START '+JSON.stringify({videos:videos.length,images:images.length}));
-    console.log('AML_AUDIT_VIDEO_MAP '+JSON.stringify(videos.map((v,i)=>({n:i+1,id:v.id,name:v.name,key:v.key}))));
-    console.log('AML_AUDIT_PHOTO_MAP '+JSON.stringify(images.map((v,i)=>({n:i+1,id:v.id,name:v.name,key:v.key}))));
-
-    const dir=fs.mkdtempSync(path.join(os.tmpdir(),'aml-audit-'));
-    for(let i=0;i<videos.length;i++){
-      const v=videos[i],input=path.join(dir,'video-'+String(i+1).padStart(2,'0')+path.extname(v.key||'.mov'));
-      try{
-        await auditDownload(v.key,input);
-        const d=auditDuration(input);
-        const sheet=path.join(dir,'sheet-v'+String(i+1).padStart(2,'0')+'.jpg');
-        if(auditMakeVideoSheet(input,d,sheet)){
-          const approx=[.125,.375,.625,.875].map(p=>Number((d*p).toFixed(2)));
-          console.log('AML_AUDIT_VIDEO_META '+JSON.stringify({n:i+1,id:v.id,name:v.name,key:v.key,duration:Number(d.toFixed(2)),times:approx}));
-          auditEmitBase64('VIDEO_'+String(i+1).padStart(2,'0'),fs.readFileSync(sheet));
-        }else console.log('AML_AUDIT_VIDEO_FAIL '+JSON.stringify({n:i+1,id:v.id,key:v.key,reason:'sheet'}));
-      }catch(e){console.log('AML_AUDIT_VIDEO_FAIL '+JSON.stringify({n:i+1,id:v.id,key:v.key,reason:e?.message||String(e)}))}
-      try{fs.unlinkSync(input)}catch{}
-    }
-
-    const chunks=[];
-    for(let start=0;start<images.length;start+=24)chunks.push(images.slice(start,start+24));
-    for(let c=0;c<chunks.length;c++){
-      const thumbsDir=path.join(dir,'photos-'+(c+1));fs.mkdirSync(thumbsDir);
-      const map=[];
-      for(let j=0;j<chunks[c].length;j++){
-        const item=chunks[c][j],globalIndex=c*24+j+1;
-        const raw=path.join(thumbsDir,'raw-'+String(j+1).padStart(3,'0')+path.extname(item.key||'.jpg'));
-        const thumb=path.join(thumbsDir,'frame-'+String(j+1).padStart(3,'0')+'.jpg');
-        try{
-          await auditDownload(item.key,raw);
-          const rr=spawnSync(ffmpegPath,['-y','-hide_banner','-loglevel','error','-i',raw,'-frames:v','1','-vf',"scale=90:120:force_original_aspect_ratio=increase,crop=90:120",'-q:v','11',thumb],{encoding:'utf8',maxBuffer:4*1024*1024});
-          if(rr.status===0&&fs.existsSync(thumb))map.push({slot:j+1,n:globalIndex,id:item.id,key:item.key});
-        }catch{}
-      }
-      const sheet=path.join(dir,'photos-sheet-'+(c+1)+'.jpg');
-      const pattern=path.join(thumbsDir,'frame-%03d.jpg');
-      const tileRows=Math.ceil(chunks[c].length/6);
-      const rr=spawnSync(ffmpegPath,['-y','-hide_banner','-loglevel','error','-framerate','1','-start_number','1','-i',pattern,'-vf','tile=6x'+tileRows+':padding=2:margin=2','-frames:v','1','-q:v','11',sheet],{encoding:'utf8',maxBuffer:4*1024*1024});
-      if(rr.status===0&&fs.existsSync(sheet)){
-        console.log('AML_AUDIT_PHOTO_SHEET_MAP '+JSON.stringify({sheet:c+1,items:map}));
-        auditEmitBase64('PHOTOS_'+String(c+1).padStart(2,'0'),fs.readFileSync(sheet));
-      }
-    }
-    console.log('AML_AUDIT_DONE '+JSON.stringify({videos:videos.length,images:images.length}));
-  }catch(e){console.error('AML_AUDIT_ERROR',e?.stack||e?.message||e)}
-}
 function ensureSystemCollections(meta){
   if(!meta||!Array.isArray(meta.collections))meta={version:1,collections:[]};
   let changed=false;
@@ -435,7 +327,6 @@ const server=http.createServer(async (req,res)=>{
   fs.readFile(file,(err,data)=>{if(err){fs.readFile(path.join(root,'index.html'),(e2,fallback)=>{if(e2){res.writeHead(404);return res.end('Not found')}sendHtml(res,fallback)});return}const ext=path.extname(file).toLowerCase();if(ext==='.html')return sendHtml(res,data);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public,max-age=300'});res.end(data)})
 });
 server.listen(port,'0.0.0.0',()=>console.log('AML portfolio listening on '+port));
-setTimeout(()=>runPortfolioVisualAudit().catch(e=>console.error('AML_AUDIT_ERROR',e)),1200);
 mediaIntegrityPromise=readMeta()
   .then(()=>runMediaIntegrityPass())
   .catch(e=>console.error('AML_MEDIA_INTEGRITY_ERROR',e?.stack||e?.message||e))
