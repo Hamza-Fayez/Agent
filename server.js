@@ -2,7 +2,11 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand } = require('@aws-sdk/client-s3');
+const os = require('os');
+const { spawnSync } = require('child_process');
+const { pipeline } = require('stream/promises');
+const ffmpegPath = require('ffmpeg-static');
+const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, HeadObjectCommand } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
 
 const port = process.env.PORT || 3000;
@@ -117,6 +121,60 @@ async function readMetaKey(key){
   throw lastError;
 }
 
+const CURATED_POSTER_TIMES={
+  'caac89a0-ddac-4ab4-895b-573166127653':7.51,
+  '391c8279-02cf-43ee-9d33-abbc78624b0e':9.92,
+  'e78960b2-ebd2-47b3-b12f-ed3050a4efd4':18.38,
+  'fdd5e0d5-7d75-4cf6-8b23-dc121ad37f52':9.22,
+  'fa85172b-f3f5-4d70-a9ec-863d0778cf3f':10
+};
+async function ensureCuratedVideoPosters(){
+  const meta=await readMeta();
+  const videos=(meta.collections||[]).find(c=>c.systemRole==='video_library');
+  if(!videos)return;
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'aml-posters-'));
+  let generated=0,existing=0,missing=0;
+  const failed=[];
+  let changed=false;
+  for(const [id,second] of Object.entries(CURATED_POSTER_TIMES)){
+    const item=(videos.items||[]).find(v=>v.id===id);
+    if(!item){missing++;continue}
+    const posterKey='aml-suabhi/video-posters/'+id+'.jpg';
+    let exists=false;
+    try{await s3.send(new HeadObjectCommand({Bucket:BUCKET,Key:posterKey}));exists=true}catch{}
+    if(exists){
+      if(item.posterKey!==posterKey){item.posterKey=posterKey;changed=true}
+      existing++;
+      continue;
+    }
+    const ext=path.extname(item.key||'')||'.mov';
+    const input=path.join(dir,id+ext);
+    const output=path.join(dir,id+'.jpg');
+    try{
+      const obj=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:item.key}));
+      await pipeline(obj.Body,fs.createWriteStream(input));
+      const r=spawnSync(ffmpegPath,[
+        '-y','-hide_banner','-loglevel','error',
+        '-ss',String(second),'-i',input,
+        '-frames:v','1','-vf','scale=720:-2','-q:v','3',output
+      ],{encoding:'utf8',maxBuffer:8*1024*1024});
+      if(r.status!==0||!fs.existsSync(output))throw new Error(String(r.stderr||'ffmpeg failed').slice(-800));
+      const body=fs.readFileSync(output);
+      await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:posterKey,Body:body,ContentType:'image/jpeg',CacheControl:'public,max-age=31536000,immutable'}));
+      item.posterKey=posterKey;
+      generated++;
+      changed=true;
+    }catch(e){
+      failed.push({id,error:e?.message||String(e)});
+    }finally{
+      try{fs.unlinkSync(input)}catch{}
+      try{fs.unlinkSync(output)}catch{}
+    }
+  }
+  if(changed)await writeMeta(meta);
+  try{fs.rmSync(dir,{recursive:true,force:true})}catch{}
+  console.log('AML_HOME_POSTERS_DONE '+JSON.stringify({generated,existing,missing,failed}));
+}
 function ensureSystemCollections(meta){
   if(!meta||!Array.isArray(meta.collections))meta={version:1,collections:[]};
   let changed=false;
@@ -253,8 +311,8 @@ function publicCollection(c){
   const cover=(c.items.find(i=>i.id===c.cover)||c.items.find(i=>i.type==='image')||c.items[0]||null);
   return {
     id:c.id,name:c.name,createdAt:c.createdAt,systemRole:c.systemRole||null,locked:!!c.locked,
-    cover:cover?{...cover,url:'/media/'+encodeURIComponent(cover.key)}:null,
-    items:(c.items||[]).map(i=>({...i,url:'/media/'+encodeURIComponent(i.key)}))
+    cover:cover?{...cover,url:'/media/'+encodeURIComponent(cover.key),poster:cover.posterKey?'/media/'+encodeURIComponent(cover.posterKey):null}:null,
+    items:(c.items||[]).map(i=>({...i,url:'/media/'+encodeURIComponent(i.key),poster:i.posterKey?'/media/'+encodeURIComponent(i.posterKey):null}))
   };
 }
 function publicMeta(meta,{includeSystem=true}={}){
@@ -327,6 +385,7 @@ const server=http.createServer(async (req,res)=>{
   fs.readFile(file,(err,data)=>{if(err){fs.readFile(path.join(root,'index.html'),(e2,fallback)=>{if(e2){res.writeHead(404);return res.end('Not found')}sendHtml(res,fallback)});return}const ext=path.extname(file).toLowerCase();if(ext==='.html')return sendHtml(res,data);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public,max-age=300'});res.end(data)})
 });
 server.listen(port,'0.0.0.0',()=>console.log('AML portfolio listening on '+port));
+setTimeout(()=>ensureCuratedVideoPosters().catch(e=>console.error('AML_HOME_POSTERS_ERROR',e?.stack||e?.message||e)),1200);
 mediaIntegrityPromise=readMeta()
   .then(()=>runMediaIntegrityPass())
   .catch(e=>console.error('AML_MEDIA_INTEGRITY_ERROR',e?.stack||e?.message||e))
