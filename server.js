@@ -80,6 +80,31 @@ function ensureSystemCollections(meta){
     if(onlyVideos.length!==(videos.items||[]).length){videos.items=onlyVideos;changed=true}
   }
 
+  // Keep all video content in the dedicated video library.
+  const existingVideoIds=new Set((videos.items||[]).map(i=>i.id));
+  let movedVideos=0;
+  for(const c of meta.collections){
+    if(c.systemRole)continue;
+    const kept=[];
+    for(const item of c.items||[]){
+      if(item.type==='video'){
+        if(!existingVideoIds.has(item.id)){
+          videos.items.push(item);
+          existingVideoIds.add(item.id);
+        }
+        movedVideos++;
+        changed=true;
+      }else{
+        kept.push(item);
+      }
+    }
+    if(kept.length!==(c.items||[]).length){
+      c.items=kept;
+      if(c.cover&&!kept.some(i=>i.id===c.cover))c.cover=(kept.find(i=>i.type==='image')||{}).id||null;
+    }
+  }
+  if(movedVideos)console.log('AML_VIDEO_LIBRARY_MOVED '+movedVideos);
+
   return {meta,changed};
 }
 async function readMeta(){
