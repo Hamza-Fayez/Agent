@@ -188,6 +188,14 @@ html,body{max-width:100%;overflow-x:hidden}
   .homePortfolioCta{min-height:82px;border-radius:18px;padding:16px 18px}.homeFooter{grid-template-columns:1fr;gap:18px;padding:22px 16px;border-radius:22px}.footerSocials{grid-template-columns:1fr 1fr}.footerBrand b{font-size:34px}
 }
 @media(max-width:390px){.footerSocials{grid-template-columns:1fr}.homeVideoMeta small{display:none}}
+
+/* HOMEPAGE VIDEO PLAYER FIX */
+.homeVideoCard>img.homeVideoPoster{width:100%;height:100%;object-fit:cover;display:block;background:#171311}
+.homeVideoPosterFallback{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(145deg,#3f2624,#171311);color:#fff;font:600 10px/1 system-ui;letter-spacing:.2em}
+.homeVideoModal[hidden]{display:none!important}
+.homeVideoModal{position:fixed;inset:0;z-index:200;background:rgba(10,8,8,.96);display:grid;place-items:center;padding:18px}
+.homeVideoModal video{width:min(94vw,560px);max-height:88svh;object-fit:contain;background:#000;border-radius:20px}
+.homeVideoModalClose{position:absolute;top:max(18px,env(safe-area-inset-top));right:18px;width:48px;height:48px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font-size:34px;line-height:1;display:grid;place-items:center;z-index:2}
 </style>
 </head>
 <body>
@@ -250,6 +258,11 @@ html,body{max-width:100%;overflow-x:hidden}
           </a>
         </div>
       </footer>
+
+      <div class="homeVideoModal" id="homeVideoModal" hidden>
+        <button class="homeVideoModalClose" id="homeVideoModalClose" type="button" aria-label="إغلاق">×</button>
+        <video id="homeVideoModalPlayer" controls playsinline preload="metadata"></video>
+      </div>
     </div>
   </section>
 
@@ -365,6 +378,9 @@ const homeFeatureVideo=document.getElementById('homeFeatureVideo');
 const homeFeatureSound=document.getElementById('homeFeatureSound');
 const homeVideoGrid=document.getElementById('homeVideoGrid');
 const homePhotoGrid=document.getElementById('homePhotoGrid');
+const homeVideoModal=document.getElementById('homeVideoModal');
+const homeVideoModalClose=document.getElementById('homeVideoModalClose');
+const homeVideoModalPlayer=document.getElementById('homeVideoModalPlayer');
 const infoHeroImage=document.getElementById('infoHeroImage');
 const infoThumb1=document.getElementById('infoThumb1');
 const infoThumb2=document.getElementById('infoThumb2');
@@ -488,6 +504,24 @@ tabs.forEach(t=>t.addEventListener('click',()=>setView(t)));
 const initialView=new URLSearchParams(location.search).get('view');const initialTab=initialView?tabs.find(t=>t.dataset.view===initialView):tabs.find(t=>t.classList.contains('active'));if(initialTab)setView(initialTab);
 
 function goWorks(){const tab=tabs.find(t=>t.dataset.view==='works');if(tab)setView(tab)}
+function openHomeVideo(item){
+  if(!item||!homeVideoModalPlayer||!homeVideoModal)return;
+  homeVideoModalPlayer.src=item.url;
+  homeVideoModalPlayer.poster=item.poster||'';
+  homeVideoModal.hidden=false;
+  document.body.classList.add('mediaOverlayOpen');
+  homeVideoModalPlayer.play().catch(()=>{});
+}
+function closeHomeVideo(){
+  if(!homeVideoModal||!homeVideoModalPlayer)return;
+  homeVideoModalPlayer.pause();
+  homeVideoModalPlayer.removeAttribute('src');
+  homeVideoModalPlayer.load();
+  homeVideoModal.hidden=true;
+  document.body.classList.remove('mediaOverlayOpen');
+}
+homeVideoModalClose?.addEventListener('click',closeHomeVideo);
+homeVideoModal?.addEventListener('click',e=>{if(e.target===homeVideoModal)closeHomeVideo()});
 homeWorksBtn?.addEventListener('click',goWorks);
 document.getElementById('infoWorksBtn')?.addEventListener('click',goWorks);
 homeFeatureSound?.addEventListener('click',()=>{if(!homeFeatureVideo)return;homeFeatureVideo.muted=!homeFeatureVideo.muted;homeFeatureVideo.play().catch(()=>{});homeFeatureSound.textContent=homeFeatureVideo.muted?'تشغيل الصوت':'كتم الصوت'});
@@ -529,7 +563,7 @@ function closeLightbox(){mediaLightbox.hidden=true;lightboxStage.querySelectorAl
 function stepLightbox(delta){if(!activeCollection)return;activeIndex+=delta;renderLightbox()}
 viewerClose?.addEventListener('click',closeCollection);lightboxClose?.addEventListener('click',closeLightbox);lightboxPrev?.addEventListener('click',()=>stepLightbox(-1));lightboxNext?.addEventListener('click',()=>stepLightbox(1));
 if(lightboxStage){lightboxStage.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX},{passive:true});lightboxStage.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>45)stepLightbox(dx>0?-1:1)},{passive:true})}
-document.addEventListener('keydown',e=>{if(!mediaLightbox.hidden){if(e.key==='ArrowRight')stepLightbox(1);if(e.key==='ArrowLeft')stepLightbox(-1);if(e.key==='Escape')closeLightbox()}else if(!collectionViewer.hidden&&e.key==='Escape')closeCollection();else if(!worksArchive.hidden&&e.key==='Escape')closePortfolio()});
+document.addEventListener('keydown',e=>{if(homeVideoModal&&!homeVideoModal.hidden&&e.key==='Escape'){closeHomeVideo();return}if(!mediaLightbox.hidden){if(e.key==='ArrowRight')stepLightbox(1);if(e.key==='ArrowLeft')stepLightbox(-1);if(e.key==='Escape')closeLightbox()}else if(!collectionViewer.hidden&&e.key==='Escape')closeCollection();else if(!worksArchive.hidden&&e.key==='Escape')closePortfolio()});
 
 const HOME_HERO_VIDEO_ID='caac89a0-ddac-4ab4-895b-573166127653';
 const HOME_VIDEO_IDS=['391c8279-02cf-43ee-9d33-abbc78624b0e','e78960b2-ebd2-47b3-b12f-ed3050a4efd4','fdd5e0d5-7d75-4cf6-8b23-dc121ad37f52','fa85172b-f3f5-4d70-a9ec-863d0778cf3f'];
@@ -553,15 +587,17 @@ function setEditorialImages(images){
 function renderHomeShowcase(videos,images){
   const allVideos=(videos||[]).filter(i=>i.type==='video');
   const hero=allVideos.find(i=>i.id===HOME_HERO_VIDEO_ID)||allVideos[0];
-  if(hero&&homeFeatureVideo){homeFeatureVideo.src=hero.url;homeFeatureVideo.muted=true;homeFeatureVideo.load();if(document.getElementById('home')?.classList.contains('active'))homeFeatureVideo.play().catch(()=>{})}
+  if(hero&&homeFeatureVideo){homeFeatureVideo.src=hero.url;homeFeatureVideo.poster=hero.poster||'';homeFeatureVideo.muted=true;homeFeatureVideo.load();if(document.getElementById('home')?.classList.contains('active'))homeFeatureVideo.play().catch(()=>{})}
 
   const selectedVideos=[];
   HOME_VIDEO_IDS.forEach(id=>{const item=allVideos.find(v=>v.id===id);if(item&&!selectedVideos.some(x=>x.id===item.id))selectedVideos.push(item)});
   for(const item of allVideos){if(selectedVideos.length>=4)break;if(item.id!==hero?.id&&!selectedVideos.some(x=>x.id===item.id))selectedVideos.push(item)}
   if(homeVideoGrid){
-    homeVideoGrid.innerHTML=selectedVideos.map((item,idx)=>'<button class="homeVideoCard" type="button" data-home-video="'+idx+'" aria-label="فتح الفيديو">'+mediaMarkup(item,'thumb')+'<span class="homeVideoShade"></span><span class="homeVideoMeta"><span><b>SELECTED '+String(idx+1).padStart(2,'0')+'</b><small>Fashion film</small></span><i class="homePlay">▶</i></span></button>').join('');
-    homeVideoGrid.querySelectorAll('[data-home-video]').forEach(btn=>btn.onclick=()=>{activeCollection={name:'Selected Motion',items:selectedVideos};openLightbox(Number(btn.dataset.homeVideo))});
-    primeVideoThumbs(homeVideoGrid);
+    homeVideoGrid.innerHTML=selectedVideos.map((item,idx)=>{
+      const visual=item.poster?'<img class="homeVideoPoster" src="'+item.poster+'" alt="" loading="lazy" decoding="async">':'<div class="homeVideoPosterFallback">VIDEO</div>';
+      return '<button class="homeVideoCard" type="button" data-home-video="'+idx+'" aria-label="تشغيل الفيديو">'+visual+'<span class="homeVideoShade"></span><span class="homeVideoMeta"><span><b>SELECTED '+String(idx+1).padStart(2,'0')+'</b><small>Fashion film</small></span><i class="homePlay">▶</i></span></button>';
+    }).join('');
+    homeVideoGrid.querySelectorAll('[data-home-video]').forEach(btn=>btn.onclick=()=>openHomeVideo(selectedVideos[Number(btn.dataset.homeVideo)]));
   }
 
   const selectedPhotos=[];
