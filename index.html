@@ -117,6 +117,18 @@ html,body{max-width:100%;overflow-x:hidden}
 .homeLinkIcon.brandWhatsapp{background:#25D366}
 .homeLinkIcon.brandSnapchat{background:#FFFC00;box-shadow:inset 0 0 0 1px rgba(0,0,0,.10),0 7px 18px rgba(0,0,0,.08)}
 .homeLinkIcon.brandIcon img{width:24px;height:24px;display:block;object-fit:contain}
+
+.worksFilterBar{width:min(100%,1080px);margin:8px auto 16px;display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;border-radius:16px;background:rgba(255,255,255,.65);border:1px solid rgba(82,61,48,.13);position:sticky;top:66px;z-index:3;backdrop-filter:blur(16px)}
+.worksFilter{min-height:40px;border:0;border-radius:12px;background:transparent;color:#6d574d;font:600 11px/1 system-ui;cursor:pointer}
+.worksFilter.active{background:#4b1518;color:#fff;box-shadow:0 6px 16px rgba(73,21,24,.16)}
+.videoFilterGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:1080px;margin:0 auto;padding-bottom:20px}
+.videoFilterGrid[hidden]{display:none!important}
+.videoFilterCard{position:relative;aspect-ratio:9/14;border:0;padding:0;border-radius:18px;overflow:hidden;background:#171513;cursor:pointer}
+.videoFilterCard video{width:100%;height:100%;object-fit:cover;display:block;background:#171513}
+.videoFilterCard:after{content:"";position:absolute;inset:55% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.62));pointer-events:none}
+.videoFilterPlay{position:absolute;z-index:2;left:12px;bottom:12px;width:38px;height:38px;border-radius:999px;background:rgba(255,255,255,.92);display:grid;place-items:center;color:#311416;font-size:15px;box-shadow:0 5px 16px rgba(0,0,0,.16)}
+.videoFilterEmpty{grid-column:1/-1;min-height:180px;border:1px dashed rgba(82,61,48,.2);border-radius:18px;display:grid;place-items:center;text-align:center;color:#8b7468;font-size:12px;padding:20px;background:rgba(255,255,255,.35)}
+@media(max-width:760px){.worksFilterBar{top:66px;margin:6px 0 10px}.videoFilterGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.videoFilterCard{border-radius:13px}}
 </style>
 </head>
 <body>
@@ -270,7 +282,12 @@ html,body{max-width:100%;overflow-x:hidden}
 
     <section class="worksArchive portfolioBrowser" id="worksArchive" hidden>
       <header class="portfolioTop"><button class="portfolioClose" id="portfolioClose" type="button">×</button><div><h2>ملف الأعمال</h2><span id="albumsCount"></span></div></header>
+      <div class="worksFilterBar" role="tablist" aria-label="تصفية الأعمال">
+        <button class="worksFilter active" id="worksFilterAlbums" type="button" role="tab">الألبومات</button>
+        <button class="worksFilter" id="worksFilterVideos" type="button" role="tab">فيديوهات</button>
+      </div>
       <div class="collectionsGrid" id="worksGrid"></div>
+      <div class="videoFilterGrid" id="videoGrid" hidden></div>
     </section>
 
     <div class="collectionViewer" id="collectionViewer" hidden>
@@ -296,6 +313,9 @@ const worksGrid=document.getElementById('worksGrid');
 const albumsCount=document.getElementById('albumsCount');
 const portfolioOpenBtn=document.getElementById('portfolioOpenBtn');
 const portfolioClose=document.getElementById('portfolioClose');
+const worksFilterAlbums=document.getElementById('worksFilterAlbums');
+const worksFilterVideos=document.getElementById('worksFilterVideos');
+const videoGrid=document.getElementById('videoGrid');
 const homeAvatar=document.getElementById('homeAvatar');
 const homeHeroImage=document.getElementById('homeHeroImage');
 const homeHeroImageNext=document.getElementById('homeHeroImageNext');
@@ -322,7 +342,7 @@ const lightboxStage=document.getElementById('lightboxStage');
 const lightboxCounter=document.getElementById('lightboxCounter');
 const lightboxPrev=document.getElementById('lightboxPrev');
 const lightboxNext=document.getElementById('lightboxNext');
-let worksCollections=[],featuredImages=[],activeCollection=null,activeIndex=0,touchStartX=0;
+let worksCollections=[],videoCollection=null,featuredImages=[],activeCollection=null,activeIndex=0,touchStartX=0,archiveMode='albums';
 
 function htmlEsc(s){return String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 function mediaMarkup(item,mode){if(!item)return '';if(item.type==='video')return mode==='lightbox'?'<video src="'+item.url+'" controls playsinline preload="metadata"></video>':'<video src="'+item.url+'" muted playsinline preload="metadata"></video>';return '<img src="'+item.url+'" alt="" loading="'+(mode==='lightbox'?'eager':'lazy')+'">'}
@@ -344,9 +364,32 @@ document.getElementById('infoWorksBtn')?.addEventListener('click',goWorks);
 homeShareBtn?.addEventListener('click',async()=>{try{if(navigator.share)await navigator.share({title:'AMAL',url:location.origin});else await navigator.clipboard.writeText(location.origin)}catch{}});
 editorialSound?.addEventListener('click',()=>{if(!editorialVideo)return;editorialVideo.muted=!editorialVideo.muted;editorialVideo.play().catch(()=>{});editorialSound.textContent=editorialVideo.muted?'تشغيل الصوت':'كتم الصوت'});
 
-function openPortfolio(){worksArchive.hidden=false;setOverlayState()}
+function renderVideoFilter(){
+  const items=(videoCollection?.items||[]).filter(i=>i.type==='video');
+  if(!items.length){videoGrid.innerHTML='<div class="videoFilterEmpty">لا توجد فيديوهات مرفوعة حتى الآن.</div>';return}
+  videoGrid.innerHTML=items.map((i,idx)=>'<button class="videoFilterCard" type="button" data-video-index="'+idx+'" aria-label="فتح الفيديو">'+mediaMarkup(i,'thumb')+'<span class="videoFilterPlay">▶</span></button>').join('');
+  videoGrid.querySelectorAll('[data-video-index]').forEach(b=>b.onclick=()=>{
+    const items=(videoCollection?.items||[]).filter(i=>i.type==='video');
+    if(!items.length)return;
+    activeCollection={name:'فيديوهات',items};
+    openLightbox(Number(b.dataset.videoIndex));
+  });
+}
+function setArchiveMode(mode){
+  archiveMode=mode==='videos'?'videos':'albums';
+  worksFilterAlbums.classList.toggle('active',archiveMode==='albums');
+  worksFilterVideos.classList.toggle('active',archiveMode==='videos');
+  worksGrid.hidden=archiveMode!=='albums';
+  videoGrid.hidden=archiveMode!=='videos';
+  albumsCount.textContent=archiveMode==='videos'?((videoCollection?.items||[]).filter(i=>i.type==='video').length+' فيديو'):(worksCollections.length+' ألبوم');
+  if(archiveMode==='videos')renderVideoFilter();
+}
+function openPortfolio(mode='albums'){worksArchive.hidden=false;setArchiveMode(mode);setOverlayState()}
 function closePortfolio(){worksArchive.hidden=true;setOverlayState()}
-portfolioOpenBtn?.addEventListener('click',openPortfolio);portfolioClose?.addEventListener('click',closePortfolio);
+portfolioOpenBtn?.addEventListener('click',()=>openPortfolio('albums'));
+portfolioClose?.addEventListener('click',closePortfolio);
+worksFilterAlbums?.addEventListener('click',()=>setArchiveMode('albums'));
+worksFilterVideos?.addEventListener('click',()=>setArchiveMode('videos'));
 
 function openCollection(c){activeCollection=c;viewerTitle.textContent=c.name||'';viewerCount.textContent=c.items.length+' ملف';viewerGrid.innerHTML=c.items.map((i,idx)=>'<button class="viewerItem '+(i.type==='video'?'isVideo':'')+'" type="button" data-index="'+idx+'">'+mediaMarkup(i,'thumb')+'</button>').join('');viewerGrid.querySelectorAll('.viewerItem').forEach(b=>b.onclick=()=>openLightbox(Number(b.dataset.index)));collectionViewer.hidden=false;setOverlayState()}
 function closeCollection(){if(!mediaLightbox.hidden)closeLightbox();collectionViewer.hidden=true;viewerGrid.innerHTML='';activeCollection=null;setOverlayState()}
@@ -396,14 +439,17 @@ function setHomeSlides(images){
 }
 
 async function loadWorks(){try{
-  const [worksRes,homeRes]=await Promise.all([
+  const [worksRes,homeRes,videosRes]=await Promise.all([
     fetch('/api/works',{cache:'no-store'}),
-    fetch('/api/home-slides',{cache:'no-store'})
+    fetch('/api/home-slides',{cache:'no-store'}),
+    fetch('/api/videos',{cache:'no-store'})
   ]);
   if(!worksRes.ok)return;
   const data=await worksRes.json();
   const homeData=homeRes.ok?await homeRes.json():{collection:null};
+  const videosData=videosRes.ok?await videosRes.json():{collection:null};
   worksCollections=data.collections||[];
+  videoCollection=videosData.collection||null;
   albumsCount.textContent=worksCollections.length+' ألبوم';
   worksGrid.innerHTML=worksCollections.map((c,idx)=>'<button class="collectionCard" type="button" data-i="'+idx+'">'+(c.cover?mediaMarkup(c.cover,'cover'):'')+'<span class="collectionMeta"><b>'+htmlEsc(c.name)+'</b><span>'+c.items.length+' ملف</span></span></button>').join('');
   worksGrid.querySelectorAll('.collectionCard').forEach(b=>{const c=worksCollections[Number(b.dataset.i)];b.onclick=()=>openCollection(c)});
@@ -411,7 +457,9 @@ async function loadWorks(){try{
   const homeImages=(homeData.collection?.items||[]).filter(i=>i.type==='image');
   setEditorialImages(workImages);
   setHomeSlides(homeImages.length?homeImages:workImages);
-  portfolioOpenBtn.disabled=!worksCollections.length;
+  portfolioOpenBtn.disabled=!worksCollections.length&&!(videoCollection?.items||[]).length;
+  const params=new URLSearchParams(location.search);
+  if(params.get('view')==='works'&&params.get('filter')==='videos')openPortfolio('videos');
 }catch(e){console.error(e)}}
 loadWorks();
 
