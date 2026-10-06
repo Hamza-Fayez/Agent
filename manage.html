@@ -24,6 +24,12 @@
 /* manager video covers */
 .mediaCard video.managerVideoThumb,.albumCover video.managerVideoThumb,.selectedFile video.managerVideoThumb{background:linear-gradient(145deg,#3d2524,#171210);object-fit:cover}
 .mediaCard video.managerVideoThumb[poster],.albumCover video.managerVideoThumb[poster],.selectedFile video.managerVideoThumb[poster]{background:#171210}
+
+/* reliable image previews */
+.managerImageThumb{background:linear-gradient(135deg,#eee7df,#ddd4cb);transition:opacity .2s ease}
+.managerImageThumb:not([data-loaded="1"]){opacity:.82}
+.managerImageThumb.imageRetrying{opacity:.45}
+.managerImageThumb.imageFailed{opacity:.18;background:repeating-linear-gradient(135deg,#e7dfd7 0 12px,#d9cfc5 12px 24px)}
 </style>
 </head>
 <body>
@@ -81,7 +87,22 @@ function mediaTag(item,opts={}){
     if(opts.controls)return '<video src="'+item.url+'" controls playsinline preload="metadata"></video>';
     return '<video class="managerVideoThumb" src="'+item.url+'#t=0.2" muted playsinline preload="auto"></video>';
   }
-  return '<img src="'+item.url+'" alt="">'
+  return '<img class="managerImageThumb" src="'+item.url+'" alt="" loading="lazy" decoding="async" data-base-src="'+item.url+'">'
+}
+function primeManagerImages(root=document){
+  root.querySelectorAll('img.managerImageThumb').forEach(img=>{
+    if(img.dataset.retryBound==='1')return;
+    img.dataset.retryBound='1';
+    img.addEventListener('load',()=>{img.dataset.loaded='1';img.classList.remove('imageRetrying')});
+    img.addEventListener('error',()=>{
+      const n=Number(img.dataset.retryCount||0);
+      if(n>=3){img.classList.add('imageFailed');return}
+      img.dataset.retryCount=String(n+1);
+      img.classList.add('imageRetrying');
+      const base=img.dataset.baseSrc||img.src.split('?')[0];
+      setTimeout(()=>{img.src=base+(base.includes('?')?'&':'?')+'retry='+(n+1)+'-'+Date.now()},600*(n+1));
+    });
+  })
 }
 function primeManagerVideoThumbs(root=document){
   root.querySelectorAll('video.managerVideoThumb').forEach(v=>{
@@ -163,6 +184,7 @@ function renderPendingFiles(){
   $('#selectedGrid').innerHTML=pendingFiles.map((f,i)=>{const u=URL.createObjectURL(f);const media=f.type.startsWith('video/')?'<video src="'+u+'" muted playsinline></video>':'<img src="'+u+'" alt="">';return '<div class="selectedFile">'+media+'<button type="button" data-remove="'+i+'">×</button></div>'}).join('');
   $('#selectedGrid').querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{pendingFiles.splice(Number(b.dataset.remove),1);renderPendingFiles();if(!pendingFiles.length)closeSelection()});
   primeManagerVideoThumbs($('#selectedGrid'));
+  primeManagerImages($('#selectedGrid'));
 }
 function closeSelection(){pendingFiles=[];$('#selectionModal').hidden=true;$('#selectedGrid').innerHTML=''}
 $('#picker').addEventListener('change',()=>{pendingFiles=[...$('#picker').files];$('#picker').value='';if(!currentFolder||!pendingFiles.length)return;renderPendingFiles();$('#selectionModal').hidden=false});
@@ -223,6 +245,7 @@ function renderAlbums(){
   root.querySelectorAll('[data-rename]').forEach(b=>b.onclick=()=>{current=collections.find(c=>c.id===b.dataset.rename);openNameModal('rename')});
   root.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{const c=collections.find(x=>x.id===b.dataset.delete);if(!confirm('حذف الألبوم '+(c?.name||'بدون اسم')+' وكل الملفات داخله؟'))return;await api('/api/admin/collection?id='+encodeURIComponent(b.dataset.delete),{method:'DELETE'});await load()})
   primeManagerVideoThumbs(root);
+  primeManagerImages(root);
 }
 function openEditor(id){
   current=collections.find(c=>c.id===id);if(!current)return;
@@ -249,6 +272,8 @@ function openEditor(id){
   grid.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(!confirm('حذف الملف؟'))return;const id=current.id;await api('/api/admin/item?collection='+encodeURIComponent(id)+'&item='+encodeURIComponent(b.dataset.del),{method:'DELETE'});await load();openEditor(id)})
   primeManagerVideoThumbs(grid);
   primeManagerVideoThumbs($('#coverBig'));
+  primeManagerImages(grid);
+  primeManagerImages($('#coverBig'));
 }
 boot();
 </script>
