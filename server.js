@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, HeadObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, HeadObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
 
 const port = process.env.PORT || 3000;
@@ -121,7 +121,16 @@ async function recoveryAudit(){
         }
       }
     }
-    console.log('AML_RECOVERY_AUDIT '+JSON.stringify({current:currentRows,missingFromBackup:missing,backupFound:!!backup}));
+    const referenced=new Set((current.collections||[]).flatMap(c=>(c.items||[]).map(i=>i.key)));
+    const objects=[];
+    let token;
+    do{
+      const page=await s3.send(new ListObjectsV2Command({Bucket:BUCKET,Prefix:'aml-suabhi/works/',ContinuationToken:token}));
+      for(const o of page.Contents||[])objects.push({key:o.Key,size:o.Size,lastModified:o.LastModified});
+      token=page.IsTruncated?page.NextContinuationToken:null;
+    }while(token);
+    const orphans=objects.filter(o=>!referenced.has(o.key));
+    console.log('AML_RECOVERY_AUDIT '+JSON.stringify({current:currentRows,missingFromBackup:missing,backupFound:!!backup,storageObjects:objects.length,orphans}));
   }catch(e){console.error('AML_RECOVERY_AUDIT_ERROR',e?.message||e)}
 }
 async function writeMeta(meta){await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:META_KEY,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}))}
