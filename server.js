@@ -15,6 +15,7 @@ const MEDIA_PREFIX = 'aml-suabhi/works/';
 const HOME_MEDIA_PREFIX = 'aml-suabhi/home-slideshow/';
 const VIDEO_MEDIA_PREFIX = 'aml-suabhi/video-library/';
 const MAX_UPLOAD = 300 * 1024 * 1024;
+let mediaIntegrityPromise=null;
 const s3 = new S3Client({
   region: process.env.AWS_DEFAULT_REGION || 'auto',
   endpoint: process.env.AWS_ENDPOINT_URL,
@@ -208,6 +209,7 @@ async function handleApi(req,res,pathname,url){
   }
   if(!pathname.startsWith('/api/admin/'))return false;
   if(!requireAuth(req,res))return true;
+  if(req.method!=='GET'&&mediaIntegrityPromise)await mediaIntegrityPromise;
   try{
     if(pathname==='/api/admin/collections'&&req.method==='GET')return json(res,200,publicMeta(await readMeta()));
     if(pathname==='/api/admin/collections'&&req.method==='POST'){const b=await readJson(req);const name=safeName(b.name||'');const meta=await readMeta();const id=slug(name)+'-'+crypto.randomBytes(3).toString('hex');meta.collections.unshift({id,name,createdAt:new Date().toISOString(),cover:null,items:[]});await writeMeta(meta);return json(res,201,{id,name})}
@@ -238,12 +240,8 @@ const server=http.createServer(async (req,res)=>{
   let filePath=pathname==='/'?'/index.html':pathname;const file=path.join(root,filePath.replace(/^\/+/,''));if(!file.startsWith(root)){res.writeHead(403);return res.end('Forbidden')}
   fs.readFile(file,(err,data)=>{if(err){fs.readFile(path.join(root,'index.html'),(e2,fallback)=>{if(e2){res.writeHead(404);return res.end('Not found')}sendHtml(res,fallback)});return}const ext=path.extname(file).toLowerCase();if(ext==='.html')return sendHtml(res,data);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public,max-age=300'});res.end(data)})
 });
-(async()=>{
-  try{
-    await readMeta();
-    await runMediaIntegrityPass();
-  }catch(e){
-    console.error('AML_MEDIA_INTEGRITY_ERROR',e?.stack||e?.message||e);
-  }
-  server.listen(port,'0.0.0.0',()=>console.log('AML portfolio listening on '+port));
-})();
+server.listen(port,'0.0.0.0',()=>console.log('AML portfolio listening on '+port));
+mediaIntegrityPromise=readMeta()
+  .then(()=>runMediaIntegrityPass())
+  .catch(e=>console.error('AML_MEDIA_INTEGRITY_ERROR',e?.stack||e?.message||e))
+  .finally(()=>{mediaIntegrityPromise=null});
