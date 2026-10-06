@@ -198,6 +198,7 @@ async function restoreMissingFolders(){
   }else{
     console.log('AML_FOLDER_RECOVERY restored=0');
   }
+  console.log('AML_FOLDER_STATE '+JSON.stringify({current:(meta.collections||[]).map(c=>({id:c.id,name:c.name||'',role:c.systemRole||null,count:(c.items||[]).length})),backup:(backup.collections||[]).map(c=>({id:c.id,name:c.name||'',role:c.systemRole||null,count:(c.items||[]).length}))}));
   meta.folderRecoveryVersion=1;
   await writeMeta(meta);
 }
