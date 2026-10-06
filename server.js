@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, HeadObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
 
 const port = process.env.PORT || 3000;
@@ -13,6 +13,7 @@ const META_KEY = 'aml-suabhi/portfolio/index.json';
 const LEGACY_META_KEY = 'portfolio/index.json';
 const MEDIA_PREFIX = 'aml-suabhi/works/';
 const HOME_MEDIA_PREFIX = 'aml-suabhi/home-slideshow/';
+const VIDEO_MEDIA_PREFIX = 'aml-suabhi/video-library/';
 const MAX_UPLOAD = 300 * 1024 * 1024;
 const s3 = new S3Client({
   region: process.env.AWS_DEFAULT_REGION || 'auto',
@@ -50,8 +51,9 @@ async function streamToBuffer(stream){const chunks=[];for await(const c of strea
 async function readMetaKey(key){try{const o=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key}));return JSON.parse((await streamToBuffer(o.Body)).toString('utf8'))}catch(e){if(e.name==='NoSuchKey'||e.$metadata?.httpStatusCode===404)return null;throw e}}
 function ensureSystemCollections(meta){
   if(!meta||!Array.isArray(meta.collections))meta={version:1,collections:[]};
-  let home=meta.collections.find(c=>c.systemRole==='home_slideshow'||c.id==='home-slideshow');
   let changed=false;
+
+  let home=meta.collections.find(c=>c.systemRole==='home_slideshow'||c.id==='home-slideshow');
   if(!home){
     const seed=meta.collections
       .filter(c=>!c.systemRole)
@@ -64,9 +66,22 @@ function ensureSystemCollections(meta){
     if(home.systemRole!=='home_slideshow'){home.systemRole='home_slideshow';changed=true}
     if(home.locked!==true){home.locked=true;changed=true}
   }
+
+  let videos=meta.collections.find(c=>c.systemRole==='video_library'||c.id==='video-library');
+  if(!videos){
+    videos={id:'video-library',name:'فيديوهات',systemRole:'video_library',locked:true,createdAt:new Date().toISOString(),cover:null,items:[]};
+    meta.collections.splice(1,0,videos);
+    changed=true;
+  }else{
+    if(videos.name!=='فيديوهات'){videos.name='فيديوهات';changed=true}
+    if(videos.systemRole!=='video_library'){videos.systemRole='video_library';changed=true}
+    if(videos.locked!==true){videos.locked=true;changed=true}
+    const onlyVideos=(videos.items||[]).filter(i=>i.type==='video');
+    if(onlyVideos.length!==(videos.items||[]).length){videos.items=onlyVideos;changed=true}
+  }
+
   return {meta,changed};
 }
-
 async function readMeta(){
   const scoped=await readMetaKey(META_KEY);
   if(scoped){
@@ -88,51 +103,6 @@ async function readMeta(){
   console.log('AML_STORAGE_ISOLATED migrated='+String((legacy.collections||[]).length)+' quarantined=2');
   return ensured.meta;
 }
-async function recoveryAudit(){
-  try{
-    const current=await readMeta();
-    const backup=await readMetaKey('aml-suabhi/backups/legacy-before-isolation-20261004.json');
-    const summarize=c=>({id:c.id,name:c.name||'',systemRole:c.systemRole||null,itemCount:(c.items||[]).length,videos:(c.items||[]).filter(i=>i.type==='video').map(i=>({id:i.id,name:i.name,key:i.key}))});
-    const currentRows=(current.collections||[]).map(summarize);
-    const missing=[];
-    if(backup){
-      for(const bc of backup.collections||[]){
-        const cc=(current.collections||[]).find(c=>c.id===bc.id);
-        if(!cc){
-          const items=[];
-          for(const item of bc.items||[]){
-            let exists=false;
-            try{await s3.send(new HeadObjectCommand({Bucket:BUCKET,Key:item.key}));exists=true}catch{}
-            items.push({id:item.id,name:item.name,type:item.type,key:item.key,exists});
-          }
-          missing.push({collection:summarize(bc),items});
-        }else{
-          const currentIds=new Set((cc.items||[]).map(i=>i.id));
-          const removed=(bc.items||[]).filter(i=>!currentIds.has(i.id));
-          if(removed.length){
-            const items=[];
-            for(const item of removed){
-              let exists=false;
-              try{await s3.send(new HeadObjectCommand({Bucket:BUCKET,Key:item.key}));exists=true}catch{}
-              items.push({id:item.id,name:item.name,type:item.type,key:item.key,exists});
-            }
-            missing.push({collection:{id:bc.id,name:bc.name||'',systemRole:bc.systemRole||null,itemCount:(bc.items||[]).length},items});
-          }
-        }
-      }
-    }
-    const referenced=new Set((current.collections||[]).flatMap(c=>(c.items||[]).map(i=>i.key)));
-    const objects=[];
-    let token;
-    do{
-      const page=await s3.send(new ListObjectsV2Command({Bucket:BUCKET,Prefix:'aml-suabhi/works/',ContinuationToken:token}));
-      for(const o of page.Contents||[])objects.push({key:o.Key,size:o.Size,lastModified:o.LastModified});
-      token=page.IsTruncated?page.NextContinuationToken:null;
-    }while(token);
-    const orphans=objects.filter(o=>!referenced.has(o.key));
-    console.log('AML_RECOVERY_AUDIT '+JSON.stringify({current:currentRows,missingFromBackup:missing,backupFound:!!backup,storageObjects:objects.length,orphans}));
-  }catch(e){console.error('AML_RECOVERY_AUDIT_ERROR',e?.message||e)}
-}
 async function writeMeta(meta){await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:META_KEY,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}))}
 function publicCollection(c){
   const cover=(c.items.find(i=>i.id===c.cover)||c.items.find(i=>i.type==='image')||c.items[0]||null);
@@ -153,6 +123,7 @@ async function handleApi(req,res,pathname,url){
   if(pathname==='/api/logout'&&req.method==='POST'){res.writeHead(200,{'Content-Type':'application/json','Set-Cookie':'aml_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0'});return res.end('{"ok":true}')}
   if(pathname==='/api/works'&&req.method==='GET'){try{return json(res,200,publicMeta(await readMeta(),{includeSystem:false}))}catch(e){console.error(e);return json(res,500,{error:'Could not load works'})}}
   if(pathname==='/api/home-slides'&&req.method==='GET'){try{const meta=await readMeta();const c=meta.collections.find(x=>x.systemRole==='home_slideshow');return json(res,200,{collection:c?publicCollection(c):null})}catch(e){console.error(e);return json(res,500,{error:'Could not load home slides'})}}
+  if(pathname==='/api/videos'&&req.method==='GET'){try{const meta=await readMeta();const c=meta.collections.find(x=>x.systemRole==='video_library');const out=c?publicCollection({...c,items:(c.items||[]).filter(i=>i.type==='video')}):null;return json(res,200,{collection:out})}catch(e){console.error(e);return json(res,500,{error:'Could not load videos'})}}
   if(pathname.startsWith('/media/')&&req.method==='GET'){try{const key=decodeURIComponent(pathname.slice(7));const out=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key,Range:req.headers.range}));const headers={'Content-Type':out.ContentType||'application/octet-stream','Cache-Control':'public,max-age=3600','Accept-Ranges':'bytes'};if(out.ContentLength!=null)headers['Content-Length']=String(out.ContentLength);if(out.ContentRange)headers['Content-Range']=out.ContentRange;res.writeHead(out.ContentRange?206:200,headers);return out.Body.pipe(res)}catch(e){return json(res,404,{error:'Not found'})}
   }
   if(!pathname.startsWith('/api/admin/'))return false;
@@ -160,7 +131,7 @@ async function handleApi(req,res,pathname,url){
   try{
     if(pathname==='/api/admin/collections'&&req.method==='GET')return json(res,200,publicMeta(await readMeta()));
     if(pathname==='/api/admin/collections'&&req.method==='POST'){const b=await readJson(req);const name=safeName(b.name||'');const meta=await readMeta();const id=slug(name)+'-'+crypto.randomBytes(3).toString('hex');meta.collections.unshift({id,name,createdAt:new Date().toISOString(),cover:null,items:[]});await writeMeta(meta);return json(res,201,{id,name})}
-    if(pathname==='/api/admin/upload'&&req.method==='POST'){const collection=url.searchParams.get('collection');const original=safeName(url.searchParams.get('name')||'file');const type=String(req.headers['content-type']||'');const len=Number(req.headers['content-length']||0);if(!type.startsWith('image/')&&!type.startsWith('video/'))return json(res,415,{error:'Images and videos only'});if(len>MAX_UPLOAD)return json(res,413,{error:'File too large'});const meta=await readMeta();const c=meta.collections.find(x=>x.id===collection);if(!c)return json(res,404,{error:'Folder not found'});if(c.systemRole==='home_slideshow'&&!type.startsWith('image/'))return json(res,415,{error:'Home slideshow accepts images only'});const id=crypto.randomUUID();const prefix=c.systemRole==='home_slideshow'?HOME_MEDIA_PREFIX:(MEDIA_PREFIX+c.id+'/');const key=prefix+Date.now()+'-'+crypto.randomBytes(4).toString('hex')+extOf(original,type);await new Upload({client:s3,params:{Bucket:BUCKET,Key:key,Body:req,ContentType:type,CacheControl:'public,max-age=31536000,immutable'}}).done();const item={id,key,type:type.startsWith('video/')?'video':'image',name:original,createdAt:new Date().toISOString()};c.items.push(item);if(!c.cover&&item.type==='image')c.cover=id;await writeMeta(meta);return json(res,201,{ok:true,item:{...item,url:'/media/'+encodeURIComponent(key)}})}
+    if(pathname==='/api/admin/upload'&&req.method==='POST'){const collection=url.searchParams.get('collection');const original=safeName(url.searchParams.get('name')||'file');const type=String(req.headers['content-type']||'');const len=Number(req.headers['content-length']||0);if(!type.startsWith('image/')&&!type.startsWith('video/'))return json(res,415,{error:'Images and videos only'});if(len>MAX_UPLOAD)return json(res,413,{error:'File too large'});const meta=await readMeta();const c=meta.collections.find(x=>x.id===collection);if(!c)return json(res,404,{error:'Folder not found'});if(c.systemRole==='home_slideshow'&&!type.startsWith('image/'))return json(res,415,{error:'Home slideshow accepts images only'});if(c.systemRole==='video_library'&&!type.startsWith('video/'))return json(res,415,{error:'Video library accepts videos only'});const id=crypto.randomUUID();const prefix=c.systemRole==='home_slideshow'?HOME_MEDIA_PREFIX:c.systemRole==='video_library'?VIDEO_MEDIA_PREFIX:(MEDIA_PREFIX+c.id+'/');const key=prefix+Date.now()+'-'+crypto.randomBytes(4).toString('hex')+extOf(original,type);await new Upload({client:s3,params:{Bucket:BUCKET,Key:key,Body:req,ContentType:type,CacheControl:'public,max-age=31536000,immutable'}}).done();const item={id,key,type:type.startsWith('video/')?'video':'image',name:original,createdAt:new Date().toISOString()};c.items.push(item);if(!c.cover&&item.type==='image')c.cover=id;await writeMeta(meta);return json(res,201,{ok:true,item:{...item,url:'/media/'+encodeURIComponent(key)}})}
     if(pathname==='/api/admin/rename'&&req.method==='POST'){const b=await readJson(req);const name=safeName(b.name||'');const meta=await readMeta();const c=meta.collections.find(x=>x.id===b.collection);if(!c)return json(res,404,{error:'Folder not found'});if(c.locked)return json(res,409,{error:'System folder cannot be renamed'});c.name=name;await writeMeta(meta);return json(res,200,{ok:true,name})}
     if(pathname==='/api/admin/cover'&&req.method==='POST'){const b=await readJson(req);const meta=await readMeta();const c=meta.collections.find(x=>x.id===b.collection);if(!c||!c.items.some(i=>i.id===b.item))return json(res,404,{error:'Not found'});c.cover=b.item;await writeMeta(meta);return json(res,200,{ok:true})}
     if(pathname==='/api/admin/item'&&req.method==='DELETE'){const cid=url.searchParams.get('collection'),iid=url.searchParams.get('item');const meta=await readMeta();const c=meta.collections.find(x=>x.id===cid);if(!c)return json(res,404,{error:'Folder not found'});const i=c.items.findIndex(x=>x.id===iid);if(i<0)return json(res,404,{error:'Item not found'});const item=c.items[i];if(!item.shared)await s3.send(new DeleteObjectCommand({Bucket:BUCKET,Key:item.key}));c.items.splice(i,1);if(c.cover===iid)c.cover=c.items.find(x=>x.type==='image')?.id||c.items[0]?.id||null;await writeMeta(meta);return json(res,200,{ok:true})}
@@ -176,4 +147,4 @@ http.createServer(async (req,res)=>{
   if(pathname==='/manage'||pathname==='/manage/'){return fs.readFile(path.join(root,'manage.html'),(err,data)=>{if(err){res.writeHead(500);return res.end('Manager unavailable')}res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow'});res.end(data)})}
   let filePath=pathname==='/'?'/index.html':pathname;const file=path.join(root,filePath.replace(/^\/+/,''));if(!file.startsWith(root)){res.writeHead(403);return res.end('Forbidden')}
   fs.readFile(file,(err,data)=>{if(err){fs.readFile(path.join(root,'index.html'),(e2,fallback)=>{if(e2){res.writeHead(404);return res.end('Not found')}sendHtml(res,fallback)});return}const ext=path.extname(file).toLowerCase();if(ext==='.html')return sendHtml(res,data);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public,max-age=300'});res.end(data)})
-}).listen(port,'0.0.0.0',()=>{console.log('AML portfolio listening on '+port);readMeta().then(()=>recoveryAudit()).catch(e=>console.error('AML_STORAGE_INIT_ERROR',e?.message||e))});
+}).listen(port,'0.0.0.0',()=>{console.log('AML portfolio listening on '+port);readMeta().catch(e=>console.error('AML_STORAGE_INIT_ERROR',e?.message||e))});
