@@ -531,7 +531,7 @@ viewerClose?.addEventListener('click',closeCollection);lightboxClose?.addEventLi
 if(lightboxStage){lightboxStage.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX},{passive:true});lightboxStage.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>45)stepLightbox(dx>0?-1:1)},{passive:true})}
 document.addEventListener('keydown',e=>{if(!mediaLightbox.hidden){if(e.key==='ArrowRight')stepLightbox(1);if(e.key==='ArrowLeft')stepLightbox(-1);if(e.key==='Escape')closeLightbox()}else if(!collectionViewer.hidden&&e.key==='Escape')closeCollection();else if(!worksArchive.hidden&&e.key==='Escape')closePortfolio()});
 
-const HOME_HERO_VIDEO_ID='8551c648-35f2-46b0-9714-a61076acca0c';
+const HOME_HERO_VIDEO_ID='caac89a0-ddac-4ab4-895b-573166127653';
 const HOME_VIDEO_IDS=['391c8279-02cf-43ee-9d33-abbc78624b0e','e78960b2-ebd2-47b3-b12f-ed3050a4efd4','fdd5e0d5-7d75-4cf6-8b23-dc121ad37f52','fa85172b-f3f5-4d70-a9ec-863d0778cf3f'];
 const HOME_PHOTO_IDS=['81fbf39c-2b0c-4d0e-a59f-0f4e5019c9fe','d4715c26-ced8-4a90-8ded-a704822e5f22','9ce07e64-1d0d-460f-9f94-0abd4dea8fb2','67affcb8-9e5c-4fc7-8f88-77cabe2d1f81','3a56b558-3687-4f87-8f63-332f6c29b67f','caa2fdcc-2629-4cd8-b148-a91553c53c1b'];
 
