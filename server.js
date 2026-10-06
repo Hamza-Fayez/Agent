@@ -202,6 +202,9 @@ async function restoreMissingFolders(){
   meta.folderRecoveryVersion=1;
   await writeMeta(meta);
 }
+function logCurrentFolderState(){
+  readMeta().then(meta=>console.log('AML_CURRENT_FOLDER_STATE '+JSON.stringify((meta.collections||[]).map(c=>({id:c.id,name:c.name||'',role:c.systemRole||null,count:(c.items||[]).length}))))).catch(e=>console.error('AML_CURRENT_FOLDER_STATE_ERROR',e?.message||e))
+}
 async function writeMeta(meta){await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:META_KEY,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}))}
 function publicCollection(c){
   const cover=(c.items.find(i=>i.id===c.cover)||c.items.find(i=>i.type==='image')||c.items[0]||null);
@@ -258,7 +261,7 @@ const server=http.createServer(async (req,res)=>{
   let filePath=pathname==='/'?'/index.html':pathname;const file=path.join(root,filePath.replace(/^\/+/,''));if(!file.startsWith(root)){res.writeHead(403);return res.end('Forbidden')}
   fs.readFile(file,(err,data)=>{if(err){fs.readFile(path.join(root,'index.html'),(e2,fallback)=>{if(e2){res.writeHead(404);return res.end('Not found')}sendHtml(res,fallback)});return}const ext=path.extname(file).toLowerCase();if(ext==='.html')return sendHtml(res,data);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public,max-age=300'});res.end(data)})
 });
-server.listen(port,'0.0.0.0',()=>console.log('AML portfolio listening on '+port));
+server.listen(port,'0.0.0.0',()=>{console.log('AML portfolio listening on '+port);logCurrentFolderState()});
 mediaIntegrityPromise=readMeta()
   .then(()=>restoreMissingFolders())
   .then(()=>runMediaIntegrityPass())
