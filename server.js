@@ -122,12 +122,14 @@ async function readMetaKey(key){
 }
 
 const CURATED_POSTER_TIMES={
-  'caac89a0-ddac-4ab4-895b-573166127653':7.51,
+  // Hero: latest talking/interview video uploaded by the user.
+  '7b2ae1aa-b4df-4479-901d-060b21b4842f':9.12,
+  // Curated non-bridal homepage cards.
   '391c8279-02cf-43ee-9d33-abbc78624b0e':9.92,
-  'e78960b2-ebd2-47b3-b12f-ed3050a4efd4':18.38,
-  'fdd5e0d5-7d75-4cf6-8b23-dc121ad37f52':9.22,
-  'fa85172b-f3f5-4d70-a9ec-863d0778cf3f':10
-};
+  '92d4282e-ff06-4e52-a003-78ded6b9c28e':13.13,
+  '80c7ffb5-f9d0-439f-9419-8706c5eaaa69':9.51,
+  'fdd5e0d5-7d75-4cf6-8b23-dc121ad37f52':9.22
+}
 async function ensureCuratedVideoPosters(){
   const meta=await readMeta();
   const videos=(meta.collections||[]).find(c=>c.systemRole==='video_library');
