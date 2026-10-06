@@ -185,6 +185,22 @@ async function runMediaIntegrityPass(){
   await writeMeta(meta);
   console.log('AML_MEDIA_INTEGRITY_DONE '+JSON.stringify({backupKey,hashed,duplicates,missing,coversFixed,duplicateRows}));
 }
+async function restoreMissingFolders(){
+  const meta=await readMeta();
+  if(meta.folderRecoveryVersion===1)return;
+  const backup=await readMetaKey('aml-suabhi/backups/pre-media-integrity-2026-10-06T03-07-22-532Z.json');
+  if(!backup){console.error('AML_FOLDER_RECOVERY backup not found');return}
+  const existing=new Set((meta.collections||[]).map(c=>c.id));
+  const missing=(backup.collections||[]).filter(c=>!c.systemRole&&!existing.has(c.id));
+  if(missing.length){
+    meta.collections.push(...missing);
+    console.log('AML_FOLDER_RECOVERY restored='+missing.length);
+  }else{
+    console.log('AML_FOLDER_RECOVERY restored=0');
+  }
+  meta.folderRecoveryVersion=1;
+  await writeMeta(meta);
+}
 async function writeMeta(meta){await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:META_KEY,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}))}
 function publicCollection(c){
   const cover=(c.items.find(i=>i.id===c.cover)||c.items.find(i=>i.type==='image')||c.items[0]||null);
@@ -243,6 +259,7 @@ const server=http.createServer(async (req,res)=>{
 });
 server.listen(port,'0.0.0.0',()=>console.log('AML portfolio listening on '+port));
 mediaIntegrityPromise=readMeta()
+  .then(()=>restoreMissingFolders())
   .then(()=>runMediaIntegrityPass())
   .catch(e=>console.error('AML_MEDIA_INTEGRITY_ERROR',e?.stack||e?.message||e))
   .finally(()=>{mediaIntegrityPromise=null});
