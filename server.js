@@ -150,6 +150,12 @@ function auditDuration(file){
   if(!m)return 10;
   return Number(m[1])*3600+Number(m[2])*60+Number(m[3]);
 }
+function auditMakeVideoSheet(input,duration,out){
+  const fps=Math.max(.05,4/Math.max(1,duration));
+  const vf="fps="+fps+",scale=120:213:force_original_aspect_ratio=decrease,pad=120:213:(ow-iw)/2:(oh-ih)/2:color=black,tile=4x1";
+  const r=spawnSync(ffmpegPath,['-y','-hide_banner','-loglevel','error','-i',input,'-vf',vf,'-frames:v','1','-q:v','10',out],{encoding:'utf8',maxBuffer:8*1024*1024});
+  return r.status===0&&fs.existsSync(out);
+}
 function auditFrame(input,t,out){
   const r=spawnSync(ffmpegPath,[
     '-y','-hide_banner','-loglevel','error','-ss',String(Math.max(.1,t)),'-i',input,
@@ -181,15 +187,10 @@ async function runPortfolioVisualAudit(){
       try{
         await auditDownload(v.key,input);
         const d=auditDuration(input);
-        const times=[.08,.32,.58,.82].map(p=>Math.max(.25,Math.min(Math.max(.35,d-.15),d*p)));
-        const frames=[];
-        for(let j=0;j<times.length;j++){
-          const fp=path.join(dir,'v'+String(i+1).padStart(2,'0')+'-'+j+'.jpg');
-          if(auditFrame(input,times[j],fp))frames.push(fp);
-        }
         const sheet=path.join(dir,'sheet-v'+String(i+1).padStart(2,'0')+'.jpg');
-        if(auditMakeSheet(frames,sheet)){
-          console.log('AML_AUDIT_VIDEO_META '+JSON.stringify({n:i+1,id:v.id,name:v.name,key:v.key,duration:Number(d.toFixed(2)),times:times.map(x=>Number(x.toFixed(2)))}));
+        if(auditMakeVideoSheet(input,d,sheet)){
+          const approx=[.125,.375,.625,.875].map(p=>Number((d*p).toFixed(2)));
+          console.log('AML_AUDIT_VIDEO_META '+JSON.stringify({n:i+1,id:v.id,name:v.name,key:v.key,duration:Number(d.toFixed(2)),times:approx}));
           auditEmitBase64('VIDEO_'+String(i+1).padStart(2,'0'),fs.readFileSync(sheet));
         }else console.log('AML_AUDIT_VIDEO_FAIL '+JSON.stringify({n:i+1,id:v.id,key:v.key,reason:'sheet'}));
       }catch(e){console.log('AML_AUDIT_VIDEO_FAIL '+JSON.stringify({n:i+1,id:v.id,key:v.key,reason:e?.message||String(e)}))}
