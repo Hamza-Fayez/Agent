@@ -43,6 +43,12 @@ function makeSession(user){const p=Buffer.from(JSON.stringify({u:user,exp:Date.n
 function sessionUser(req){const token=parseCookies(req).aml_session;if(!token)return null;const [p,s]=token.split('.');if(!p||!s)return null;const a=Buffer.from(sign(p)),b=Buffer.from(s);if(a.length!==b.length||!crypto.timingSafeEqual(a,b))return null;try{const o=JSON.parse(Buffer.from(p,'base64url').toString());return o.exp>Date.now()?o.u:null}catch{return null}}
 function requireAuth(req,res){const u=sessionUser(req);if(!u){json(res,401,{error:'Unauthorized'});return null}return u}
 function readBody(req,limit=1024*1024){return new Promise((resolve,reject)=>{let n=0,chunks=[];req.on('data',c=>{n+=c.length;if(n>limit){reject(new Error('Too large'));req.destroy();return}chunks.push(c)});req.on('end',()=>resolve(Buffer.concat(chunks)));req.on('error',reject)})}
+async function hashStoredObject(key){
+  const out=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key}));
+  const hash=crypto.createHash('sha256');
+  for await(const chunk of out.Body)hash.update(chunk);
+  return hash.digest('hex');
+}
 async function readJson(req){const b=await readBody(req);return JSON.parse(b.toString('utf8')||'{}')}
 function safeName(s){return String(s||'').trim().replace(/[<>:"/\\|?*\x00-\x1F]/g,'').slice(0,80)}
 function slug(s){return safeName(s).toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'collection'}
@@ -128,6 +134,55 @@ async function readMeta(){
   console.log('AML_STORAGE_ISOLATED migrated='+String((legacy.collections||[]).length)+' quarantined=2');
   return ensured.meta;
 }
+async function runMediaIntegrityPass(){
+  const meta=await readMeta();
+  if(meta.mediaIntegrityVersion===1){
+    console.log('AML_MEDIA_INTEGRITY_SKIP version=1');
+    return;
+  }
+  const backupKey='aml-suabhi/backups/pre-media-integrity-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
+  await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:backupKey,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}));
+
+  const seen=new Map();
+  let hashed=0,duplicates=0,missing=0,coversFixed=0;
+  const duplicateRows=[];
+
+  for(const c of meta.collections||[]){
+    if(c.systemRole==='home_slideshow')continue;
+    const kept=[];
+    for(const item of c.items||[]){
+      try{
+        if(!item.sha256)item.sha256=await hashStoredObject(item.key);
+        hashed++;
+      }catch(e){
+        missing++;
+        console.error('AML_MEDIA_MISSING '+JSON.stringify({collection:c.id,item:item.id,name:item.name,key:item.key}));
+        kept.push(item);
+        continue;
+      }
+      const prior=seen.get(item.sha256);
+      if(prior){
+        duplicates++;
+        duplicateRows.push({removed:{collection:c.id,item:item.id,name:item.name,key:item.key},kept:prior});
+        continue;
+      }
+      seen.set(item.sha256,{collection:c.id,item:item.id,name:item.name,key:item.key});
+      kept.push(item);
+    }
+    if(kept.length!==(c.items||[]).length)c.items=kept;
+    const validCover=c.cover&&c.items.some(i=>i.id===c.cover);
+    if(!validCover){
+      const preferred=c.items.find(i=>i.type==='image')||c.items[0]||null;
+      const next=preferred?.id||null;
+      if(c.cover!==next){c.cover=next;coversFixed++}
+    }
+  }
+
+  meta.mediaIntegrityVersion=1;
+  meta.mediaIntegrityAt=new Date().toISOString();
+  await writeMeta(meta);
+  console.log('AML_MEDIA_INTEGRITY_DONE '+JSON.stringify({backupKey,hashed,duplicates,missing,coversFixed,duplicateRows}));
+}
 async function writeMeta(meta){await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:META_KEY,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}))}
 function publicCollection(c){
   const cover=(c.items.find(i=>i.id===c.cover)||c.items.find(i=>i.type==='image')||c.items[0]||null);
@@ -156,7 +211,17 @@ async function handleApi(req,res,pathname,url){
   try{
     if(pathname==='/api/admin/collections'&&req.method==='GET')return json(res,200,publicMeta(await readMeta()));
     if(pathname==='/api/admin/collections'&&req.method==='POST'){const b=await readJson(req);const name=safeName(b.name||'');const meta=await readMeta();const id=slug(name)+'-'+crypto.randomBytes(3).toString('hex');meta.collections.unshift({id,name,createdAt:new Date().toISOString(),cover:null,items:[]});await writeMeta(meta);return json(res,201,{id,name})}
-    if(pathname==='/api/admin/upload'&&req.method==='POST'){const collection=url.searchParams.get('collection');const original=safeName(url.searchParams.get('name')||'file');const type=String(req.headers['content-type']||'');const len=Number(req.headers['content-length']||0);if(!type.startsWith('image/')&&!type.startsWith('video/'))return json(res,415,{error:'Images and videos only'});if(len>MAX_UPLOAD)return json(res,413,{error:'File too large'});const meta=await readMeta();const c=meta.collections.find(x=>x.id===collection);if(!c)return json(res,404,{error:'Folder not found'});if(c.systemRole==='home_slideshow'&&!type.startsWith('image/'))return json(res,415,{error:'Home slideshow accepts images only'});if(c.systemRole==='video_library'&&!type.startsWith('video/'))return json(res,415,{error:'Video library accepts videos only'});const id=crypto.randomUUID();const prefix=c.systemRole==='home_slideshow'?HOME_MEDIA_PREFIX:c.systemRole==='video_library'?VIDEO_MEDIA_PREFIX:(MEDIA_PREFIX+c.id+'/');const key=prefix+Date.now()+'-'+crypto.randomBytes(4).toString('hex')+extOf(original,type);await new Upload({client:s3,params:{Bucket:BUCKET,Key:key,Body:req,ContentType:type,CacheControl:'public,max-age=31536000,immutable'}}).done();const item={id,key,type:type.startsWith('video/')?'video':'image',name:original,createdAt:new Date().toISOString()};c.items.push(item);if(!c.cover&&item.type==='image')c.cover=id;await writeMeta(meta);return json(res,201,{ok:true,item:{...item,url:'/media/'+encodeURIComponent(key)}})}
+    if(pathname==='/api/admin/upload'&&req.method==='POST'){const collection=url.searchParams.get('collection');const original=safeName(url.searchParams.get('name')||'file');const type=String(req.headers['content-type']||'');const len=Number(req.headers['content-length']||0);if(!type.startsWith('image/')&&!type.startsWith('video/'))return json(res,415,{error:'Images and videos only'});if(len>MAX_UPLOAD)return json(res,413,{error:'File too large'});const meta=await readMeta();const c=meta.collections.find(x=>x.id===collection);if(!c)return json(res,404,{error:'Folder not found'});if(c.systemRole==='home_slideshow'&&!type.startsWith('image/'))return json(res,415,{error:'Home slideshow accepts images only'});if(c.systemRole==='video_library'&&!type.startsWith('video/'))return json(res,415,{error:'Video library accepts videos only'});const id=crypto.randomUUID();const prefix=c.systemRole==='home_slideshow'?HOME_MEDIA_PREFIX:c.systemRole==='video_library'?VIDEO_MEDIA_PREFIX:(MEDIA_PREFIX+c.id+'/');const key=prefix+Date.now()+'-'+crypto.randomBytes(4).toString('hex')+extOf(original,type);await new Upload({client:s3,params:{Bucket:BUCKET,Key:key,Body:req,ContentType:type,CacheControl:'public,max-age=31536000,immutable'}}).done();const sha256=await hashStoredObject(key);
+    const duplicate=(c.items||[]).find(i=>i.sha256&&i.sha256===sha256);
+    if(duplicate){
+      await s3.send(new DeleteObjectCommand({Bucket:BUCKET,Key:key}));
+      return json(res,200,{ok:true,duplicate:true,item:{...duplicate,url:'/media/'+encodeURIComponent(duplicate.key)}});
+    }
+    const item={id,key,type:type.startsWith('video/')?'video':'image',name:original,createdAt:new Date().toISOString(),sha256};
+    c.items.push(item);
+    if(!c.cover)c.cover=id;
+    await writeMeta(meta);
+    return json(res,201,{ok:true,item:{...item,url:'/media/'+encodeURIComponent(key)}})}
     if(pathname==='/api/admin/rename'&&req.method==='POST'){const b=await readJson(req);const name=safeName(b.name||'');const meta=await readMeta();const c=meta.collections.find(x=>x.id===b.collection);if(!c)return json(res,404,{error:'Folder not found'});if(c.locked)return json(res,409,{error:'System folder cannot be renamed'});c.name=name;await writeMeta(meta);return json(res,200,{ok:true,name})}
     if(pathname==='/api/admin/cover'&&req.method==='POST'){const b=await readJson(req);const meta=await readMeta();const c=meta.collections.find(x=>x.id===b.collection);if(!c||!c.items.some(i=>i.id===b.item))return json(res,404,{error:'Not found'});c.cover=b.item;await writeMeta(meta);return json(res,200,{ok:true})}
     if(pathname==='/api/admin/item'&&req.method==='DELETE'){const cid=url.searchParams.get('collection'),iid=url.searchParams.get('item');const meta=await readMeta();const c=meta.collections.find(x=>x.id===cid);if(!c)return json(res,404,{error:'Folder not found'});const i=c.items.findIndex(x=>x.id===iid);if(i<0)return json(res,404,{error:'Item not found'});const item=c.items[i];if(!item.shared)await s3.send(new DeleteObjectCommand({Bucket:BUCKET,Key:item.key}));c.items.splice(i,1);if(c.cover===iid)c.cover=c.items.find(x=>x.type==='image')?.id||c.items[0]?.id||null;await writeMeta(meta);return json(res,200,{ok:true})}
@@ -165,11 +230,20 @@ async function handleApi(req,res,pathname,url){
   return json(res,404,{error:'Not found'});
 }
 
-http.createServer(async (req,res)=>{
+const server=http.createServer(async (req,res)=>{
   const url=new URL(req.url||'/', 'http://localhost');
   const pathname=decodeURIComponent(url.pathname);
   try{const handled=await handleApi(req,res,pathname,url);if(handled!==false)return}catch(e){console.error(e);return json(res,500,{error:'Server error'})}
   if(pathname==='/manage'||pathname==='/manage/'){return fs.readFile(path.join(root,'manage.html'),(err,data)=>{if(err){res.writeHead(500);return res.end('Manager unavailable')}res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow'});res.end(data)})}
   let filePath=pathname==='/'?'/index.html':pathname;const file=path.join(root,filePath.replace(/^\/+/,''));if(!file.startsWith(root)){res.writeHead(403);return res.end('Forbidden')}
   fs.readFile(file,(err,data)=>{if(err){fs.readFile(path.join(root,'index.html'),(e2,fallback)=>{if(e2){res.writeHead(404);return res.end('Not found')}sendHtml(res,fallback)});return}const ext=path.extname(file).toLowerCase();if(ext==='.html')return sendHtml(res,data);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public,max-age=300'});res.end(data)})
-}).listen(port,'0.0.0.0',()=>{console.log('AML portfolio listening on '+port);readMeta().catch(e=>console.error('AML_STORAGE_INIT_ERROR',e?.message||e))});
+});
+(async()=>{
+  try{
+    await readMeta();
+    await runMediaIntegrityPass();
+  }catch(e){
+    console.error('AML_MEDIA_INTEGRITY_ERROR',e?.stack||e?.message||e);
+  }
+  server.listen(port,'0.0.0.0',()=>console.log('AML portfolio listening on '+port));
+})();
