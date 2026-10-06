@@ -137,8 +137,8 @@ async function readMeta(){
 }
 async function runMediaIntegrityPass(){
   const meta=await readMeta();
-  if(meta.mediaIntegrityVersion===3){
-    console.log('AML_MEDIA_INTEGRITY_SKIP version=3');
+  if(meta.mediaIntegrityVersion===4){
+    console.log('AML_MEDIA_INTEGRITY_SKIP version=4');
     return;
   }
   const backupKey='aml-suabhi/backups/pre-media-integrity-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
@@ -158,6 +158,7 @@ async function runMediaIntegrityPass(){
       }catch(e){
         missing++;
         console.error('AML_MEDIA_MISSING '+JSON.stringify({collection:c.id,item:item.id,name:item.name,key:item.key}));
+        if(c.systemRole==='home_slideshow'&&item.shared)continue;
         kept.push(item);
         continue;
       }
@@ -179,7 +180,7 @@ async function runMediaIntegrityPass(){
     }
   }
 
-  meta.mediaIntegrityVersion=3;
+  meta.mediaIntegrityVersion=4;
   meta.mediaIntegrityAt=new Date().toISOString();
   await writeMeta(meta);
   console.log('AML_MEDIA_INTEGRITY_DONE '+JSON.stringify({backupKey,hashed,duplicates,missing,coversFixed,duplicateRows}));
