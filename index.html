@@ -129,6 +129,9 @@ html,body{max-width:100%;overflow-x:hidden}
 .videoFilterPlay{position:absolute;z-index:2;left:12px;bottom:12px;width:38px;height:38px;border-radius:999px;background:rgba(255,255,255,.92);display:grid;place-items:center;color:#311416;font-size:15px;box-shadow:0 5px 16px rgba(0,0,0,.16)}
 .videoFilterEmpty{grid-column:1/-1;min-height:180px;border:1px dashed rgba(82,61,48,.2);border-radius:18px;display:grid;place-items:center;text-align:center;color:#8b7468;font-size:12px;padding:20px;background:rgba(255,255,255,.35)}
 @media(max-width:760px){.worksFilterBar{top:66px;margin:6px 0 10px}.videoFilterGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.videoFilterCard{border-radius:13px}}
+
+.videoThumb{background:#171513}
+.videoFilterCard .videoThumb,.viewerItem .videoThumb{width:100%;height:100%;object-fit:cover;display:block}
 </style>
 </head>
 <body>
@@ -345,7 +348,20 @@ const lightboxNext=document.getElementById('lightboxNext');
 let worksCollections=[],videoCollection=null,featuredImages=[],activeCollection=null,activeIndex=0,touchStartX=0,archiveMode='albums';
 
 function htmlEsc(s){return String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
-function mediaMarkup(item,mode){if(!item)return '';if(item.type==='video')return mode==='lightbox'?'<video src="'+item.url+'" controls playsinline preload="metadata"></video>':'<video src="'+item.url+'" muted playsinline preload="metadata"></video>';return '<img src="'+item.url+'" alt="" loading="'+(mode==='lightbox'?'eager':'lazy')+'">'}
+function mediaMarkup(item,mode){
+  if(!item)return '';
+  if(item.type==='video'){
+    if(mode==='lightbox')return '<video src="'+item.url+'" controls playsinline preload="metadata"></video>';
+    return '<video class="videoThumb" src="'+item.url+'#t=0.15" muted playsinline preload="auto"></video>';
+  }
+  return '<img src="'+item.url+'" alt="" loading="'+(mode==='lightbox'?'eager':'lazy')+'">'
+}
+function primeVideoThumbs(root=document){
+  root.querySelectorAll('video.videoThumb').forEach(v=>{
+    const showFrame=()=>{try{if(Number.isFinite(v.duration)&&v.duration>0&&v.currentTime<.12)v.currentTime=Math.min(.15,Math.max(.05,v.duration*.02))}catch{}};
+    if(v.readyState>=1)showFrame();else v.addEventListener('loadedmetadata',showFrame,{once:true});
+  });
+}
 function setOverlayState(){document.body.classList.toggle('mediaOverlayOpen',!worksArchive.hidden||!collectionViewer.hidden||!mediaLightbox.hidden)}
 function setView(tab){
   tabs.forEach(x=>x.classList.toggle('active',x===tab));
@@ -374,6 +390,7 @@ function renderVideoFilter(){
     activeCollection={name:'فيديوهات',items};
     openLightbox(Number(b.dataset.videoIndex));
   });
+  primeVideoThumbs(videoGrid);
 }
 function setArchiveMode(mode){
   archiveMode=mode==='videos'?'videos':'albums';
@@ -391,7 +408,7 @@ portfolioClose?.addEventListener('click',closePortfolio);
 worksFilterAlbums?.addEventListener('click',()=>setArchiveMode('albums'));
 worksFilterVideos?.addEventListener('click',()=>setArchiveMode('videos'));
 
-function openCollection(c){activeCollection=c;viewerTitle.textContent=c.name||'';viewerCount.textContent=c.items.length+' ملف';viewerGrid.innerHTML=c.items.map((i,idx)=>'<button class="viewerItem '+(i.type==='video'?'isVideo':'')+'" type="button" data-index="'+idx+'">'+mediaMarkup(i,'thumb')+'</button>').join('');viewerGrid.querySelectorAll('.viewerItem').forEach(b=>b.onclick=()=>openLightbox(Number(b.dataset.index)));collectionViewer.hidden=false;setOverlayState()}
+function openCollection(c){activeCollection=c;viewerTitle.textContent=c.name||'';viewerCount.textContent=c.items.length+' ملف';viewerGrid.innerHTML=c.items.map((i,idx)=>'<button class="viewerItem '+(i.type==='video'?'isVideo':'')+'" type="button" data-index="'+idx+'">'+mediaMarkup(i,'thumb')+'</button>').join('');viewerGrid.querySelectorAll('.viewerItem').forEach(b=>b.onclick=()=>openLightbox(Number(b.dataset.index)));primeVideoThumbs(viewerGrid);collectionViewer.hidden=false;setOverlayState()}
 function closeCollection(){if(!mediaLightbox.hidden)closeLightbox();collectionViewer.hidden=true;viewerGrid.innerHTML='';activeCollection=null;setOverlayState()}
 function renderLightbox(){if(!activeCollection||!activeCollection.items.length)return;activeIndex=(activeIndex+activeCollection.items.length)%activeCollection.items.length;lightboxStage.innerHTML=mediaMarkup(activeCollection.items[activeIndex],'lightbox');lightboxCounter.textContent=(activeIndex+1)+' / '+activeCollection.items.length}
 function openLightbox(index){activeIndex=index;mediaLightbox.hidden=false;renderLightbox();setOverlayState()}
