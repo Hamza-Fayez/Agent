@@ -137,19 +137,19 @@ async function readMeta(){
 }
 async function runMediaIntegrityPass(){
   const meta=await readMeta();
-  if(meta.mediaIntegrityVersion===2){
-    console.log('AML_MEDIA_INTEGRITY_SKIP version=2');
+  if(meta.mediaIntegrityVersion===3){
+    console.log('AML_MEDIA_INTEGRITY_SKIP version=3');
     return;
   }
   const backupKey='aml-suabhi/backups/pre-media-integrity-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
   await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:backupKey,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}));
 
-  const seen=new Map();
+  const globalSeen=new Map(),homeSeen=new Map();
   let hashed=0,duplicates=0,missing=0,coversFixed=0;
   const duplicateRows=[];
 
   for(const c of meta.collections||[]){
-    if(c.systemRole==='home_slideshow')continue;
+    const seen=c.systemRole==='home_slideshow'?homeSeen:globalSeen;
     const kept=[];
     for(const item of c.items||[]){
       try{
@@ -179,7 +179,7 @@ async function runMediaIntegrityPass(){
     }
   }
 
-  meta.mediaIntegrityVersion=2;
+  meta.mediaIntegrityVersion=3;
   meta.mediaIntegrityAt=new Date().toISOString();
   await writeMeta(meta);
   console.log('AML_MEDIA_INTEGRITY_DONE '+JSON.stringify({backupKey,hashed,duplicates,missing,coversFixed,duplicateRows}));
