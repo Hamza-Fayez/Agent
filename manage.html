@@ -20,6 +20,10 @@
 .previewOverlay{position:fixed;inset:0;z-index:80;background:rgba(10,9,8,.96);display:grid;grid-template-rows:auto 1fr;color:#fff}.previewTop{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 14px}.previewTop button{width:42px;height:42px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;font-size:24px}.previewMedia{display:grid;place-items:center;min-height:0;padding:10px 14px 20px}.previewMedia img,.previewMedia video{max-width:100%;max-height:calc(100svh - 88px);object-fit:contain;border-radius:12px}
 @media(max-width:900px){.albumGrid{grid-template-columns:repeat(2,1fr)}.mediaGrid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:650px){.page{padding:10px}.topbar{height:56px}.brand{font-size:21px}.heroRow{align-items:flex-start;flex-direction:column;margin-top:6px}.heroRow h1{font-size:38px}.stats{gap:6px}.stat{padding:11px}.stat b{font-size:20px}.albumGrid{grid-template-columns:1fr;gap:9px}.albumCover{aspect-ratio:16/10}.coverPreview{grid-template-columns:1fr}.coverBig{min-height:240px;aspect-ratio:4/3}.coverInfo{display:none}.mediaGrid{grid-template-columns:repeat(3,1fr);gap:6px}.mediaCard{border-radius:12px}.editorHead{align-items:flex-start;flex-direction:column}.editorActions{width:100%}.editorActions .btn{flex:1}.albumActions .btn{flex:1}.topActions .btn:first-child{display:none}}
+
+/* manager video covers */
+.mediaCard video.managerVideoThumb,.albumCover video.managerVideoThumb,.selectedFile video.managerVideoThumb{background:linear-gradient(145deg,#3d2524,#171210);object-fit:cover}
+.mediaCard video.managerVideoThumb[poster],.albumCover video.managerVideoThumb[poster],.selectedFile video.managerVideoThumb[poster]{background:#171210}
 </style>
 </head>
 <body>
@@ -71,7 +75,74 @@ const $=s=>document.querySelector(s);
 let collections=[],current=null,currentFolder=null,nameMode='create',pendingFiles=[];
 async function api(path,opts={}){const r=await fetch(path,opts);if(r.status===401)throw new Error('AUTH');const ct=r.headers.get('content-type')||'';const data=ct.includes('json')?await r.json():await r.text();if(!r.ok)throw new Error(data.error||data||'Request failed');return data}
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function mediaTag(item,opts={}){if(!item)return '<div class="emptyCover">لا توجد ملفات</div>';if(item.type==='video')return '<video src="'+item.url+'" '+(opts.controls?'controls':'muted playsinline preload="metadata"')+'></video>';return '<img src="'+item.url+'" alt="">'}
+function mediaTag(item,opts={}){
+  if(!item)return '<div class="emptyCover">لا توجد ملفات</div>';
+  if(item.type==='video'){
+    if(opts.controls)return '<video src="'+item.url+'" controls playsinline preload="metadata"></video>';
+    return '<video class="managerVideoThumb" src="'+item.url+'#t=0.2" muted playsinline preload="auto"></video>';
+  }
+  return '<img src="'+item.url+'" alt="">'
+}
+function primeManagerVideoThumbs(root=document){
+  root.querySelectorAll('video.managerVideoThumb').forEach(v=>{
+    if(v.dataset.posterReady==='1'||v.dataset.posterBusy==='1')return;
+    v.dataset.posterBusy='1';
+    v.muted=true;v.playsInline=true;v.preload='auto';
+    const tiny=document.createElement('canvas');tiny.width=40;tiny.height=40;
+    const tctx=tiny.getContext('2d',{willReadFrequently:true});
+    const full=document.createElement('canvas');
+    let best=null,idx=0,candidates=[];
+
+    const sample=()=>{
+      try{
+        if(!v.videoWidth||!v.videoHeight||!tctx)return;
+        tctx.clearRect(0,0,40,40);tctx.drawImage(v,0,0,40,40);
+        const d=tctx.getImageData(0,0,40,40).data;
+        let sum=0,sum2=0;
+        for(let i=0;i<d.length;i+=4){
+          const y=.2126*d[i]+.7152*d[i+1]+.0722*d[i+2];
+          sum+=y;sum2+=y*y;
+        }
+        const n=d.length/4,avg=sum/n,variance=Math.max(0,sum2/n-avg*avg);
+        const score=variance-Math.abs(avg-142)*.65-(avg<28||avg>238?180:0);
+        const scale=Math.min(1,520/v.videoWidth);
+        full.width=Math.max(1,Math.round(v.videoWidth*scale));
+        full.height=Math.max(1,Math.round(v.videoHeight*scale));
+        const ctx=full.getContext('2d');if(!ctx)return;
+        ctx.filter='brightness(1.1) contrast(1.05) saturate(1.03)';
+        ctx.drawImage(v,0,0,full.width,full.height);
+        const data=full.toDataURL('image/jpeg',.88);
+        if(data.length>300&&(!best||score>best.score))best={score,data};
+      }catch{}
+    };
+    const finish=()=>{
+      if(best?.data){v.poster=best.data;v.dataset.posterReady='1'}
+      v.dataset.posterBusy='0';try{v.pause()}catch{}
+    };
+    const next=()=>{
+      if(idx>=candidates.length){finish();return}
+      const t=candidates[idx++];
+      try{
+        v.addEventListener('seeked',()=>{sample();setTimeout(next,15)},{once:true});
+        v.currentTime=t;
+      }catch{setTimeout(next,15)}
+    };
+    const begin=()=>{
+      const d=Number.isFinite(v.duration)&&v.duration>0?v.duration:0;
+      candidates=[
+        Math.min(d*.08||.35,2),
+        Math.min(d*.2||.8,4),
+        Math.min(d*.36||1.2,6),
+        Math.min(d*.52||1.8,9),
+        Math.min(d*.7||2.4,12)
+      ];
+      next();
+    };
+    if(v.readyState>=1)begin();else v.addEventListener('loadedmetadata',begin,{once:true});
+    try{v.load()}catch{}
+    setTimeout(()=>{if(v.dataset.posterBusy==='1'&&!best)finish()},5000);
+  })
+}
 function openNameModal(mode){nameMode=mode;$('#nameModalTitle').textContent=mode==='create'?'ألبوم جديد':'تعديل اسم الألبوم';$('#albumNameInput').value=mode==='rename'&&current?current.name:'';$('#nameModal').hidden=false;setTimeout(()=>$('#albumNameInput').focus(),20)}
 function closeNameModal(){$('#nameModal').hidden=true}
 function chooseFilesFor(id){currentFolder=id;const c=collections.find(x=>x.id===id);$('#picker').accept=c?.systemRole==='home_slideshow'?'image/*':c?.systemRole==='video_library'?'video/*':'image/*,video/*';$('#picker').click()}
@@ -91,6 +162,7 @@ function renderPendingFiles(){
   $('#selectedCount').textContent=pendingFiles.length+' ملف';
   $('#selectedGrid').innerHTML=pendingFiles.map((f,i)=>{const u=URL.createObjectURL(f);const media=f.type.startsWith('video/')?'<video src="'+u+'" muted playsinline></video>':'<img src="'+u+'" alt="">';return '<div class="selectedFile">'+media+'<button type="button" data-remove="'+i+'">×</button></div>'}).join('');
   $('#selectedGrid').querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{pendingFiles.splice(Number(b.dataset.remove),1);renderPendingFiles();if(!pendingFiles.length)closeSelection()});
+  primeManagerVideoThumbs($('#selectedGrid'));
 }
 function closeSelection(){pendingFiles=[];$('#selectionModal').hidden=true;$('#selectedGrid').innerHTML=''}
 $('#picker').addEventListener('change',()=>{pendingFiles=[...$('#picker').files];$('#picker').value='';if(!currentFolder||!pendingFiles.length)return;renderPendingFiles();$('#selectionModal').hidden=false});
@@ -150,6 +222,7 @@ function renderAlbums(){
   root.querySelectorAll('[data-upload]').forEach(b=>b.onclick=()=>chooseFilesFor(b.dataset.upload));
   root.querySelectorAll('[data-rename]').forEach(b=>b.onclick=()=>{current=collections.find(c=>c.id===b.dataset.rename);openNameModal('rename')});
   root.querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{const c=collections.find(x=>x.id===b.dataset.delete);if(!confirm('حذف الألبوم '+(c?.name||'بدون اسم')+' وكل الملفات داخله؟'))return;await api('/api/admin/collection?id='+encodeURIComponent(b.dataset.delete),{method:'DELETE'});await load()})
+  primeManagerVideoThumbs(root);
 }
 function openEditor(id){
   current=collections.find(c=>c.id===id);if(!current)return;
@@ -174,6 +247,8 @@ function openEditor(id){
   grid.querySelectorAll('.mediaCard').forEach(card=>card.onclick=e=>{if(e.target.closest('button'))return;const item=current.items.find(i=>i.id===card.dataset.preview);if(item)previewItem(item)});
   grid.querySelectorAll('[data-cover]').forEach(b=>b.onclick=async()=>{const id=current.id;await api('/api/admin/cover',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({collection:id,item:b.dataset.cover})});await load();openEditor(id)});
   grid.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(!confirm('حذف الملف؟'))return;const id=current.id;await api('/api/admin/item?collection='+encodeURIComponent(id)+'&item='+encodeURIComponent(b.dataset.del),{method:'DELETE'});await load();openEditor(id)})
+  primeManagerVideoThumbs(grid);
+  primeManagerVideoThumbs($('#coverBig'));
 }
 boot();
 </script>
