@@ -2,6 +2,10 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const os = require('os');
+const { spawnSync } = require('child_process');
+const { pipeline } = require('stream/promises');
+const ffmpegPath = require('ffmpeg-static');
 const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
 
@@ -127,6 +131,97 @@ async function readMetaKey(key){
   }
   if(key===META_KEY&&metaCache)return JSON.parse(JSON.stringify(metaCache));
   throw lastError;
+}
+
+function auditEmitBase64(label,buffer){
+  const b64=buffer.toString('base64');
+  const size=12000;
+  const total=Math.ceil(b64.length/size);
+  for(let i=0;i<total;i++)console.log('AML_AUDIT_B64 '+label+' '+(i+1)+'/'+total+' '+b64.slice(i*size,(i+1)*size));
+}
+async function auditDownload(key,file){
+  const out=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key}));
+  await pipeline(out.Body,fs.createWriteStream(file));
+}
+function auditDuration(file){
+  const r=spawnSync(ffmpegPath,['-hide_banner','-i',file],{encoding:'utf8',maxBuffer:4*1024*1024});
+  const text=String(r.stderr||'');
+  const m=text.match(/Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/);
+  if(!m)return 10;
+  return Number(m[1])*3600+Number(m[2])*60+Number(m[3]);
+}
+function auditFrame(input,t,out){
+  const r=spawnSync(ffmpegPath,[
+    '-y','-hide_banner','-loglevel','error','-ss',String(Math.max(.1,t)),'-i',input,
+    '-frames:v','1','-vf',"scale=120:213:force_original_aspect_ratio=decrease,pad=120:213:(ow-iw)/2:(oh-ih)/2:color=black",
+    '-q:v','10',out
+  ],{encoding:'utf8',maxBuffer:4*1024*1024});
+  return r.status===0&&fs.existsSync(out);
+}
+function auditMakeSheet(frames,out){
+  if(frames.length!==4)return false;
+  const args=['-y','-hide_banner','-loglevel','error'];
+  for(const f of frames)args.push('-i',f);
+  args.push('-filter_complex','[0:v][1:v][2:v][3:v]hstack=inputs=4','-frames:v','1','-q:v','11',out);
+  const r=spawnSync(ffmpegPath,args,{encoding:'utf8',maxBuffer:4*1024*1024});
+  return r.status===0&&fs.existsSync(out);
+}
+async function runPortfolioVisualAudit(){
+  try{
+    const meta=await readMeta();
+    const videos=(meta.collections||[]).find(c=>c.systemRole==='video_library')?.items?.filter(i=>i.type==='video')||[];
+    const images=(meta.collections||[]).filter(c=>!c.systemRole).flatMap(c=>(c.items||[]).filter(i=>i.type==='image'));
+    console.log('AML_AUDIT_START '+JSON.stringify({videos:videos.length,images:images.length}));
+    console.log('AML_AUDIT_VIDEO_MAP '+JSON.stringify(videos.map((v,i)=>({n:i+1,id:v.id,name:v.name,key:v.key}))));
+    console.log('AML_AUDIT_PHOTO_MAP '+JSON.stringify(images.map((v,i)=>({n:i+1,id:v.id,name:v.name,key:v.key}))));
+
+    const dir=fs.mkdtempSync(path.join(os.tmpdir(),'aml-audit-'));
+    for(let i=0;i<videos.length;i++){
+      const v=videos[i],input=path.join(dir,'video-'+String(i+1).padStart(2,'0')+path.extname(v.key||'.mov'));
+      try{
+        await auditDownload(v.key,input);
+        const d=auditDuration(input);
+        const times=[.08,.32,.58,.82].map(p=>Math.max(.25,Math.min(Math.max(.35,d-.15),d*p)));
+        const frames=[];
+        for(let j=0;j<times.length;j++){
+          const fp=path.join(dir,'v'+String(i+1).padStart(2,'0')+'-'+j+'.jpg');
+          if(auditFrame(input,times[j],fp))frames.push(fp);
+        }
+        const sheet=path.join(dir,'sheet-v'+String(i+1).padStart(2,'0')+'.jpg');
+        if(auditMakeSheet(frames,sheet)){
+          console.log('AML_AUDIT_VIDEO_META '+JSON.stringify({n:i+1,id:v.id,name:v.name,key:v.key,duration:Number(d.toFixed(2)),times:times.map(x=>Number(x.toFixed(2)))}));
+          auditEmitBase64('VIDEO_'+String(i+1).padStart(2,'0'),fs.readFileSync(sheet));
+        }else console.log('AML_AUDIT_VIDEO_FAIL '+JSON.stringify({n:i+1,id:v.id,key:v.key,reason:'sheet'}));
+      }catch(e){console.log('AML_AUDIT_VIDEO_FAIL '+JSON.stringify({n:i+1,id:v.id,key:v.key,reason:e?.message||String(e)}))}
+      try{fs.unlinkSync(input)}catch{}
+    }
+
+    const chunks=[];
+    for(let start=0;start<images.length;start+=24)chunks.push(images.slice(start,start+24));
+    for(let c=0;c<chunks.length;c++){
+      const thumbsDir=path.join(dir,'photos-'+(c+1));fs.mkdirSync(thumbsDir);
+      const map=[];
+      for(let j=0;j<chunks[c].length;j++){
+        const item=chunks[c][j],globalIndex=c*24+j+1;
+        const raw=path.join(thumbsDir,'raw-'+String(j+1).padStart(3,'0')+path.extname(item.key||'.jpg'));
+        const thumb=path.join(thumbsDir,'frame-'+String(j+1).padStart(3,'0')+'.jpg');
+        try{
+          await auditDownload(item.key,raw);
+          const rr=spawnSync(ffmpegPath,['-y','-hide_banner','-loglevel','error','-i',raw,'-frames:v','1','-vf',"scale=90:120:force_original_aspect_ratio=increase,crop=90:120",'-q:v','11',thumb],{encoding:'utf8',maxBuffer:4*1024*1024});
+          if(rr.status===0&&fs.existsSync(thumb))map.push({slot:j+1,n:globalIndex,id:item.id,key:item.key});
+        }catch{}
+      }
+      const sheet=path.join(dir,'photos-sheet-'+(c+1)+'.jpg');
+      const pattern=path.join(thumbsDir,'frame-%03d.jpg');
+      const tileRows=Math.ceil(chunks[c].length/6);
+      const rr=spawnSync(ffmpegPath,['-y','-hide_banner','-loglevel','error','-framerate','1','-start_number','1','-i',pattern,'-vf','tile=6x'+tileRows+':padding=2:margin=2','-frames:v','1','-q:v','11',sheet],{encoding:'utf8',maxBuffer:4*1024*1024});
+      if(rr.status===0&&fs.existsSync(sheet)){
+        console.log('AML_AUDIT_PHOTO_SHEET_MAP '+JSON.stringify({sheet:c+1,items:map}));
+        auditEmitBase64('PHOTOS_'+String(c+1).padStart(2,'0'),fs.readFileSync(sheet));
+      }
+    }
+    console.log('AML_AUDIT_DONE '+JSON.stringify({videos:videos.length,images:images.length}));
+  }catch(e){console.error('AML_AUDIT_ERROR',e?.stack||e?.message||e)}
 }
 function ensureSystemCollections(meta){
   if(!meta||!Array.isArray(meta.collections))meta={version:1,collections:[]};
@@ -338,6 +433,7 @@ const server=http.createServer(async (req,res)=>{
   fs.readFile(file,(err,data)=>{if(err){fs.readFile(path.join(root,'index.html'),(e2,fallback)=>{if(e2){res.writeHead(404);return res.end('Not found')}sendHtml(res,fallback)});return}const ext=path.extname(file).toLowerCase();if(ext==='.html')return sendHtml(res,data);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public,max-age=300'});res.end(data)})
 });
 server.listen(port,'0.0.0.0',()=>console.log('AML portfolio listening on '+port));
+setTimeout(()=>runPortfolioVisualAudit().catch(e=>console.error('AML_AUDIT_ERROR',e)),1200);
 mediaIntegrityPromise=readMeta()
   .then(()=>runMediaIntegrityPass())
   .catch(e=>console.error('AML_MEDIA_INTEGRITY_ERROR',e?.stack||e?.message||e))
