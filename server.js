@@ -187,8 +187,8 @@ async function runMediaIntegrityPass(){
 }
 async function restoreMissingFolders(){
   const meta=await readMeta();
-  if(meta.folderRecoveryVersion===4)return;
-  const backup=await readMetaKey('aml-suabhi/backups/pre-media-integrity-2026-10-06T03-03-33-004Z.json');
+  if(meta.folderRecoveryVersion===5)return;
+  const backup=await readMetaKey('aml-suabhi/backups/legacy-before-isolation-20261004.json');
   if(!backup){console.error('AML_FOLDER_RECOVERY backup not found');return}
   const existing=new Set((meta.collections||[]).map(c=>c.id));
   const missing=(backup.collections||[]).filter(c=>!c.systemRole&&!existing.has(c.id));
@@ -199,7 +199,7 @@ async function restoreMissingFolders(){
     console.log('AML_FOLDER_RECOVERY restored=0');
   }
   console.log('AML_FOLDER_STATE '+JSON.stringify({current:(meta.collections||[]).map(c=>({id:c.id,name:c.name||'',role:c.systemRole||null,count:(c.items||[]).length})),backup:(backup.collections||[]).map(c=>({id:c.id,name:c.name||'',role:c.systemRole||null,count:(c.items||[]).length}))}));
-  meta.folderRecoveryVersion=4;
+  meta.folderRecoveryVersion=5;
   await writeMeta(meta);
 }
 function logCurrentFolderState(){
