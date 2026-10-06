@@ -74,7 +74,7 @@ function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function mediaTag(item,opts={}){if(!item)return '<div class="emptyCover">لا توجد ملفات</div>';if(item.type==='video')return '<video src="'+item.url+'" '+(opts.controls?'controls':'muted playsinline preload="metadata"')+'></video>';return '<img src="'+item.url+'" alt="">'}
 function openNameModal(mode){nameMode=mode;$('#nameModalTitle').textContent=mode==='create'?'ألبوم جديد':'تعديل اسم الألبوم';$('#albumNameInput').value=mode==='rename'&&current?current.name:'';$('#nameModal').hidden=false;setTimeout(()=>$('#albumNameInput').focus(),20)}
 function closeNameModal(){$('#nameModal').hidden=true}
-function chooseFilesFor(id){currentFolder=id;const c=collections.find(x=>x.id===id);$('#picker').accept=c?.systemRole==='home_slideshow'?'image/*':'image/*,video/*';$('#picker').click()}
+function chooseFilesFor(id){currentFolder=id;const c=collections.find(x=>x.id===id);$('#picker').accept=c?.systemRole==='home_slideshow'?'image/*':c?.systemRole==='video_library'?'video/*':'image/*,video/*';$('#picker').click()}
 async function boot(){try{await api('/api/session');$('#loginView').hidden=true;$('#appView').hidden=false;await load()}catch(e){$('#loginView').hidden=false;$('#appView').hidden=true}}
 $('#loginForm').addEventListener('submit',async e=>{e.preventDefault();$('#loginErr').textContent='';try{await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('#user').value.trim().toLowerCase(),password:$('#pass').value})});await boot()}catch(e){$('#loginErr').textContent='بيانات الدخول غير صحيحة'}});
 $('#logoutBtn').onclick=async()=>{await fetch('/api/logout',{method:'POST'});location.reload()};
@@ -111,17 +111,20 @@ $('#confirmUpload').onclick=async()=>{
 };
 function previewItem(item){$('#previewLabel').textContent=item.name||'';$('#previewMedia').innerHTML=mediaTag(item,{controls:true});$('#previewOverlay').hidden=false}
 $('#previewClose').onclick=()=>{$('#previewOverlay').hidden=true;$('#previewMedia').querySelectorAll('video').forEach(v=>v.pause());$('#previewMedia').innerHTML=''};
-async function load(){const data=await api('/api/admin/collections');collections=data.collections||[];const workCollections=collections.filter(c=>!c.systemRole);let images=0,videos=0;workCollections.forEach(c=>c.items.forEach(i=>i.type==='video'?videos++:images++));$('#albumsStat').textContent=workCollections.length;$('#imagesStat').textContent=images;$('#videosStat').textContent=videos;renderAlbums()}
+async function load(){const data=await api('/api/admin/collections');collections=data.collections||[];const workCollections=collections.filter(c=>!c.systemRole);let images=0,videos=0;workCollections.forEach(c=>c.items.forEach(i=>i.type==='video'?videos++:images++));const videoLibrary=collections.find(c=>c.systemRole==='video_library');videos+=(videoLibrary?.items||[]).filter(i=>i.type==='video').length;$('#albumsStat').textContent=workCollections.length;$('#imagesStat').textContent=images;$('#videosStat').textContent=videos;renderAlbums()}
 function renderAlbums(){
   const root=$('#folders');
   root.innerHTML=collections.map(c=>{
-    const cover=c.cover||c.items[0],system=c.systemRole==='home_slideshow';
-    const title=system?'فيديو متحرك':(c.name||'بدون اسم');
-    const meta=system?'يتحكم مباشرة في الصور المتحركة بالصفحة الرئيسية':(c.items.length+' ملف');
-    const protectedBadge=system?'<span class="systemBadge">الرئيسية · ثابت</span>':'';
-    const extra=system?'<div class="systemHint">'+c.items.length+' صورة/ملف · الإضافة والحذف ينعكسان فورًا على البورتفوليو</div>':'';
+    const isHome=c.systemRole==='home_slideshow',isVideos=c.systemRole==='video_library',system=isHome||isVideos;
+    const cover=c.cover||c.items[0];
+    const title=isHome?'فيديو متحرك':isVideos?'فيديوهات':(c.name||'بدون اسم');
+    const meta=isHome?'صور الهيرو المتحركة في الصفحة الرئيسية':isVideos?'مكتبة فيديوهات تظهر فقط داخل فلتر الفيديوهات في الأعمال':(c.items.length+' ملف');
+    const protectedBadge=system?'<span class="systemBadge">'+(isHome?'الرئيسية · ثابت':'الأعمال · فيديوهات')+'</span>':'';
+    const extra=system?'<div class="systemHint">'+c.items.length+' ملف · '+(isHome?'صور فقط':'فيديو فقط')+'</div>':'';
     const standardActions=system?'':'<button class="btn small" data-rename="'+c.id+'">تسمية</button><button class="btn danger small" data-delete="'+c.id+'">حذف</button>';
-    return '<article class="albumCard '+(system?'systemAlbum':'')+'"><div class="albumCover">'+mediaTag(cover)+(cover?'<span class="coverBadge">'+(system?'صور متحركة':'الغلاف')+'</span>':'')+'</div><div class="albumBody">'+protectedBadge+'<div class="albumTitle">'+esc(title)+'</div><div class="albumMeta">'+meta+'</div>'+extra+'<div class="albumActions"><button class="btn dark small" data-open="'+c.id+'">فتح وإدارة</button><button class="btn small" data-upload="'+c.id+'">إضافة صور</button>'+standardActions+'</div></div></article>';
+    const addLabel=isHome?'إضافة صور':isVideos?'إضافة فيديو':'إضافة ملفات';
+    const badge=isHome?'صور متحركة':isVideos?'فيديوهات':'الغلاف';
+    return '<article class="albumCard '+(system?'systemAlbum':'')+'"><div class="albumCover">'+mediaTag(cover)+(cover?'<span class="coverBadge">'+badge+'</span>':'')+'</div><div class="albumBody">'+protectedBadge+'<div class="albumTitle">'+esc(title)+'</div><div class="albumMeta">'+meta+'</div>'+extra+'<div class="albumActions"><button class="btn dark small" data-open="'+c.id+'">فتح وإدارة</button><button class="btn small" data-upload="'+c.id+'">'+addLabel+'</button>'+standardActions+'</div></div></article>';
   }).join('');
   root.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openEditor(b.dataset.open));
   root.querySelectorAll('[data-upload]').forEach(b=>b.onclick=()=>chooseFilesFor(b.dataset.upload));
@@ -131,13 +134,15 @@ function renderAlbums(){
 function openEditor(id){
   current=collections.find(c=>c.id===id);if(!current)return;
   currentFolder=id;$('#albumsView').hidden=true;$('#editorView').hidden=false;
-  const system=current.systemRole==='home_slideshow';
-  $('#editorTitle').textContent=system?'فيديو متحرك':(current.name||'بدون اسم');
-  $('#editorMeta').textContent=system?('صور الصفحة الرئيسية · '+current.items.length+' ملف'):(current.items.length+' ملف');
+  const isHome=current.systemRole==='home_slideshow',isVideos=current.systemRole==='video_library',system=isHome||isVideos;
+  $('#editorTitle').textContent=isHome?'فيديو متحرك':isVideos?'فيديوهات':(current.name||'بدون اسم');
+  $('#editorMeta').textContent=isHome?('صور الصفحة الرئيسية · '+current.items.length+' ملف'):isVideos?('فيديوهات الأعمال · '+current.items.length+' فيديو'):(current.items.length+' ملف');
   $('#renameBtn').hidden=system;
-  $('#previewAlbumBtn').href=system?'/?view=home':('/?view=works&preview=1&album='+encodeURIComponent(current.id));
-  $('#previewAlbumBtn').textContent=system?'معاينة الرئيسية':'معاينة';
+  $('#previewAlbumBtn').href=isHome?'/?view=home':isVideos?'/?view=works&filter=videos':('/?view=works&preview=1&album='+encodeURIComponent(current.id));
+  $('#previewAlbumBtn').textContent=isHome?'معاينة الرئيسية':isVideos?'معاينة الفيديوهات':'معاينة';
+  $('#addFilesBtn').textContent=isHome?'+ إضافة صور':isVideos?'+ إضافة فيديو':'+ إضافة ملفات';
   $('#coverBig').innerHTML=mediaTag(current.cover||current.items.find(i=>i.type==='image')||current.items[0]);
+  $('.coverInfo').hidden=isVideos;
   const grid=$('#mediaGrid');
   grid.innerHTML=current.items.map(i=>{
     const isCover=current.cover&&current.cover.id===i.id;
