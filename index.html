@@ -479,18 +479,262 @@ body{background:
   .premiumTabs .tab{font-size:9px!important;padding:9px 5px!important}
   .footerSocials{grid-template-columns:1fr!important}
 }
+
+/* =========================================================
+   AML / AGENCY-GRADE VISUAL SYSTEM — verified structure
+   ========================================================= */
+:root{
+  --aml-ink:#17100f;
+  --aml-wine:#5a141c;
+  --aml-wine-deep:#2e090d;
+  --aml-gold:#d8ad6a;
+  --aml-ivory:#f8f1e8;
+  --aml-paper:#efe4d8;
+}
+
+/* Hard separation: header can never sit behind hero */
+.app{
+  height:100svh!important;
+  grid-template-rows:96px minmax(0,1fr)!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+.premiumTop{
+  position:relative!important;
+  z-index:9999!important;
+  width:100%!important;
+  height:96px!important;
+  margin:0!important;
+  padding:14px 18px!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:22px!important;
+  overflow:visible!important;
+  background:
+    linear-gradient(180deg,rgba(250,245,238,.98),rgba(246,238,229,.96))!important;
+  border-bottom:1px solid rgba(92,51,35,.12)!important;
+  box-shadow:0 8px 28px rgba(71,38,24,.06)!important;
+  backdrop-filter:blur(18px) saturate(1.1)!important;
+}
+.stage{position:relative!important;z-index:1!important;isolation:isolate!important;border-radius:0!important}
+.view{z-index:0!important}.view.active{z-index:1!important}
+.premiumHero{z-index:0!important}
+
+/* Brand */
+.premiumBrand{
+  grid-column:2!important;justify-self:end!important;display:grid!important;gap:5px!important;
+  text-align:right!important;direction:ltr!important
+}
+.premiumBrand .brandmark{
+  font:500 clamp(39px,4.8vw,58px)/.74 Georgia,"Times New Roman",serif!important;
+  letter-spacing:-.055em!important;color:var(--aml-ink)!important;
+}
+.premiumBrand .brandmeta{
+  font:700 7px/1 system-ui!important;letter-spacing:.37em!important;color:#8b6e5d!important;
+}
+
+/* Editorial nav: three independent controls, not one generic pill */
+.premiumTabs{
+  grid-column:1!important;justify-self:start!important;
+  width:min(100%,520px)!important;height:58px!important;
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;padding:0!important;
+  border:0!important;border-radius:0!important;background:transparent!important;
+  box-shadow:none!important;backdrop-filter:none!important;direction:rtl!important;
+}
+.premiumTabs .tab{
+  position:relative!important;isolation:isolate!important;
+  display:grid!important;grid-template-columns:auto 1fr!important;align-items:center!important;justify-items:center!important;
+  gap:7px!important;width:100%!important;min-width:0!important;
+  padding:0 13px!important;border:1px solid rgba(99,59,42,.13)!important;border-radius:16px!important;
+  background:rgba(255,255,255,.46)!important;color:#654a3f!important;
+  font:700 12px/1 system-ui!important;
+  box-shadow:0 8px 20px rgba(73,42,28,.045),inset 0 1px 0 rgba(255,255,255,.75)!important;
+  transition:transform .28s cubic-bezier(.2,.8,.2,1),background .28s ease,color .28s ease,box-shadow .28s ease!important;
+}
+.premiumTabs .tab small{
+  font:700 6px/1 system-ui!important;letter-spacing:.12em!important;color:#b58a63!important;
+  transform:rotate(-90deg);opacity:.72
+}
+.premiumTabs .tab:before{display:none!important}
+.premiumTabs .tab:after{
+  content:""!important;position:absolute!important;left:13px!important;right:13px!important;bottom:8px!important;
+  height:1px!important;background:linear-gradient(90deg,transparent,rgba(183,137,90,.55),transparent)!important;
+  opacity:0!important;transform:none!important;width:auto!important;border-radius:0!important;filter:none!important;
+  transition:opacity .28s ease!important;
+}
+.premiumTabs .tab.active{
+  color:#fff8ed!important;
+  background:linear-gradient(145deg,#761f2b,#54131b 60%,#350a10)!important;
+  border-color:rgba(216,173,106,.34)!important;
+  transform:translateY(-2px)!important;
+  box-shadow:0 16px 30px rgba(82,19,28,.19),inset 0 1px 0 rgba(255,255,255,.13)!important;
+}
+.premiumTabs .tab.active small{color:#e8c58c!important;opacity:1}
+.premiumTabs .tab.active:after{opacity:1!important}
+
+/* Hero — depth without a literal inner frame */
+#home{
+  background:
+    radial-gradient(circle at 12% 3%,rgba(220,177,108,.13),transparent 25%),
+    radial-gradient(circle at 91% 16%,rgba(90,20,28,.075),transparent 28%),
+    linear-gradient(180deg,#faf5ee 0%,#f0e4d8 58%,#f9f2ea 100%)!important;
+}
+.showcaseHome{background:transparent!important;padding:14px 0 38px!important}
+.premiumHero{
+  --heroLift:0px;--heroTilt:0deg;
+  width:min(calc(100% - 28px),1160px)!important;
+  height:min(78svh,820px)!important;min-height:600px!important;
+  margin:0 auto!important;border-radius:34px!important;overflow:visible!important;
+  background:#130c0b!important;
+  transform:perspective(1400px) translateY(calc(var(--heroLift) * -1)) rotateX(var(--heroTilt))!important;
+  transform-style:preserve-3d!important;transform-origin:50% 18%!important;
+  box-shadow:0 42px 94px rgba(54,27,18,.16)!important;
+}
+.premiumHero:before{
+  content:""!important;position:absolute!important;z-index:-2!important;
+  inset:18px -10px -18px 22px!important;border-radius:36px!important;
+  background:linear-gradient(135deg,rgba(109,39,31,.20),rgba(207,165,104,.20))!important;
+  filter:blur(.2px)!important;transform:translateZ(-25px) rotate(.45deg)!important;
+  box-shadow:0 28px 60px rgba(69,32,21,.12)!important;
+}
+.premiumHero:after{
+  content:""!important;position:absolute!important;z-index:-3!important;
+  inset:36px 18px -31px -13px!important;border-radius:39px!important;
+  background:rgba(255,255,255,.48)!important;border:1px solid rgba(107,66,45,.08)!important;
+  transform:translateZ(-48px) rotate(-.5deg)!important;
+  box-shadow:0 24px 56px rgba(69,32,21,.08)!important;
+}
+.premiumHero video{
+  position:absolute!important;inset:0!important;z-index:0!important;
+  width:100%!important;height:100%!important;border-radius:34px!important;
+  object-fit:cover!important;object-position:center 30%!important;
+  transform:scale(1.035) translateY(calc(var(--videoLift,0px) * -1))!important;
+  filter:saturate(.92) contrast(1.055) brightness(.90)!important;
+  clip-path:inset(0 round 34px)!important;
+}
+.motionHeroShade{
+  z-index:1!important;border-radius:34px!important;
+  background:
+    linear-gradient(90deg,rgba(18,9,8,.83) 0%,rgba(23,10,10,.58) 29%,rgba(20,10,9,.07) 58%,rgba(15,8,7,.13) 100%),
+    linear-gradient(180deg,rgba(11,7,6,.06),transparent 46%,rgba(18,8,8,.68) 100%)!important;
+}
+.heroGlassSheen{
+  z-index:2!important;border-radius:34px!important;
+  background:linear-gradient(115deg,transparent 0 37%,rgba(255,255,255,.085) 45%,transparent 54%)!important;
+  mix-blend-mode:soft-light!important;
+}
+.motionHeroTop{z-index:5!important;top:29px!important;left:31px!important;right:31px!important}
+.motionHeroCopy{
+  z-index:5!important;left:clamp(28px,6vw,74px)!important;right:auto!important;
+  bottom:clamp(44px,7.5vh,80px)!important;width:min(47%,510px)!important
+}
+.motionHeroCopy h1{
+  margin:15px 0 4px!important;
+  font:500 clamp(98px,13vw,170px)/.70 Georgia,"Times New Roman",serif!important;
+  letter-spacing:-.075em!important;color:#fff4e3!important;
+  text-shadow:0 16px 36px rgba(0,0,0,.20)!important
+}
+.heroEyebrow{font-size:8px!important;letter-spacing:.34em!important;color:#e6c489!important}
+.heroSub{font:500 clamp(18px,2vw,28px)/1 Georgia,"Times New Roman",serif!important;color:#ebd0a6!important}
+.heroArabic{
+  margin-top:18px!important;max-width:335px!important;color:rgba(255,245,232,.82)!important;
+  font-size:12px!important;line-height:1.85!important
+}
+.heroWatch{margin-top:20px!important}
+.heroWatchIcon{
+  width:62px!important;height:62px!important;
+  background:linear-gradient(145deg,#8d2d39,#4a0f17 70%,#28070b)!important;
+  border:1px solid rgba(235,196,133,.62)!important;
+  box-shadow:0 16px 36px rgba(42,8,12,.32),inset 0 1px 0 rgba(255,255,255,.15)!important;
+}
+.heroFloatPlate{
+  position:absolute;z-index:5;right:27px;bottom:84px;
+  width:150px;min-height:82px;padding:15px 16px;border-radius:18px;
+  display:grid;align-content:center;gap:5px;direction:ltr;text-align:left;
+  color:#fff;background:linear-gradient(145deg,rgba(30,17,15,.45),rgba(89,34,30,.24));
+  border:1px solid rgba(237,204,153,.22);
+  box-shadow:0 18px 38px rgba(20,7,7,.20),inset 0 1px 0 rgba(255,255,255,.12);
+  backdrop-filter:blur(16px) saturate(1.2);
+  transform:translateZ(35px)
+}
+.heroFloatPlate span{font:500 34px/.8 Georgia,serif;letter-spacing:-.05em}
+.heroFloatPlate small{font:700 6px/1.4 system-ui;letter-spacing:.18em;color:#e6c99f}
+.motionSound{right:25px!important;bottom:25px!important}
+.heroCorner,.heroDepthFrame{display:none!important}
+
+/* Cards: tasteful 3D, no gimmicky border */
+.homeVideoGrid{width:min(calc(100% - 28px),1160px)!important;gap:13px!important}
+.homeVideoCard{
+  border:0!important;border-radius:23px!important;overflow:hidden!important;
+  box-shadow:0 20px 46px rgba(67,35,24,.13)!important;
+  background:#1b100f!important;
+}
+.homeVideoCard:before{
+  content:"";position:absolute;z-index:4;inset:0;border-radius:inherit;pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.10),inset 0 -70px 80px rgba(20,8,8,.06)
+}
+.cardSheen{z-index:3!important}
+.homePlay{
+  background:linear-gradient(145deg,#7d2530,#430e15)!important;border-color:rgba(228,188,126,.54)!important;
+  box-shadow:0 12px 28px rgba(43,7,12,.26)!important
+}
+
+/* Section typography */
+.premiumSectionIntro h2,.homeSectionHead h2{
+  font-family:Georgia,"Times New Roman",serif!important;color:#481118!important;
+}
+.premiumSectionIntro:before,.homeSectionHead:before{content:"•"!important;color:#bb8a51!important}
+
+/* Mobile — prove header separation */
+@media(max-width:760px){
+  .app{grid-template-rows:92px minmax(0,1fr)!important}
+  .premiumTop{
+    height:92px!important;padding:12px 10px!important;gap:9px!important;
+    grid-template-columns:minmax(0,1fr) 78px!important;overflow:visible!important
+  }
+  .premiumBrand{width:78px!important}.premiumBrand .brandmark{font-size:35px!important}.premiumBrand .brandmeta{font-size:5.5px!important;letter-spacing:.17em!important}
+  .premiumTabs{height:54px!important;gap:5px!important}.premiumTabs .tab{padding:0 7px!important;border-radius:14px!important;font-size:10px!important;gap:3px!important}
+  .premiumTabs .tab small{font-size:5px!important}
+  .premiumHero{
+    width:calc(100% - 16px)!important;height:68svh!important;min-height:540px!important;
+    border-radius:28px!important;margin:0 auto!important
+  }
+  .premiumHero:before{inset:11px -5px -11px 13px!important;border-radius:30px!important}
+  .premiumHero:after{inset:21px 10px -20px -6px!important;border-radius:31px!important}
+  .premiumHero video,.motionHeroShade,.heroGlassSheen{border-radius:28px!important}
+  .premiumHero video{object-position:center 22%!important}
+  .motionHeroTop{top:18px!important;left:17px!important;right:17px!important}
+  .motionHeroCopy{left:18px!important;right:18px!important;bottom:20px!important;width:auto!important}
+  .motionHeroCopy h1{font-size:24vw!important;line-height:.72!important}
+  .heroArabic{max-width:250px!important;font-size:10.5px!important;line-height:1.65!important;margin-top:9px!important}
+  .heroWatch{margin-top:12px!important}.heroWatchIcon{width:50px!important;height:50px!important}
+  .heroFloatPlate{right:14px;bottom:80px;width:118px;min-height:66px;padding:12px;border-radius:15px}
+  .heroFloatPlate span{font-size:28px}.heroFloatPlate small{font-size:5px;letter-spacing:.12em}
+  .motionSound{right:13px!important;top:16px!important;bottom:auto!important}
+  .premiumSectionIntro,.homeSectionHead,.homeVideoGrid,.homePhotoShowcase,.homePortfolioCta,.homeFooter{width:calc(100% - 16px)!important}
+  .homeVideoGrid{gap:7px!important}
+  .homeVideoCard{aspect-ratio:4/5!important;border-radius:17px!important}
+}
+@media(max-width:390px){
+  .premiumTop{grid-template-columns:minmax(0,1fr) 66px!important}
+  .premiumBrand{width:66px!important}.premiumBrand .brandmark{font-size:31px!important}.premiumBrand .brandmeta{display:none!important}
+  .premiumTabs .tab{font-size:9px!important;padding:0 4px!important}.premiumTabs .tab small{display:none!important}
+  .heroFloatPlate{display:none!important}
+}
 </style>
 </head>
 <body>
 <div class="app">
 <header class="top premiumTop">
   <nav class="tabs premiumTabs" aria-label="Portfolio sections">
-    <button class="tab active" data-view="home"><span>الرئيسية</span></button>
-    <button class="tab" data-view="info"><span>معلومات</span></button>
-    <button class="tab" data-view="works"><span>الأعمال</span></button>
+    <button class="tab active" data-view="home"><small>01</small><span>الرئيسية</span></button>
+    <button class="tab" data-view="info"><small>02</small><span>معلومات</span></button>
+    <button class="tab" data-view="works"><small>03</small><span>الأعمال</span></button>
   </nav>
-  <div class="brand premiumBrand" aria-label="AMAL Model Portfolio">
-    <div class="brandmark">AMAL</div>
+  <div class="brand premiumBrand" aria-label="AML Model Portfolio">
+    <div class="brandmark">AML</div>
     <div class="brandmeta">MODEL&nbsp;&nbsp;PORTFOLIO</div>
   </div>
 </header>
@@ -498,7 +742,6 @@ body{background:
   <section class="view home active" id="home">
     <div class="showcaseHome">
       <section class="motionHero premiumHero" id="homeHero3D">
-        <div class="heroDepthFrame" aria-hidden="true"></div>
         <video id="homeFeatureVideo" muted loop playsinline preload="metadata"></video>
         <div class="motionHeroShade"></div>
         <div class="heroGlassSheen" aria-hidden="true"></div>
@@ -510,7 +753,7 @@ body{background:
 
         <div class="motionHeroCopy">
           <span class="heroEyebrow">MODEL · FASHION · BEAUTY</span>
-          <h1>AMAL</h1>
+          <h1>AML</h1>
           <p class="heroSub">Model · Riyadh</p>
           <p class="heroArabic">حضور أنيق، شخصية واضحة، وقصة تتحرك أمام العدسة.</p>
           <button class="heroWatch" id="homeHeroPlay" type="button">
@@ -519,11 +762,12 @@ body{background:
           </button>
         </div>
 
+        <div class="heroFloatPlate" aria-hidden="true">
+          <span>AML</span><small>MODEL PORTFOLIO · RIYADH</small>
+        </div>
         <button class="motionSound" id="homeFeatureSound" type="button" aria-label="تشغيل أو كتم الصوت">
           <span class="soundGlyph">◖)))</span><span class="soundText">تشغيل الصوت</span>
         </button>
-        <div class="heroCorner heroCornerA" aria-hidden="true"></div>
-        <div class="heroCorner heroCornerB" aria-hidden="true"></div>
       </section>
 
       <section class="motionIntro premiumSectionIntro">
@@ -551,7 +795,7 @@ body{background:
       </button>
 
       <footer class="homeFooter">
-        <div class="footerBrand"><b>AMAL</b><span>MODEL · RIYADH</span></div>
+        <div class="footerBrand"><b>AML</b><span>MODEL · RIYADH</span></div>
         <div class="footerSocials">
           <a class="footerSocial tiktokFooter" href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer">
             <span class="footerSocialIcon"><img src="https://cdn.simpleicons.org/tiktok/FFFFFF" alt="TikTok"></span>
@@ -603,7 +847,7 @@ body{background:
 
       <section class="aboutBand">
         <div class="aboutVisual"><img id="infoAboutImage" alt=""></div>
-        <div class="aboutCopy"><span>ABOUT AMAL</span><h2>نبذة</h2><p>عارضة أزياء ومقدمة محتوى في الرياض، متخصصة في الأزياء والجمال والمحتوى التجاري، ومتاحة للتصوير والحملات والتعاونات.</p><button id="infoWorksBtn" type="button">شاهد الأعمال</button></div>
+        <div class="aboutCopy"><span>ABOUT AML</span><h2>نبذة</h2><p>عارضة أزياء ومقدمة محتوى في الرياض، متخصصة في الأزياء والجمال والمحتوى التجاري، ومتاحة للتصوير والحملات والتعاونات.</p><button id="infoWorksBtn" type="button">شاهد الأعمال</button></div>
       </section>
     </div>
   </section>
@@ -612,13 +856,13 @@ body{background:
     <div class="worksEditorial">
       <section class="worksLead">
         <div class="worksLeadCopy">
-          <span>AMAL · MODEL · RIYADH</span>
+          <span>AML · MODEL · RIYADH</span>
           <h1>PORTFOLIO</h1>
           <div class="worksLeadRule"></div>
           <p class="worksTags">Fashion · Beauty · Editorial</p>
           <p class="worksDesc">مجموعة مختارة من أعمال أمل في عالم الأزياء والجمال والتصوير الإبداعي.</p>
         </div>
-        <div class="worksLeadImage"><img id="editorialHeroImage" alt="AMAL portfolio"></div>
+        <div class="worksLeadImage"><img id="editorialHeroImage" alt="AML portfolio"></div>
       </section>
 
       <section class="featuredVideo">
