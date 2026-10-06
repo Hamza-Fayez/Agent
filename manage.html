@@ -111,7 +111,27 @@ $('#confirmUpload').onclick=async()=>{
 };
 function previewItem(item){$('#previewLabel').textContent=item.name||'';$('#previewMedia').innerHTML=mediaTag(item,{controls:true});$('#previewOverlay').hidden=false}
 $('#previewClose').onclick=()=>{$('#previewOverlay').hidden=true;$('#previewMedia').querySelectorAll('video').forEach(v=>v.pause());$('#previewMedia').innerHTML=''};
-async function load(){const data=await api('/api/admin/collections');collections=data.collections||[];const workCollections=collections.filter(c=>!c.systemRole);let images=0,videos=0;workCollections.forEach(c=>c.items.forEach(i=>i.type==='video'?videos++:images++));const videoLibrary=collections.find(c=>c.systemRole==='video_library');videos+=(videoLibrary?.items||[]).filter(i=>i.type==='video').length;$('#albumsStat').textContent=workCollections.length;$('#imagesStat').textContent=images;$('#videosStat').textContent=videos;renderAlbums()}
+async function load(){
+  let data=null,lastError=null;
+  for(let attempt=0;attempt<4;attempt++){
+    try{data=await api('/api/admin/collections');break}catch(e){lastError=e;if(attempt<3)await new Promise(r=>setTimeout(r,700*(attempt+1)))}
+  }
+  if(!data){
+    if(!collections.length)$('#folders').innerHTML='<div class="empty">تعذر تحميل الملفات مؤقتًا. جاري المحاولة مرة أخرى...</div>';
+    setTimeout(load,2500);
+    throw lastError||new Error('Could not load collections');
+  }
+  collections=data.collections||[];
+  const workCollections=collections.filter(c=>!c.systemRole);
+  let images=0,videos=0;
+  workCollections.forEach(c=>c.items.forEach(i=>i.type==='video'?videos++:images++));
+  const videoLibrary=collections.find(c=>c.systemRole==='video_library');
+  videos+=(videoLibrary?.items||[]).filter(i=>i.type==='video').length;
+  $('#albumsStat').textContent=workCollections.length;
+  $('#imagesStat').textContent=images;
+  $('#videosStat').textContent=videos;
+  renderAlbums();
+}
 function renderAlbums(){
   const root=$('#folders');
   root.innerHTML=collections.map(c=>{
