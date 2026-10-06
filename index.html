@@ -144,6 +144,50 @@ html,body{max-width:100%;overflow-x:hidden}
 .videoFilterCard,.viewerItem.isVideo{background:linear-gradient(145deg,#2f1718,#130d0d)}
 .videoFilterCard .videoThumb,.viewerItem.isVideo .videoThumb{background:transparent}
 .videoFilterCard .videoThumb:not([poster]),.viewerItem.isVideo .videoThumb:not([poster]){opacity:.84}
+
+/* CURATED MOTION HOMEPAGE */
+#home{background:#f3eee7;overflow-x:hidden}
+.showcaseHome{min-height:100%;padding:0 0 22px;background:linear-gradient(180deg,#f6f1ea 0%,#f2ebe3 100%);color:#251615}
+.motionHero{position:relative;width:min(calc(100% - 24px),980px);height:min(78svh,760px);min-height:560px;margin:14px auto 0;border-radius:30px;overflow:hidden;background:#171311;box-shadow:0 24px 60px rgba(48,30,24,.10)}
+.motionHero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;background:#171311}
+.motionHeroShade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,10,9,.12) 0%,rgba(15,10,9,.02) 42%,rgba(15,8,8,.72) 100%)}
+.motionHeroTop{position:absolute;top:20px;left:22px;right:22px;display:flex;justify-content:space-between;gap:18px;color:#fff;font:600 9px/1.2 system-ui;letter-spacing:.22em;z-index:2}
+.motionHeroCopy{position:absolute;left:24px;right:24px;bottom:28px;color:#fff;direction:ltr;text-align:left;z-index:2}
+.motionHeroCopy>span{display:block;font:600 9px/1.2 system-ui;letter-spacing:.28em;opacity:.9}
+.motionHeroCopy h1{margin:11px 0 4px;font:500 clamp(78px,12vw,150px)/.76 Georgia,serif;letter-spacing:-.06em}
+.motionHeroCopy p{margin:0;font:500 12px/1.3 system-ui;letter-spacing:.11em;opacity:.86}
+.motionSound{position:absolute;right:20px;bottom:24px;z-index:3;border:1px solid rgba(255,255,255,.42);border-radius:999px;background:rgba(22,15,14,.45);backdrop-filter:blur(14px);color:#fff;padding:10px 14px;font:600 10px/1 system-ui}
+.motionIntro{width:min(calc(100% - 24px),980px);margin:28px auto 14px;display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:end;border-top:1px solid rgba(70,38,31,.17);padding-top:22px}
+.motionIntro span,.homeSectionHead span{font:600 9px/1 system-ui;letter-spacing:.25em;color:#8b6b5d}
+.motionIntro h2,.homeSectionHead h2{margin:7px 0 0;font:500 clamp(38px,5vw,62px)/.92 Georgia,serif;color:#421619}
+.motionIntro p,.homeSectionHead p{margin:0;color:#745f54;font-size:12px;line-height:1.8;max-width:340px}
+.homeVideoGrid{width:min(calc(100% - 24px),980px);margin:0 auto 34px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.homeVideoCard{position:relative;aspect-ratio:9/12;border:0;padding:0;border-radius:24px;overflow:hidden;background:#171311;cursor:pointer}
+.homeVideoCard:nth-child(1){aspect-ratio:9/13}.homeVideoCard:nth-child(2){margin-top:42px}.homeVideoCard:nth-child(3){margin-top:-34px}
+.homeVideoCard video{width:100%;height:100%;object-fit:cover;display:block;background:#171311}
+.homeVideoShade{position:absolute;inset:55% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.62));pointer-events:none}
+.homeVideoMeta{position:absolute;left:14px;right:14px;bottom:14px;z-index:2;color:#fff;display:flex;justify-content:space-between;align-items:end;gap:10px;text-align:left;direction:ltr}
+.homeVideoMeta span{display:grid;gap:4px}.homeVideoMeta b{font:600 10px/1 system-ui;letter-spacing:.16em}.homeVideoMeta small{font-size:9px;opacity:.72}
+.homePlay{width:42px;height:42px;flex:0 0 42px;border-radius:999px;background:#fff;color:#40181a;display:grid;place-items:center;font-size:14px;box-shadow:0 8px 22px rgba(0,0,0,.15)}
+.homePhotoShowcase{width:min(calc(100% - 24px),980px);margin:0 auto 28px}
+.homeSectionHead{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:end;margin-bottom:14px}
+.homePhotoGrid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-rows:130px;gap:9px}
+.homePhotoCard{position:relative;border:0;padding:0;border-radius:21px;overflow:hidden;background:#ddd2c7;cursor:pointer}
+.homePhotoCard img{width:100%;height:100%;object-fit:cover;display:block}
+.homePhotoCard:nth-child(1){grid-column:span 7;grid-row:span 4}.homePhotoCard:nth-child(2){grid-column:span 5;grid-row:span 3}.homePhotoCard:nth-child(3){grid-column:span 5;grid-row:span 3}.homePhotoCard:nth-child(4){grid-column:span 4;grid-row:span 3}.homePhotoCard:nth-child(5){grid-column:span 4;grid-row:span 3}.homePhotoCard:nth-child(6){grid-column:span 4;grid-row:span 3}
+.homePortfolioCta{width:min(calc(100% - 24px),980px);margin:0 auto 28px;border:0;border-radius:22px;background:#4b1518;color:#fff;min-height:88px;padding:18px 22px;display:grid;grid-template-columns:1fr auto;grid-template-areas:"eyebrow arrow" "title arrow";text-align:left;direction:ltr;align-items:center;cursor:pointer}
+.homePortfolioCta span{grid-area:eyebrow;font:600 8px/1 system-ui;letter-spacing:.26em;opacity:.66}.homePortfolioCta b{grid-area:title;font:500 23px/1.1 system-ui;direction:rtl}.homePortfolioCta i{grid-area:arrow;font:400 28px/1 system-ui;font-style:normal}
+.homeFooter{width:min(calc(100% - 24px),980px);margin:0 auto;padding:26px 22px;border-radius:26px;background:#171311;color:#fff;display:grid;grid-template-columns:1fr 1.25fr;gap:24px;align-items:center}
+.footerBrand{display:grid;gap:5px;direction:ltr}.footerBrand b{font:500 40px/.9 Georgia,serif;letter-spacing:.08em}.footerBrand span{font:600 8px/1 system-ui;letter-spacing:.24em;opacity:.55}
+.footerSocials{display:grid;grid-template-columns:1fr 1fr;gap:9px}.footerSocial{min-width:0;min-height:60px;border:1px solid rgba(255,255,255,.14);border-radius:18px;color:#fff;text-decoration:none;padding:9px 11px;display:flex;align-items:center;gap:10px;direction:ltr}.footerSocialIcon{width:36px;height:36px;flex:0 0 36px;border-radius:11px;display:grid;place-items:center}.footerSocialIcon img{width:20px;height:20px}.tiktokFooter .footerSocialIcon{background:#000}.whatsappFooter .footerSocialIcon{background:#25D366}.footerSocial>span:last-child{min-width:0;display:grid;gap:3px}.footerSocial b{font-size:11px}.footerSocial small{font-size:9px;opacity:.63;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:760px){
+  .motionHero{height:70svh;min-height:520px;border-radius:0;width:100%;margin-top:0}.motionHeroTop{top:18px;left:18px;right:18px}.motionHeroCopy{left:18px;right:18px;bottom:24px}.motionHeroCopy h1{font-size:22vw}.motionSound{right:16px;bottom:18px;padding:9px 11px}
+  .motionIntro,.homeSectionHead{grid-template-columns:1fr;gap:8px}.motionIntro{margin-top:23px}.motionIntro p,.homeSectionHead p{max-width:none}
+  .homeVideoGrid{gap:7px;margin-bottom:28px}.homeVideoCard{border-radius:17px}.homeVideoCard:nth-child(2){margin-top:28px}.homeVideoCard:nth-child(3){margin-top:-22px}.homeVideoMeta{left:10px;right:10px;bottom:10px}.homePlay{width:36px;height:36px;flex-basis:36px}
+  .homePhotoGrid{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:auto;gap:7px}.homePhotoCard,.homePhotoCard:nth-child(n){grid-column:auto;grid-row:auto;aspect-ratio:4/5;border-radius:16px}.homePhotoCard:first-child{grid-column:span 2;aspect-ratio:16/11}
+  .homePortfolioCta{min-height:82px;border-radius:18px;padding:16px 18px}.homeFooter{grid-template-columns:1fr;gap:18px;padding:22px 16px;border-radius:22px}.footerSocials{grid-template-columns:1fr 1fr}.footerBrand b{font-size:34px}
+}
+@media(max-width:390px){.footerSocials{grid-template-columns:1fr}.homeVideoMeta small{display:none}}
 </style>
 </head>
 <body>
@@ -159,67 +203,53 @@ html,body{max-width:100%;overflow-x:hidden}
 </header>
 <main class="stage">
   <section class="view home active" id="home">
-    <div class="luxHome">
-      <section class="homeHeroCard">
-        <div class="homeSlides">
-          <img id="homeHeroImage" class="homeSlide isVisible" alt="AMAL">
-          <img id="homeHeroImageNext" class="homeSlide" alt="">
-        </div>
-        <div class="homeHeroShade"></div>
-        <button class="homeShareBtn" id="homeShareBtn" type="button" aria-label="مشاركة">
-          <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M6 11H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>
-        </button>
-        <div class="homeHeroText">
-          <span>MODEL · RIYADH</span>
+    <div class="showcaseHome">
+      <section class="motionHero">
+        <video id="homeFeatureVideo" muted loop playsinline preload="metadata"></video>
+        <div class="motionHeroShade"></div>
+        <div class="motionHeroTop"><span>AMAL · MODEL</span><span>RIYADH · KSA</span></div>
+        <div class="motionHeroCopy">
+          <span>FASHION · BEAUTY · EDITORIAL</span>
           <h1>AMAL</h1>
-          <p>Fashion · Beauty · Editorial</p>
+          <p>Model Portfolio · Riyadh</p>
         </div>
+        <button class="motionSound" id="homeFeatureSound" type="button">تشغيل الصوت</button>
       </section>
 
-      <section class="homeProfilePanel">
-        <div class="profilePanelTop">
-          <span>AMAL / PROFILE</span>
-          <span>RIYADH · KSA</span>
-        </div>
-        <div class="homeIdentity">
-          <div class="homeAvatarWrap"><img id="homeAvatar" class="homeAvatar" alt="AMAL"></div>
-          <div><b>AMAL</b><span>Model · Riyadh</span></div>
-        </div>
-        <p class="homeBio">أمل، عارضة أزياء من الرياض، شغوفة بعالم الجمال والموضة وصناعة المحتوى الإبداعي.</p>
-        <div class="connectLabel">EXPLORE & CONNECT</div>
-        <div class="homeLinks">
-          <button class="homeLink" id="homeWorksBtn" type="button">
-            <span class="homeLinkIcon"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v5h5M10 13h6M10 17h6"/></svg></span>
-            <span class="homeLinkText"><b>ملف الأعمال</b><small>Portfolio</small></span>
-            <span class="homeArrow">‹</span>
-          </button>
-          <a class="homeLink" href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer">
-            <span class="homeLinkIcon brandIcon brandTikTok"><img src="https://cdn.simpleicons.org/tiktok/FFFFFF" alt="TikTok"></span>
-            <span class="homeLinkText"><b>تيك توك</b><small>@aml_suabhi</small></span>
-            <span class="homeArrow">‹</span>
-          </a>
-          <a class="homeLink" href="https://www.instagram.com/aml_suabhi?stkn=cTdmbGoxNTZndXNr" target="_blank" rel="noopener noreferrer">
-            <span class="homeLinkIcon brandIcon brandInstagram"><img src="https://cdn.simpleicons.org/instagram/FFFFFF" alt="Instagram"></span>
-            <span class="homeLinkText"><b>إنستجرام</b><small>@aml_suabhi</small></span>
-            <span class="homeArrow">‹</span>
-          </a>
-          <a class="homeLink" href="https://wa.me/966500730856" target="_blank" rel="noopener noreferrer" aria-label="واتساب">
-            <span class="homeLinkIcon brandIcon brandWhatsapp"><img src="https://cdn.simpleicons.org/whatsapp/FFFFFF" alt="WhatsApp"></span>
-            <span class="homeLinkText"><b>واتساب</b><small>Direct chat</small></span>
-            <span class="homeArrow">‹</span>
-          </a>
-          <a class="homeLink" href="https://snapchat.com/t/OtS0exp9" target="_blank" rel="noopener noreferrer">
-            <span class="homeLinkIcon brandIcon brandSnapchat"><img src="https://cdn.simpleicons.org/snapchat/000000" alt="Snapchat"></span>
-            <span class="homeLinkText"><b>سناب شات</b><small>Snapchat</small></span>
-            <span class="homeArrow">‹</span>
-          </a>
-        </div>
+      <section class="motionIntro">
+        <div><span>SELECTED MOTION</span><h2>حضور يتحرك.</h2></div>
+        <p>لقطات مختارة بعناية من الأزياء والجمال والإطلالات.</p>
       </section>
 
-      <section class="homePhotoPair">
-        <figure><img id="homeCollage1" alt=""><figcaption><b>EDITORIAL 01</b><span>Selected portrait</span></figcaption></figure>
-        <figure><img id="homeCollage2" alt=""><figcaption><b>EDITORIAL 02</b><span>Beauty study</span></figcaption></figure>
+      <section class="homeVideoGrid" id="homeVideoGrid" aria-label="فيديوهات مختارة"></section>
+
+      <section class="homePhotoShowcase">
+        <header class="homeSectionHead">
+          <div><span>SELECTED PORTRAITS</span><h2>صور مختارة</h2></div>
+          <p>مجموعة قصيرة تمثل تنوع الستايل والحضور أمام الكاميرا.</p>
+        </header>
+        <div class="homePhotoGrid" id="homePhotoGrid"></div>
       </section>
+
+      <button class="homePortfolioCta" id="homeWorksBtn" type="button">
+        <span>VIEW FULL PORTFOLIO</span>
+        <b>استعرض ملف الأعمال</b>
+        <i>←</i>
+      </button>
+
+      <footer class="homeFooter">
+        <div class="footerBrand"><b>AMAL</b><span>MODEL · RIYADH</span></div>
+        <div class="footerSocials">
+          <a class="footerSocial tiktokFooter" href="https://www.tiktok.com/@aml_suabhi" target="_blank" rel="noopener noreferrer">
+            <span class="footerSocialIcon"><img src="https://cdn.simpleicons.org/tiktok/FFFFFF" alt="TikTok"></span>
+            <span><b>TikTok</b><small>@aml_suabhi</small></span>
+          </a>
+          <a class="footerSocial whatsappFooter" href="https://wa.me/966500730856" target="_blank" rel="noopener noreferrer">
+            <span class="footerSocialIcon"><img src="https://cdn.simpleicons.org/whatsapp/FFFFFF" alt="WhatsApp"></span>
+            <span><b>WhatsApp</b><small dir="ltr">+966 50 073 0856</small></span>
+          </a>
+        </div>
+      </footer>
     </div>
   </section>
 
@@ -331,18 +361,16 @@ const portfolioClose=document.getElementById('portfolioClose');
 const worksFilterAlbums=document.getElementById('worksFilterAlbums');
 const worksFilterVideos=document.getElementById('worksFilterVideos');
 const videoGrid=document.getElementById('videoGrid');
-const homeAvatar=document.getElementById('homeAvatar');
-const homeHeroImage=document.getElementById('homeHeroImage');
-const homeHeroImageNext=document.getElementById('homeHeroImageNext');
-const homeCollage1=document.getElementById('homeCollage1');
-const homeCollage2=document.getElementById('homeCollage2');
+const homeFeatureVideo=document.getElementById('homeFeatureVideo');
+const homeFeatureSound=document.getElementById('homeFeatureSound');
+const homeVideoGrid=document.getElementById('homeVideoGrid');
+const homePhotoGrid=document.getElementById('homePhotoGrid');
 const infoHeroImage=document.getElementById('infoHeroImage');
 const infoThumb1=document.getElementById('infoThumb1');
 const infoThumb2=document.getElementById('infoThumb2');
 const infoThumb3=document.getElementById('infoThumb3');
 const infoAboutImage=document.getElementById('infoAboutImage');
 const homeWorksBtn=document.getElementById('homeWorksBtn');
-const homeShareBtn=document.getElementById('homeShareBtn');
 const editorialHeroImage=document.getElementById('editorialHeroImage');
 const editorialVideo=document.getElementById('editorialVideo');
 const editorialSound=document.getElementById('editorialSound');
@@ -454,6 +482,7 @@ function setView(tab){
   document.body.classList.toggle('portfolioSurfaceActive',active==='home'||active==='works'||active==='info');
   if(active!=='works'){worksArchive.hidden=true;collectionViewer.hidden=true;mediaLightbox.hidden=true;setOverlayState()}
   if(active==='works'&&editorialVideo){editorialVideo.muted=true;editorialVideo.play().catch(()=>{})}else if(editorialVideo)editorialVideo.pause();
+  if(active==='home'&&homeFeatureVideo){homeFeatureVideo.play().catch(()=>{})}else if(homeFeatureVideo)homeFeatureVideo.pause();
 }
 tabs.forEach(t=>t.addEventListener('click',()=>setView(t)));
 const initialView=new URLSearchParams(location.search).get('view');const initialTab=initialView?tabs.find(t=>t.dataset.view===initialView):tabs.find(t=>t.classList.contains('active'));if(initialTab)setView(initialTab);
@@ -461,7 +490,7 @@ const initialView=new URLSearchParams(location.search).get('view');const initial
 function goWorks(){const tab=tabs.find(t=>t.dataset.view==='works');if(tab)setView(tab)}
 homeWorksBtn?.addEventListener('click',goWorks);
 document.getElementById('infoWorksBtn')?.addEventListener('click',goWorks);
-homeShareBtn?.addEventListener('click',async()=>{try{if(navigator.share)await navigator.share({title:'AMAL',url:location.origin});else await navigator.clipboard.writeText(location.origin)}catch{}});
+homeFeatureSound?.addEventListener('click',()=>{if(!homeFeatureVideo)return;homeFeatureVideo.muted=!homeFeatureVideo.muted;homeFeatureVideo.play().catch(()=>{});homeFeatureSound.textContent=homeFeatureVideo.muted?'تشغيل الصوت':'كتم الصوت'});
 editorialSound?.addEventListener('click',()=>{if(!editorialVideo)return;editorialVideo.muted=!editorialVideo.muted;editorialVideo.play().catch(()=>{});editorialSound.textContent=editorialVideo.muted?'تشغيل الصوت':'كتم الصوت'});
 
 function renderVideoFilter(){
@@ -502,52 +531,52 @@ viewerClose?.addEventListener('click',closeCollection);lightboxClose?.addEventLi
 if(lightboxStage){lightboxStage.addEventListener('touchstart',e=>{touchStartX=e.changedTouches[0].clientX},{passive:true});lightboxStage.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-touchStartX;if(Math.abs(dx)>45)stepLightbox(dx>0?-1:1)},{passive:true})}
 document.addEventListener('keydown',e=>{if(!mediaLightbox.hidden){if(e.key==='ArrowRight')stepLightbox(1);if(e.key==='ArrowLeft')stepLightbox(-1);if(e.key==='Escape')closeLightbox()}else if(!collectionViewer.hidden&&e.key==='Escape')closeCollection();else if(!worksArchive.hidden&&e.key==='Escape')closePortfolio()});
 
+const HOME_HERO_VIDEO_ID='8551c648-35f2-46b0-9714-a61076acca0c';
+const HOME_VIDEO_IDS=['391c8279-02cf-43ee-9d33-abbc78624b0e','e78960b2-ebd2-47b3-b12f-ed3050a4efd4','fdd5e0d5-7d75-4cf6-8b23-dc121ad37f52','fa85172b-f3f5-4d70-a9ec-863d0778cf3f'];
+const HOME_PHOTO_IDS=['81fbf39c-2b0c-4d0e-a59f-0f4e5019c9fe','d4715c26-ced8-4a90-8ded-a704822e5f22','9ce07e64-1d0d-460f-9f94-0abd4dea8fb2','67affcb8-9e5c-4fc7-8f88-77cabe2d1f81','3a56b558-3687-4f87-8f63-332f6c29b67f','caa2fdcc-2629-4cd8-b148-a91553c53c1b'];
+
 function setEditorialImages(images){
   featuredImages=images;
   const pick=i=>images.length?images[i%images.length]:null;
   if(images.length){
-    homeAvatar.src=(pick(2)||pick(0)).url;
-    homeCollage1.src=(pick(2)||pick(0)).url;
-    homeCollage2.src=(pick(3)||pick(1)||pick(0)).url;
     infoHeroImage.src=(pick(1)||pick(3)||pick(0)).url;
-    infoThumb1.src=(pick(0)).url;
+    infoThumb1.src=pick(0).url;
     infoThumb2.src=(pick(2)||pick(0)).url;
     infoThumb3.src=(pick(3)||pick(0)).url;
     infoAboutImage.src=(pick(3)||pick(2)||pick(0)).url;
-    editorialHeroImage.src=(pick(0)).url;
+    editorialHeroImage.src=pick(0).url;
   }
   for(let i=0;i<4;i++){const el=document.getElementById('featuredImage'+i);const item=pick(i+1)||pick(0);if(el&&item){el.src=item.url;el.closest('button').hidden=false}else if(el)el.closest('button').hidden=true}
   document.querySelectorAll('[data-feature-index]').forEach(btn=>btn.onclick=()=>{const idx=Number(btn.dataset.featureIndex)+1;const item=pick(idx)||pick(0);if(!item)return;activeCollection={name:'',items:images};openLightbox(Math.max(0,images.indexOf(item)))});
 }
-function setHomeSlides(images){
-  if(window.__amlHeroTimer){clearInterval(window.__amlHeroTimer);window.__amlHeroTimer=null}
-  if(!images||!images.length){homeHeroImage.removeAttribute('src');homeHeroImageNext.removeAttribute('src');return}
-  let heroIndex=0,front=true;
-  homeHeroImage.src=images[0].url;
-  homeHeroImage.classList.add('isVisible');
-  homeHeroImageNext.classList.remove('isVisible');
-  homeHeroImageNext.src=(images[1]||images[0]).url;
-  if(images.length===1)return;
-  window.__amlHeroTimer=setInterval(()=>{
-    heroIndex=(heroIndex+1)%images.length;
-    const incoming=front?homeHeroImageNext:homeHeroImage;
-    const outgoing=front?homeHeroImage:homeHeroImageNext;
-    incoming.src=images[heroIndex].url;
-    incoming.classList.add('isVisible');
-    outgoing.classList.remove('isVisible');
-    front=!front;
-  },2800);
+
+function renderHomeShowcase(videos,images){
+  const allVideos=(videos||[]).filter(i=>i.type==='video');
+  const hero=allVideos.find(i=>i.id===HOME_HERO_VIDEO_ID)||allVideos[0];
+  if(hero&&homeFeatureVideo){homeFeatureVideo.src=hero.url;homeFeatureVideo.muted=true;homeFeatureVideo.load();if(document.getElementById('home')?.classList.contains('active'))homeFeatureVideo.play().catch(()=>{})}
+
+  const selectedVideos=[];
+  HOME_VIDEO_IDS.forEach(id=>{const item=allVideos.find(v=>v.id===id);if(item&&!selectedVideos.some(x=>x.id===item.id))selectedVideos.push(item)});
+  for(const item of allVideos){if(selectedVideos.length>=4)break;if(item.id!==hero?.id&&!selectedVideos.some(x=>x.id===item.id))selectedVideos.push(item)}
+  if(homeVideoGrid){
+    homeVideoGrid.innerHTML=selectedVideos.map((item,idx)=>'<button class="homeVideoCard" type="button" data-home-video="'+idx+'" aria-label="فتح الفيديو">'+mediaMarkup(item,'thumb')+'<span class="homeVideoShade"></span><span class="homeVideoMeta"><span><b>SELECTED '+String(idx+1).padStart(2,'0')+'</b><small>Fashion film</small></span><i class="homePlay">▶</i></span></button>').join('');
+    homeVideoGrid.querySelectorAll('[data-home-video]').forEach(btn=>btn.onclick=()=>{activeCollection={name:'Selected Motion',items:selectedVideos};openLightbox(Number(btn.dataset.homeVideo))});
+    primeVideoThumbs(homeVideoGrid);
+  }
+
+  const selectedPhotos=[];
+  HOME_PHOTO_IDS.forEach(id=>{const item=images.find(x=>x.id===id);if(item&&!selectedPhotos.some(x=>x.id===item.id))selectedPhotos.push(item)});
+  for(const item of images){if(selectedPhotos.length>=6)break;if(!selectedPhotos.some(x=>x.id===item.id))selectedPhotos.push(item)}
+  if(homePhotoGrid){
+    homePhotoGrid.innerHTML=selectedPhotos.map((item,idx)=>'<button class="homePhotoCard" type="button" data-home-photo="'+idx+'" aria-label="فتح الصورة"><img src="'+item.url+'" alt="" loading="'+(idx<2?'eager':'lazy')+'" decoding="async"></button>').join('');
+    homePhotoGrid.querySelectorAll('[data-home-photo]').forEach(btn=>btn.onclick=()=>{activeCollection={name:'Selected Portraits',items:selectedPhotos};openLightbox(Number(btn.dataset.homePhoto))});
+  }
 }
 
 async function loadWorks(){try{
-  const [worksRes,homeRes,videosRes]=await Promise.all([
-    fetch('/api/works',{cache:'no-store'}),
-    fetch('/api/home-slides',{cache:'no-store'}),
-    fetch('/api/videos',{cache:'no-store'})
-  ]);
+  const [worksRes,videosRes]=await Promise.all([fetch('/api/works',{cache:'no-store'}),fetch('/api/videos',{cache:'no-store'})]);
   if(!worksRes.ok)return;
   const data=await worksRes.json();
-  const homeData=homeRes.ok?await homeRes.json():{collection:null};
   const videosData=videosRes.ok?await videosRes.json():{collection:null};
   worksCollections=data.collections||[];
   videoCollection=videosData.collection||null;
@@ -555,9 +584,8 @@ async function loadWorks(){try{
   worksGrid.innerHTML=worksCollections.map((c,idx)=>'<button class="collectionCard" type="button" data-i="'+idx+'">'+(c.cover?mediaMarkup(c.cover,'cover'):'')+'<span class="collectionMeta"><b>'+htmlEsc(c.name)+'</b><span>'+c.items.length+' ملف</span></span></button>').join('');
   worksGrid.querySelectorAll('.collectionCard').forEach(b=>{const c=worksCollections[Number(b.dataset.i)];b.onclick=()=>openCollection(c)});
   const workImages=worksCollections.flatMap(c=>c.items).filter(i=>i.type==='image');
-  const homeImages=(homeData.collection?.items||[]).filter(i=>i.type==='image');
   setEditorialImages(workImages);
-  setHomeSlides(homeImages.length?homeImages:workImages);
+  renderHomeShowcase(videoCollection?.items||[],workImages);
   portfolioOpenBtn.disabled=!worksCollections.length&&!(videoCollection?.items||[]).length;
   const params=new URLSearchParams(location.search);
   if(params.get('view')==='works'&&params.get('filter')==='videos')openPortfolio('videos');
