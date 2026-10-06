@@ -152,7 +152,7 @@ function auditDuration(file){
 }
 function auditMakeVideoSheet(input,duration,out){
   const fps=Math.max(.05,4/Math.max(1,duration));
-  const vf="fps="+fps+",scale=120:213:force_original_aspect_ratio=decrease,pad=120:213:(ow-iw)/2:(oh-ih)/2:color=black,tile=4x1";
+  const vf="fps="+fps+",scale=120:213:force_original_aspect_ratio=increase,crop=120:213,setsar=1,tile=4x1";
   const r=spawnSync(ffmpegPath,['-y','-hide_banner','-loglevel','error','-i',input,'-vf',vf,'-frames:v','1','-q:v','10',out],{encoding:'utf8',maxBuffer:8*1024*1024});
   if(!(r.status===0&&fs.existsSync(out)))console.log('AML_AUDIT_FFMPEG_FAIL '+JSON.stringify({status:r.status,stderr:String(r.stderr||'').slice(-1800)}));
   return r.status===0&&fs.existsSync(out);
