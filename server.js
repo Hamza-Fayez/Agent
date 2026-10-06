@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, HeadObjectCommand } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
 
 const port = process.env.PORT || 3000;
@@ -88,6 +88,42 @@ async function readMeta(){
   console.log('AML_STORAGE_ISOLATED migrated='+String((legacy.collections||[]).length)+' quarantined=2');
   return ensured.meta;
 }
+async function recoveryAudit(){
+  try{
+    const current=await readMeta();
+    const backup=await readMetaKey('aml-suabhi/backups/legacy-before-isolation-20261004.json');
+    const summarize=c=>({id:c.id,name:c.name||'',systemRole:c.systemRole||null,itemCount:(c.items||[]).length,videos:(c.items||[]).filter(i=>i.type==='video').map(i=>({id:i.id,name:i.name,key:i.key}))});
+    const currentRows=(current.collections||[]).map(summarize);
+    const missing=[];
+    if(backup){
+      for(const bc of backup.collections||[]){
+        const cc=(current.collections||[]).find(c=>c.id===bc.id);
+        if(!cc){
+          const items=[];
+          for(const item of bc.items||[]){
+            let exists=false;
+            try{await s3.send(new HeadObjectCommand({Bucket:BUCKET,Key:item.key}));exists=true}catch{}
+            items.push({id:item.id,name:item.name,type:item.type,key:item.key,exists});
+          }
+          missing.push({collection:summarize(bc),items});
+        }else{
+          const currentIds=new Set((cc.items||[]).map(i=>i.id));
+          const removed=(bc.items||[]).filter(i=>!currentIds.has(i.id));
+          if(removed.length){
+            const items=[];
+            for(const item of removed){
+              let exists=false;
+              try{await s3.send(new HeadObjectCommand({Bucket:BUCKET,Key:item.key}));exists=true}catch{}
+              items.push({id:item.id,name:item.name,type:item.type,key:item.key,exists});
+            }
+            missing.push({collection:{id:bc.id,name:bc.name||'',systemRole:bc.systemRole||null,itemCount:(bc.items||[]).length},items});
+          }
+        }
+      }
+    }
+    console.log('AML_RECOVERY_AUDIT '+JSON.stringify({current:currentRows,missingFromBackup:missing,backupFound:!!backup}));
+  }catch(e){console.error('AML_RECOVERY_AUDIT_ERROR',e?.message||e)}
+}
 async function writeMeta(meta){await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:META_KEY,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}))}
 function publicCollection(c){
   const cover=(c.items.find(i=>i.id===c.cover)||c.items.find(i=>i.type==='image')||c.items[0]||null);
@@ -131,4 +167,4 @@ http.createServer(async (req,res)=>{
   if(pathname==='/manage'||pathname==='/manage/'){return fs.readFile(path.join(root,'manage.html'),(err,data)=>{if(err){res.writeHead(500);return res.end('Manager unavailable')}res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow'});res.end(data)})}
   let filePath=pathname==='/'?'/index.html':pathname;const file=path.join(root,filePath.replace(/^\/+/,''));if(!file.startsWith(root)){res.writeHead(403);return res.end('Forbidden')}
   fs.readFile(file,(err,data)=>{if(err){fs.readFile(path.join(root,'index.html'),(e2,fallback)=>{if(e2){res.writeHead(404);return res.end('Not found')}sendHtml(res,fallback)});return}const ext=path.extname(file).toLowerCase();if(ext==='.html')return sendHtml(res,data);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public,max-age=300'});res.end(data)})
-}).listen(port,'0.0.0.0',()=>{console.log('AML portfolio listening on '+port);readMeta().catch(e=>console.error('AML_STORAGE_INIT_ERROR',e?.message||e))});
+}).listen(port,'0.0.0.0',()=>{console.log('AML portfolio listening on '+port);readMeta().then(()=>recoveryAudit()).catch(e=>console.error('AML_STORAGE_INIT_ERROR',e?.message||e))});
