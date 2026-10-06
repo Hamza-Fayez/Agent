@@ -137,8 +137,8 @@ async function readMeta(){
 }
 async function runMediaIntegrityPass(){
   const meta=await readMeta();
-  if(meta.mediaIntegrityVersion===4){
-    console.log('AML_MEDIA_INTEGRITY_SKIP version=4');
+  if(meta.mediaIntegrityVersion===5){
+    console.log('AML_MEDIA_INTEGRITY_SKIP version=5');
     return;
   }
   const backupKey='aml-suabhi/backups/pre-media-integrity-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
@@ -180,7 +180,7 @@ async function runMediaIntegrityPass(){
     }
   }
 
-  meta.mediaIntegrityVersion=4;
+  meta.mediaIntegrityVersion=5;
   meta.mediaIntegrityAt=new Date().toISOString();
   await writeMeta(meta);
   console.log('AML_MEDIA_INTEGRITY_DONE '+JSON.stringify({backupKey,hashed,duplicates,missing,coversFixed,duplicateRows}));
