@@ -17,6 +17,10 @@ const VIDEO_MEDIA_PREFIX = 'aml-suabhi/video-library/';
 const MAX_UPLOAD = 300 * 1024 * 1024;
 let mediaIntegrityPromise=null;
 let metaCache=null;
+const imageMediaCache=new Map();
+const imageMediaInflight=new Map();
+let imageMediaCacheBytes=0;
+const IMAGE_CACHE_MAX_BYTES=64*1024*1024;
 const s3 = new S3Client({
   region: process.env.AWS_DEFAULT_REGION || 'auto',
   endpoint: process.env.AWS_ENDPOINT_URL,
@@ -56,6 +60,56 @@ function safeName(s){return String(s||'').trim().replace(/[<>:"/\\|?*\x00-\x1F]/
 function slug(s){return safeName(s).toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'collection'}
 function extOf(name,type){const e=path.extname(name||'').toLowerCase().replace(/[^.a-z0-9]/g,'');if(e&&e.length<=8)return e;return type.startsWith('video/')?'.mp4':'.jpg'}
 async function streamToBuffer(stream){const chunks=[];for await(const c of stream)chunks.push(Buffer.from(c));return Buffer.concat(chunks)}
+function isImageMediaKey(key){return /\.(?:jpe?g|png|webp|gif|avif)$/i.test(key)}
+function imageTypeFromKey(key){
+  const ext=path.extname(key).toLowerCase();
+  return types[ext]||'application/octet-stream';
+}
+function rememberImageMedia(key,entry){
+  if(entry.buffer.length>8*1024*1024)return;
+  if(imageMediaCache.has(key)){
+    imageMediaCacheBytes-=imageMediaCache.get(key).buffer.length;
+    imageMediaCache.delete(key);
+  }
+  imageMediaCache.set(key,entry);
+  imageMediaCacheBytes+=entry.buffer.length;
+  while(imageMediaCacheBytes>IMAGE_CACHE_MAX_BYTES&&imageMediaCache.size){
+    const oldest=imageMediaCache.keys().next().value;
+    const value=imageMediaCache.get(oldest);
+    imageMediaCache.delete(oldest);
+    imageMediaCacheBytes-=value.buffer.length;
+  }
+}
+async function getCachedImageMedia(key){
+  const hit=imageMediaCache.get(key);
+  if(hit){
+    imageMediaCache.delete(key);
+    imageMediaCache.set(key,hit);
+    return hit;
+  }
+  if(imageMediaInflight.has(key))return imageMediaInflight.get(key);
+  const work=(async()=>{
+    let lastError;
+    for(let attempt=0;attempt<3;attempt++){
+      try{
+        const signal=AbortSignal.timeout(5000);
+        const out=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key}),{abortSignal:signal});
+        const buffer=await streamToBuffer(out.Body);
+        const entry={buffer,type:out.ContentType||imageTypeFromKey(key)};
+        rememberImageMedia(key,entry);
+        return entry;
+      }catch(e){
+        lastError=e;
+        if(e.name==='NoSuchKey'||e.$metadata?.httpStatusCode===404)throw e;
+        if(attempt<2)await new Promise(r=>setTimeout(r,200*(attempt+1)));
+      }
+    }
+    throw lastError;
+  })().finally(()=>imageMediaInflight.delete(key));
+  imageMediaInflight.set(key,work);
+  return work;
+}
+
 async function readMetaKey(key){
   let lastError;
   for(let attempt=0;attempt<3;attempt++){
@@ -226,7 +280,29 @@ async function handleApi(req,res,pathname,url){
   if(pathname==='/api/works'&&req.method==='GET'){try{return json(res,200,publicMeta(await readMeta(),{includeSystem:false}))}catch(e){console.error(e);return json(res,500,{error:'Could not load works'})}}
   if(pathname==='/api/home-slides'&&req.method==='GET'){try{const meta=await readMeta();const c=meta.collections.find(x=>x.systemRole==='home_slideshow');return json(res,200,{collection:c?publicCollection(c):null})}catch(e){console.error(e);return json(res,500,{error:'Could not load home slides'})}}
   if(pathname==='/api/videos'&&req.method==='GET'){try{const meta=await readMeta();const c=meta.collections.find(x=>x.systemRole==='video_library');const out=c?publicCollection({...c,items:(c.items||[]).filter(i=>i.type==='video')}):null;return json(res,200,{collection:out})}catch(e){console.error(e);return json(res,500,{error:'Could not load videos'})}}
-  if(pathname.startsWith('/media/')&&req.method==='GET'){try{const key=decodeURIComponent(pathname.slice(7));const out=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key,Range:req.headers.range}));const headers={'Content-Type':out.ContentType||'application/octet-stream','Cache-Control':'public,max-age=3600','Accept-Ranges':'bytes'};if(out.ContentLength!=null)headers['Content-Length']=String(out.ContentLength);if(out.ContentRange)headers['Content-Range']=out.ContentRange;res.writeHead(out.ContentRange?206:200,headers);return out.Body.pipe(res)}catch(e){return json(res,404,{error:'Not found'})}
+  if(pathname.startsWith('/media/')&&req.method==='GET'){
+    try{
+      const key=decodeURIComponent(pathname.slice(7));
+      if(isImageMediaKey(key)&&!req.headers.range){
+        const entry=await getCachedImageMedia(key);
+        res.writeHead(200,{
+          'Content-Type':entry.type,
+          'Content-Length':String(entry.buffer.length),
+          'Cache-Control':'public,max-age=86400,stale-while-revalidate=604800'
+        });
+        return res.end(entry.buffer);
+      }
+      const signal=AbortSignal.timeout(12000);
+      const out=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key,Range:req.headers.range}),{abortSignal:signal});
+      const headers={'Content-Type':out.ContentType||'application/octet-stream','Cache-Control':'public,max-age=3600','Accept-Ranges':'bytes'};
+      if(out.ContentLength!=null)headers['Content-Length']=String(out.ContentLength);
+      if(out.ContentRange)headers['Content-Range']=out.ContentRange;
+      res.writeHead(out.ContentRange?206:200,headers);
+      return out.Body.pipe(res)
+    }catch(e){
+      if(e.name==='TimeoutError'||e.name==='AbortError')return json(res,504,{error:'Media temporarily unavailable'});
+      return json(res,404,{error:'Not found'})
+    }
   }
   if(!pathname.startsWith('/api/admin/'))return false;
   if(!requireAuth(req,res))return true;
