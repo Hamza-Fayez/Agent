@@ -135,6 +135,10 @@ html,body{max-width:100%;overflow-x:hidden}
 
 .videoFilterCard .videoThumb,.viewerItem .videoThumb{background:#161412}
 .videoFilterCard .videoThumb[poster],.viewerItem .videoThumb[poster]{background:#161412}
+
+/* clearer video covers */
+.videoFilterCard .videoThumb,.viewerItem .videoThumb{filter:brightness(1.08) contrast(1.03)}
+.videoFilterCard:after{background:linear-gradient(transparent 78%,rgba(0,0,0,.34))}
 </style>
 </head>
 <body>
@@ -377,7 +381,7 @@ function primeVideoThumbs(root=document){
         canvas.height=Math.max(1,Math.round(v.videoHeight*scale));
         const ctx=canvas.getContext('2d');
         if(!ctx)return false;
-        ctx.drawImage(v,0,0,canvas.width,canvas.height);
+        ctx.filter='brightness(1.16) contrast(1.06) saturate(1.03)';ctx.drawImage(v,0,0,canvas.width,canvas.height);
         const poster=canvas.toDataURL('image/jpeg',.82);
         if(poster&&poster.length>200){
           v.poster=poster;
@@ -390,7 +394,7 @@ function primeVideoThumbs(root=document){
     };
 
     const seekAndCapture=()=>{
-      const target=Number.isFinite(v.duration)&&v.duration>0?Math.min(.35,Math.max(.08,v.duration*.03)):.15;
+      const target=Number.isFinite(v.duration)&&v.duration>0?Math.min(1.4,Math.max(.45,v.duration*.12)):.65;
       try{
         if(Math.abs((v.currentTime||0)-target)>.03){
           const onSeeked=()=>{capture();v.pause();v.dataset.posterBusy='0'};
