@@ -16,6 +16,7 @@ const HOME_MEDIA_PREFIX = 'aml-suabhi/home-slideshow/';
 const VIDEO_MEDIA_PREFIX = 'aml-suabhi/video-library/';
 const MAX_UPLOAD = 300 * 1024 * 1024;
 let mediaIntegrityPromise=null;
+let metaCache=null;
 const s3 = new S3Client({
   region: process.env.AWS_DEFAULT_REGION || 'auto',
   endpoint: process.env.AWS_ENDPOINT_URL,
@@ -55,7 +56,24 @@ function safeName(s){return String(s||'').trim().replace(/[<>:"/\\|?*\x00-\x1F]/
 function slug(s){return safeName(s).toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'collection'}
 function extOf(name,type){const e=path.extname(name||'').toLowerCase().replace(/[^.a-z0-9]/g,'');if(e&&e.length<=8)return e;return type.startsWith('video/')?'.mp4':'.jpg'}
 async function streamToBuffer(stream){const chunks=[];for await(const c of stream)chunks.push(Buffer.from(c));return Buffer.concat(chunks)}
-async function readMetaKey(key){try{const o=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key}));return JSON.parse((await streamToBuffer(o.Body)).toString('utf8'))}catch(e){if(e.name==='NoSuchKey'||e.$metadata?.httpStatusCode===404)return null;throw e}}
+async function readMetaKey(key){
+  let lastError;
+  for(let attempt=0;attempt<3;attempt++){
+    try{
+      const signal=AbortSignal.timeout(4000);
+      const o=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:key}),{abortSignal:signal});
+      const parsed=JSON.parse((await streamToBuffer(o.Body)).toString('utf8'));
+      if(key===META_KEY)metaCache=parsed;
+      return parsed;
+    }catch(e){
+      if(e.name==='NoSuchKey'||e.$metadata?.httpStatusCode===404)return null;
+      lastError=e;
+      if(attempt<2)await new Promise(r=>setTimeout(r,250*(attempt+1)));
+    }
+  }
+  if(key===META_KEY&&metaCache)return JSON.parse(JSON.stringify(metaCache));
+  throw lastError;
+}
 function ensureSystemCollections(meta){
   if(!meta||!Array.isArray(meta.collections))meta={version:1,collections:[]};
   let changed=false;
@@ -115,6 +133,7 @@ function ensureSystemCollections(meta){
   return {meta,changed};
 }
 async function readMeta(){
+  if(metaCache)return JSON.parse(JSON.stringify(metaCache));
   const scoped=await readMetaKey(META_KEY);
   if(scoped){
     const ensured=ensureSystemCollections(scoped);
@@ -185,27 +204,8 @@ async function runMediaIntegrityPass(){
   await writeMeta(meta);
   console.log('AML_MEDIA_INTEGRITY_DONE '+JSON.stringify({backupKey,hashed,duplicates,missing,coversFixed,duplicateRows}));
 }
-async function restoreMissingFolders(){
-  const meta=await readMeta();
-  if(meta.folderRecoveryVersion===5)return;
-  const backup=await readMetaKey('aml-suabhi/backups/legacy-before-isolation-20261004.json');
-  if(!backup){console.error('AML_FOLDER_RECOVERY backup not found');return}
-  const existing=new Set((meta.collections||[]).map(c=>c.id));
-  const missing=(backup.collections||[]).filter(c=>!c.systemRole&&!existing.has(c.id));
-  if(missing.length){
-    meta.collections.push(...missing);
-    console.log('AML_FOLDER_RECOVERY restored='+missing.length);
-  }else{
-    console.log('AML_FOLDER_RECOVERY restored=0');
-  }
-  console.log('AML_FOLDER_STATE '+JSON.stringify({current:(meta.collections||[]).map(c=>({id:c.id,name:c.name||'',role:c.systemRole||null,count:(c.items||[]).length})),backup:(backup.collections||[]).map(c=>({id:c.id,name:c.name||'',role:c.systemRole||null,count:(c.items||[]).length}))}));
-  meta.folderRecoveryVersion=5;
-  await writeMeta(meta);
-}
-function logCurrentFolderState(){
-  readMeta().then(meta=>console.log('AML_CURRENT_FOLDER_STATE '+JSON.stringify((meta.collections||[]).map(c=>({id:c.id,name:c.name||'',role:c.systemRole||null,count:(c.items||[]).length}))))).catch(e=>console.error('AML_CURRENT_FOLDER_STATE_ERROR',e?.message||e))
-}
-async function writeMeta(meta){await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:META_KEY,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}))}
+
+async function writeMeta(meta){await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:META_KEY,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}));metaCache=JSON.parse(JSON.stringify(meta))}
 function publicCollection(c){
   const cover=(c.items.find(i=>i.id===c.cover)||c.items.find(i=>i.type==='image')||c.items[0]||null);
   return {
@@ -261,9 +261,8 @@ const server=http.createServer(async (req,res)=>{
   let filePath=pathname==='/'?'/index.html':pathname;const file=path.join(root,filePath.replace(/^\/+/,''));if(!file.startsWith(root)){res.writeHead(403);return res.end('Forbidden')}
   fs.readFile(file,(err,data)=>{if(err){fs.readFile(path.join(root,'index.html'),(e2,fallback)=>{if(e2){res.writeHead(404);return res.end('Not found')}sendHtml(res,fallback)});return}const ext=path.extname(file).toLowerCase();if(ext==='.html')return sendHtml(res,data);res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public,max-age=300'});res.end(data)})
 });
-server.listen(port,'0.0.0.0',()=>{console.log('AML portfolio listening on '+port);logCurrentFolderState()});
+server.listen(port,'0.0.0.0',()=>console.log('AML portfolio listening on '+port));
 mediaIntegrityPromise=readMeta()
-  .then(()=>restoreMissingFolders())
   .then(()=>runMediaIntegrityPass())
   .catch(e=>console.error('AML_MEDIA_INTEGRITY_ERROR',e?.stack||e?.message||e))
   .finally(()=>{mediaIntegrityPromise=null});
