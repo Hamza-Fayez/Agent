@@ -208,40 +208,30 @@ function ensureSystemCollections(meta){
     if(onlyVideos.length!==(videos.items||[]).length){videos.items=onlyVideos;changed=true}
   }
 
-  // Keep videos in their original work folders. The video library is only an aggregate view.
-  const regularCollections=meta.collections.filter(c=>!c.systemRole);
-  const byPrefix=new Map(regularCollections.map(c=>[MEDIA_PREFIX+c.id+'/',c]));
-  let restoredVideos=0;
-  for(const item of [...(videos.items||[])]){
-    if(item.type!=='video'||!item.key)continue;
-    const owner=[...byPrefix.entries()].find(([prefix])=>item.key.startsWith(prefix))?.[1];
-    if(owner&&!owner.items?.some(i=>i.id===item.id)){
-      owner.items=owner.items||[];
-      owner.items.push({...item,shared:false,sourceCollectionId:undefined});
-      restoredVideos++;
-      changed=true;
-    }
-  }
-
-  const directLibraryVideos=(videos.items||[]).filter(item=>item.type==='video'&&String(item.key||'').startsWith(VIDEO_MEDIA_PREFIX));
-  const aggregate=[];
-  const seenVideoIds=new Set();
-  for(const item of directLibraryVideos){
-    aggregate.push(item);
-    seenVideoIds.add(item.id);
-  }
-  for(const c of regularCollections){
+  // Keep all video content in the dedicated video library.
+  const existingVideoIds=new Set((videos.items||[]).map(i=>i.id));
+  let movedVideos=0;
+  for(const c of meta.collections){
+    if(c.systemRole)continue;
+    const kept=[];
     for(const item of c.items||[]){
-      if(item.type!=='video'||seenVideoIds.has(item.id))continue;
-      aggregate.push({...item,shared:true,sourceCollectionId:c.id});
-      seenVideoIds.add(item.id);
+      if(item.type==='video'){
+        if(!existingVideoIds.has(item.id)){
+          videos.items.push(item);
+          existingVideoIds.add(item.id);
+        }
+        movedVideos++;
+        changed=true;
+      }else{
+        kept.push(item);
+      }
+    }
+    if(kept.length!==(c.items||[]).length){
+      c.items=kept;
+      if(c.cover&&!kept.some(i=>i.id===c.cover))c.cover=(kept.find(i=>i.type==='image')||{}).id||null;
     }
   }
-  if(JSON.stringify(aggregate)!==JSON.stringify(videos.items||[])){
-    videos.items=aggregate;
-    changed=true;
-  }
-  if(restoredVideos)console.log('AML_VIDEO_FOLDERS_RESTORED '+restoredVideos);
+  if(movedVideos)console.log('AML_VIDEO_LIBRARY_MOVED '+movedVideos);
 
   return {meta,changed};
 }
