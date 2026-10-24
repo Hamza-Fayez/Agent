@@ -510,31 +510,6 @@ function ensureSystemCollections(meta){
     if(onlyVideos.length!==(videos.items||[]).length){videos.items=onlyVideos;changed=true}
   }
 
-  // Keep all video content in the dedicated video library.
-  const existingVideoIds=new Set((videos.items||[]).map(i=>i.id));
-  let movedVideos=0;
-  for(const c of meta.collections){
-    if(c.systemRole)continue;
-    const kept=[];
-    for(const item of c.items||[]){
-      if(item.type==='video'){
-        if(!existingVideoIds.has(item.id)){
-          videos.items.push(item);
-          existingVideoIds.add(item.id);
-        }
-        movedVideos++;
-        changed=true;
-      }else{
-        kept.push(item);
-      }
-    }
-    if(kept.length!==(c.items||[]).length){
-      c.items=kept;
-      if(c.cover&&!kept.some(i=>i.id===c.cover))c.cover=(kept.find(i=>i.type==='image')||{}).id||null;
-    }
-  }
-  if(movedVideos)console.log('AML_VIDEO_LIBRARY_MOVED '+movedVideos);
-
   return {meta,changed};
 }
 async function readMeta(){
@@ -678,6 +653,36 @@ async function handleApi(req,res,pathname,url){
 }
 async function handleAdmin(req,res,pathname,url){
   try{
+    if(pathname==='/api/admin/move'&&req.method==='POST'){
+      const b=await readJson(req);
+      const ids=Array.isArray(b.itemIds)?b.itemIds:[];
+      if(!ids.length||ids.length>100||ids.some(id=>typeof id!=='string')||new Set(ids).size!==ids.length)
+        return json(res,400,{error:'Provide 1–100 distinct item IDs'});
+      const meta=await readMeta();
+      const from=meta.collections.find(c=>c.id===b.sourceCollection);
+      const to=meta.collections.find(c=>c.id===b.destinationCollection);
+      if(!from||!to)return json(res,404,{error:'Folder not found'});
+      if(from===to||from.systemRole==='home_slideshow'||to.systemRole)
+        return json(res,400,{error:'Choose a different work album'});
+      const selected=new Set(ids);
+      const moving=from.items.filter(i=>selected.has(i.id));
+      if(ids.some(id=>!from.items.some(i=>i.id===id)&&!to.items.some(i=>i.id===id)))
+        return json(res,409,{error:'Items changed; refresh and try again'});
+      if(moving.some(i=>i.shared||to.items.some(t=>t.id===i.id)))
+        return json(res,409,{error:'Duplicate or shared item'});
+      const featured=new Set([meta.home?.heroVideoId,...(meta.home?.videoIds||[])]);
+      if(moving.some(i=>featured.has(i.id)))
+        return json(res,409,{error:'Remove the video from homepage selections before moving it'});
+      if(!moving.length)return json(res,200,{ok:true,moved:0,alreadyMoved:ids.length});
+      const backupKey='aml-suabhi/backups/pre-item-move-'+new Date().toISOString().replace(/[:.]/g,'-')+'-'+crypto.randomBytes(4).toString('hex')+'.json';
+      await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:backupKey,Body:JSON.stringify(meta),ContentType:'application/json',CacheControl:'no-cache'}));
+      from.items=from.items.filter(i=>!selected.has(i.id));
+      to.items.push(...moving);
+      if(selected.has(from.cover))from.cover=from.items.find(i=>i.type==='image')?.id||from.items[0]?.id||null;
+      if(!to.cover)to.cover=to.items[0]?.id||null;
+      await writeMeta(meta);
+      return json(res,200,{ok:true,moved:moving.length,sourceCount:from.items.length,destinationCount:to.items.length});
+    }
     if(pathname==='/api/admin/collections'&&req.method==='GET')return json(res,200,publicMeta(await readMeta()));
     if(pathname==='/api/admin/home'&&req.method==='GET')return json(res,200,resolveHome(await readMeta()));
     if(pathname==='/api/admin/home'&&(req.method==='PUT'||req.method==='POST')){
